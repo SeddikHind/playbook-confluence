@@ -130,6 +130,32 @@ tr:last-child td{border-bottom:0}
 td.c{text-align:center}
 select.st{font:inherit;font-size:12px;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--fg);padding:2px 4px}
 
+.jql{font-family:var(--mono);font-size:12px;background:var(--side);border:1px solid var(--line);border-radius:4px;padding:6px 10px;margin:6px 0 12px;overflow-x:auto;white-space:nowrap}
+.jkey{font-family:var(--mono);font-size:12px;color:var(--accent);white-space:nowrap}
+.jicon{display:inline-block;width:14px;height:14px;border-radius:3px;background:#4bade8;vertical-align:-2px;margin-right:6px}
+.jicon.epic{background:#904ee2}
+select.as{font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--fg);padding:2px 4px;max-width:170px}
+details.epic{border:1px solid var(--line);border-radius:6px;margin:12px 0;background:var(--bg)}
+details.epic>summary{list-style:none;cursor:pointer;padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+details.epic>summary::-webkit-details-marker{display:none}
+details.epic>summary::before{content:"▸";color:var(--faint);width:10px}
+details.epic[open]>summary::before{content:"▾"}
+details.epic>summary .t{font-weight:600;font-size:16px}
+details.epic>summary .cnt{margin-left:auto;font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums;display:flex;gap:6px;align-items:center}
+details.epic .body{padding:0 14px 6px;border-top:1px solid var(--line)}
+details.epic.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0 16px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.kpi b{display:block;font-size:22px;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--faint);font-size:12.5px}
+.mini{display:flex;gap:4px;margin-top:6px}
+.mini i{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
+.mini i b{position:absolute;inset:0 auto 0 0;background:var(--lz-green-fg)}
+.mini i.bl b{background:var(--lz-red-fg)}
+table.mx td,table.mx th{text-align:center;vertical-align:middle}
+table.mx td:first-child,table.mx th:first-child{text-align:left}
+table.mx th.cur{background:var(--lz-blue);color:var(--lz-blue-fg)}
+table.mx a.cell{display:block;text-decoration:none}
 .lane-a{background:#8f7fee}.lane-b{background:#fe9f4d}.lane-c{background:#659df2}.lane-d{background:#2dc75c}.lane-g{background:#ffdc4a}
 
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:4px;font-size:13px}
@@ -338,7 +364,9 @@ const RACI = [
 /* ---------- Page definitions ---------- */
 const PAGES = [
  {id:"accueil", tree:"Accueil et mode d'emploi", title:"Accueil et mode d'emploi", top:true, miro:["f00","f02"]},
+ {id:"vue", tree:"Vue d'ensemble", title:"Vue d'ensemble", miro:["f02","f03","f04","f05","f06","f07"]},
  {id:"fiche", tree:"Fiche projet", title:"Fiche projet", miro:["f01"]},
+ {id:"jira", tree:"Mise en place Jira", title:"Mise en place Jira", miro:["f02"]},
  {id:"tableau", tree:"Tableau de bord", title:"Tableau de bord", miro:["f02","f01"]},
  {id:"stream-a", tree:"Stream A · Product et Business", lane:"a"},
  {id:"stream-b", tree:"Stream B · UX Research et Design", lane:"b"},
@@ -457,14 +485,93 @@ const gateLabel=(g,i)=>(g.type==='client'?'Jalon client':'Revue interne')+' · '
 const SYNC=PH.map((p,i)=>Object.values(STREAMS).flatMap(s=>s.phases[i].syn.map(x=>s.name.split(' · ')[0]+' · '+x)));
 const phaseLink=i=>`<a class="phase-link" href="${url(PH[i].f)}" target="_blank" rel="noopener"><span class="miro-dot">M</span>${esc(FRAME_NAMES[PH[i].f])} ↗</a>`;
 
+/* ---------- Jira : une epic par étape, une tâche par activité, un composant par stream ---------- */
+const PRJ="[PRJ]";
+const JSTATUS=[["À faire","grey"],["En cours","blue"],["Bloqué","red"],["Terminé","green"]];
+const STREAM_IDS=["stream-a","stream-b","stream-c","stream-d"];
+const COMP=sid=>STREAMS[sid].name;
+const EPICS=PH.map((p,i)=>({i,key:`${PRJ}-${i+1}`,name:`${p.n} · ${p.name}`,sub:p.sub}));
+function defaultAssignee(sid,i,txt){
+  const m=txt.match(/\bT(0[1-9]|1[0-9]|2[0-4])\b/); if(m&&AR_SRC["T"+m[1]]) return stakeName(AR_SRC["T"+m[1]].D.split(" ")[0]);
+  return {"stream-a":"PO / PPO","stream-b":"UX","stream-c":i<3?"Archis":"Tech lead","stream-d":"[Data lead]"}[sid];
+}
+const JTASKS=[]; (function(){ let n=PH.length;
+  PH.forEach((_,i)=>{ STREAM_IDS.forEach(sid=>{ STREAMS[sid].phases[i].act.forEach((t,j)=>{ n++;
+    JTASKS.push({id:`${sid}-${i}-${j}`,key:`${PRJ}-${n}`,epic:i,sid,lane:STREAMS[sid].lane,txt:t,def:defaultAssignee(sid,i,t)}); }); });
+    n++; JTASKS.push({id:`gate-${i}`,key:`${PRJ}-${n}`,epic:i,sid:null,lane:"g",txt:gateLabel(GATES[i],i),def:"PO / PPO",gate:true});
+  });
+})();
+const jStatus=t=>state["ji__"+t.id+"__s"]||"À faire";
+const jAssignee=t=>state["ji__"+t.id+"__a"]||t.def;
+const ASSIGNEES=STAKE.map(x=>x[1].replace(" · Hicham",""));
+const curStep=()=>{const v=parseInt(state.cur_step,10);return isNaN(v)?1:v;};
+function jStats(list){ const c={total:list.length,done:0,doing:0,blocked:0}; list.forEach(t=>{const v=jStatus(t); if(v==="Terminé")c.done++; else if(v==="En cours")c.doing++; else if(v==="Bloqué")c.blocked++;}); c.pct=c.total?Math.round(c.done/c.total*100):0; return c; }
+function assigneeSelect(t){ const v=jAssignee(t); const opts=ASSIGNEES.includes(v)?ASSIGNEES:[v,...ASSIGNEES];
+  return `<span class="as-v" hidden>${esc(v)}</span><select class="as" data-a="ji__${t.id}__a" aria-label="Assigné">${opts.map(o=>`<option ${o===v?"selected":""}>${esc(o)}</option>`).join("")}</select>`; }
+function jTable(list,showStream=false){
+  return table(["Clé","Tâche",...(showStream?["Stream"]:[]),"Assigné","Statut"],list.map(t=>[`<span class="jkey">${esc(t.key)}</span>`,rich(t.txt),...(showStream?[t.sid?`<span class="lane lane-${t.lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(STREAMS[t.sid].name.split(" · ")[0])}`:"Transverse"]:[]),assigneeSelect(t),statusSelect("ji__"+t.id+"__s",JSTATUS)]));
+}
+const jqlBox=q=>`<div class="jql" title="Requête JQL de la macro Jira">${esc(q)}</div>`;
+function cellLz(c){ if(!c.total) return '<span class="ph">–</span>';
+  if(c.blocked) return `<span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`;
+  if(c.done===c.total) return '<span class="lz green">Terminé</span>';
+  if(c.done) return `<span class="lz blue">${c.pct} %</span>`;
+  if(c.doing) return '<span class="lz blue">En cours</span>';
+  return '<span class="lz grey">À faire</span>'; }
+function csvExport(){
+  const q=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const rows=[["Issue ID","Issue Type","Summary","Parent","Component/s","Assignee","Labels","Description"]];
+  EPICS.forEach((e,i)=>rows.push([i+1,"Epic",`${e.name} · ${e.sub}`,"","","","etape-"+PH[i].n,PH[i].obj]));
+  JTASKS.forEach((t,k)=>{ const m=t.txt.match(/\bT(0[1-9]|1[0-9]|2[0-4])\b/g)||[];
+    rows.push([100+k,"Task",t.txt.replace(/\s?\bT(0[1-9]|1[0-9]|2[0-4])\b/g,"").trim(),t.epic+1,t.sid?COMP(t.sid):"Transverse",jAssignee(t),[t.gate?"jalon":"",...m.map(x=>"atelier-"+x)].filter(Boolean).join(" "),t.gate?GATES[t.epic].c.join(" ; "):(m.length?"Template Miro : "+m.map(x=>x+" "+T_NAMES[x]).join(", "):"")]); });
+  const csv="﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})); a.download="playbook-jira-import.csv"; document.body.appendChild(a); a.click(); a.remove();
+  toast("Fichier CSV téléchargé");
+}
+
 /* ---------- Page bodies ---------- */
 const BODY = {
+ vue(){
+  const cs=curStep(); const all=JTASKS; const tot=jStats(all.filter(t=>!t.gate)); const cur=jStats(all.filter(t=>t.epic===cs&&!t.gate));
+  let h=`<p>La vue de pilotage pour le Sponsor, le Facilitateur et les responsables de stream. Tout est calculé depuis les tâches Jira : rien ne se saisit ici.</p>`
+  +`<div class="fields"><div class="k">Étape en cours</div><div><select class="st" data-s="cur_step" data-rerender="1" aria-label="Étape en cours">${PH.map((p,i)=>`<option value="${i}" ${i===cs?"selected":""}>${esc(p.n+" · "+p.name)}</option>`).join("")}</select></div></div>`
+  +`<div class="kpis"><div class="kpi"><b>${cur.pct} %</b><span>de l'étape ${esc(PH[cs].n)} terminée</span></div><div class="kpi"><b>${cur.blocked}</b><span>tâche${cur.blocked>1?"s":""} bloquée${cur.blocked>1?"s":""}</span></div><div class="kpi"><b>${tot.pct} %</b><span>du projet terminé</span></div><div class="kpi"><b>${esc(GATES[cs].t)}</b><span>${GATES[cs].type==="client"?"Prochain jalon client":"Prochaine revue interne"} · [Date]</span></div></div>`
+  +`<h2>Avancement par stream et par étape</h2><p>Une colonne par epic, une ligne par composant. Cliquez sur une case pour ouvrir la page du stream.</p>`;
+  const head=["Stream",...PH.map(p=>p.n)];
+  const head2=0; const rows=STREAM_IDS.map(sid=>[`<a href="#${sid}"><span class="lane lane-${STREAMS[sid].lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(STREAMS[sid].name.split(/,| et /)[0])}</a>`,...PH.map((_,i)=>`<a class="cell" href="#${sid}">${cellLz(jStats(all.filter(t=>t.sid===sid&&t.epic===i)))}</a>`)]);
+  const gateRow=["<strong>Jalon ou revue</strong>",...PH.map((_,i)=>{const d=state[`gates__dec__${i}`]||"À décider";const c={"Go":"green","Ajustements":"yellow","No-Go":"red"}[d]||"grey";return `<a class="cell" href="#gates" title="${esc(gateLabel(GATES[i],i))}"><span class="lz ${c}">${esc(d==="À décider"?"À venir":d)}</span></a>`;})];
+  h+=`<div class="tbl-wrap"><table class="mx"><thead><tr>${head.map((x,i)=>`<th class="${i-1===cs?"cur":""}" title="${i?esc(PH[i-1].n+" · "+PH[i-1].name):""}">${esc(x)}</th>`).join("")}</tr></thead><tbody>${[...rows,gateRow].map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`
+  +panel("Dans Confluence","<p>Ce tableau correspond à la macro Jira <strong>Two-dimensional filter statistics</strong> : axe X = Epic, axe Y = Component, sur le filtre ci-dessous.</p>"+jqlBox(`project = ${PRJ} AND issuetype = Task ORDER BY "Epic Link"`));
+  const bl=all.filter(t=>jStatus(t)==="Bloqué");
+  h+=`<h2>Blocages</h2>`+(bl.length?jTable(bl,true):`<p class="ph">Aucune tâche bloquée.</p>`);
+  const g=GATES[cs]; const done=g.c.filter((_,j)=>state[`gates__g${cs}__${j}`]).length;
+  h+=`<h2>Préparation : ${esc(gateLabel(g,cs))}</h2><p>${done}/${g.c.length} critères remplis. Les critères se cochent dans <a href="#gates">Jalons et revues</a>.</p>`
+   +`<ul class="list" style="list-style:none;padding-left:0">${g.c.map((c,j)=>`<li>${state[`gates__g${cs}__${j}`]?"✅":"⬜"} ${esc(c)}</li>`).join("")}</ul>`;
+  const by={}; all.filter(t=>!t.gate&&jStatus(t)!=="Terminé").forEach(t=>{const a=jAssignee(t);by[a]=by[a]||{cur:0,all:0,bl:0};by[a].all++;if(t.epic===cs)by[a].cur++;if(jStatus(t)==="Bloqué")by[a].bl++;});
+  h+=`<h2>Charge par personne</h2><p>Tâches ouvertes par assigné. À remplacer par les vrais noms une fois les tâches assignées dans Jira.</p>`
+   +table(["Assigné",`Étape ${PH[cs].n}`,"Tout le projet","Bloquées"],Object.entries(by).sort((a,b)=>b[1].cur-a[1].cur||b[1].all-a[1].all).map(([a,v])=>[esc(a),String(v.cur),String(v.all),v.bl?`<span class="lz red">${v.bl}</span>`:"0"]),true);
+  return h;
+ },
+ jira(){
+  return `<p>Le suivi des actions se fait dans Jira. Confluence garde la méthode, les décisions et les comptes-rendus, et affiche les tâches Jira grâce aux macros.</p>`
+  +`<h2>Structure du projet Jira</h2>`
+  +fields([["Projet",`${PRJ} · [Nom du projet]`],["Epics","Une par étape de la démarche, soit 6 epics"],["Tâches","Une par activité du playbook, rattachée à l'epic de son étape"],["Composants","Un par stream : A, B, C, D, plus Transverse pour les jalons"],["Assigné","La personne concernée. Proposition par défaut : le Doer de l'atelier ou le responsable du stream"],["Labels",'atelier-T01 à atelier-T24 pour relier une tâche à son template Miro, jalon pour les jalons et revues']])
+  +`<h3>Epics</h3>`+table(["Clé","Epic","Se termine par"],EPICS.map((e,i)=>[`<span class="jkey">${esc(e.key)}</span>`,`<span class="jicon epic"></span>${esc(e.name)} <span class="lz purple">${esc(e.sub)}</span>`,esc(gateLabel(GATES[i],i))]))
+  +`<h3>Composants</h3>`+table(["Composant","Responsable","Tâches"],[...STREAM_IDS.map(sid=>[`<span class="lane lane-${STREAMS[sid].lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(COMP(sid))}`,'<span class="ph">[Responsable]</span>',String(JTASKS.filter(t=>t.sid===sid).length)]),["Transverse",'<span class="ph">[Facilitateur Digital Factory]</span>',String(JTASKS.filter(t=>t.gate).length)]])
+  +`<h3>Workflow</h3><p>${JSTATUS.map(([n,c])=>`<span class="lz ${c}">${esc(n)}</span>`).join(" → ")}. Une tâche « Bloqué » remonte automatiquement dans la Vue d'ensemble.</p>`
+  +`<h2>Créer le projet en 15 minutes</h2>`+tasks("jira","setup",["Créer le projet Jira (modèle Scrum ou Kanban) avec la clé du projet","Créer les 5 composants : les 4 streams et Transverse","Télécharger le CSV ci-dessous et l'importer (Paramètres système › Import externe › CSV)","Pendant l'import, faire correspondre la colonne Assignee aux vrais comptes Jira","Vérifier que chaque tâche est assignée à la bonne personne","Dans chaque page stream de Confluence, remplacer [PRJ] par la clé du projet dans la macro Jira"],false)
+  +`<p><button class="btn" type="button" id="csvBtn">Télécharger le CSV d'import Jira</button> <span class="meta">${EPICS.length} epics · ${JTASKS.length} tâches, avec les assignés actuels</span></p>`
+  +`<h2>Macros Jira dans Confluence</h2>`+table(["Page","Macro","Filtre JQL"],[
+     ["Vue d'ensemble","Two-dimensional filter statistics (Epic × Component)",`<code>project = ${PRJ} AND issuetype = Task</code>`],
+     ...STREAM_IDS.map(sid=>[`<a href="#${sid}">Stream ${esc(STREAMS[sid].name.split(" · ")[0])}</a>`,"Jira Issues (tableau)",`<code>project = ${PRJ} AND component = "${esc(COMP(sid))}"</code>`]),
+     ["Jalons et revues","Jira Issues",`<code>project = ${PRJ} AND labels = jalon</code>`]]);
+ },
  accueil(){
   return panel("Page parent du projet","<p>Toutes les autres pages sont ses sous-pages. Pour démarrer un nouveau projet, copiez cette page avec toutes ses sous-pages.</p>")
   +`<h2>Démarrer un nouveau projet en 10 minutes</h2>`
-  +tasks("accueil","start",["Copier la page « [Nom du projet] · Accueil » avec l'option d'inclure les pages enfants","Renommer chaque page : remplacer [Nom du projet] par le nom réel (titres uniques dans l'espace)","Supprimer le préfixe « Copie de » ajouté par Confluence","Dupliquer le board Miro « Digital Transformation Playbook »","Mettre à jour la page Liens Miro avec les liens du board dupliqué","Compléter la Fiche projet","Nommer un responsable par stream et le mentionner (@) dans sa page","Planifier le Project Kick-off T01, les 4 jalons client et les 2 revues internes dans le Tableau de bord"],false)
+  +tasks("accueil","start",["Copier la page « [Nom du projet] · Accueil » avec l'option d'inclure les pages enfants","Renommer chaque page : remplacer [Nom du projet] par le nom réel (titres uniques dans l'espace)","Supprimer le préfixe « Copie de » ajouté par Confluence","Dupliquer le board Miro « Digital Transformation Playbook »","Mettre à jour la page Liens Miro avec les liens du board dupliqué","Créer le projet Jira depuis la page Mise en place Jira (6 epics, une tâche par activité) et assigner chaque tâche","Compléter la Fiche projet","Nommer un responsable par stream et le mentionner (@) dans sa page","Planifier le Project Kick-off T01, les 4 jalons client et les 2 revues internes dans le Tableau de bord"],false)
   +`<h2>Arborescence</h2><ul class="list">${PAGES.filter(p=>!p.top).map(p=>`<li><a href="#${p.id}">${esc(p.tree)}</a></li>`).join("")}</ul>`
-  +`<h2>Règles du jeu</h2>`+list(["Les 4 streams avancent en parallèle dans chaque étape de la démarche. Ce ne sont pas des étapes successives.","Chaque étape se termine par un jalon client ou une revue interne commune : Business, Design, Architecture et Data décident ensemble.","Le statut des livrables se suit uniquement dans le Tableau de bord.","Les ateliers se font dans Miro. Confluence garde la trace : décisions, actions, livrables.","Chaque case cochée a un responsable (@) et une date."])
+  +`<h2>Règles du jeu</h2>`+list(["Les 4 streams avancent en parallèle dans chaque étape de la démarche. Ce ne sont pas des étapes successives.","Chaque étape se termine par un jalon client ou une revue interne commune : Business, Design, Architecture et Data décident ensemble.","Les actions se suivent dans Jira : une epic par étape, une tâche par activité, un composant par stream, chaque tâche assignée à une personne.","Chaque responsable suit son stream dans sa page, tout le monde suit le projet dans la Vue d'ensemble.","Les ateliers se font dans Miro. Confluence garde la trace : décisions, actions, livrables.","Chaque case cochée a un responsable (@) et une date."])
   +`<h2>Les 6 étapes</h2><p>Démarche méthodologique partagée avec le client. Notre phase de travail est indiquée pour chaque étape.</p>`+list(PH.map(p=>`${p.n} · ${p.name} · ${p.sub}`));
  },
  fiche(){
@@ -478,7 +585,7 @@ const BODY = {
  },
  tableau(){
   let h=panel("","<p>Seule source de vérité pour l'avancement. Mettre à jour après chaque atelier, chaque jalon et chaque revue.</p>")
-  +`<h2>Avancement par étape</h2>`+table(["Étape","Statut","Jalon ou revue prévu le"],PH.map((p,i)=>[`${esc(phaseTitle(i))} <a class="tchip" href="${url(p.f)}" target="_blank" rel="noopener">Miro</a>`,statusSelect(`tableau__phase__${i}`),'<span class="ph">[Date]</span>']));
+  +`<h2>Avancement par étape</h2><p>Le pourcentage vient des tâches Jira. Le détail par stream est dans la <a href="#vue">Vue d'ensemble</a>.</p>`+table(["Étape","Tâches Jira terminées","Statut","Jalon ou revue prévu le"],PH.map((p,i)=>{const c=jStats(JTASKS.filter(t=>t.epic===i&&!t.gate));return [`${esc(phaseTitle(i))} <a class="tchip" href="${url(p.f)}" target="_blank" rel="noopener">Miro</a>`,`${c.done}/${c.total} · ${c.pct} %`,statusSelect(`tableau__phase__${i}`),'<span class="ph">[Date]</span>'];}));
   LIVRABLES.forEach((ls,i)=>{
    h+=`<h2>Livrables · ${esc(phaseTitle(i))}</h2>`+table(["Livrable","Statut","Responsable","Échéance"],ls.map((l,j)=>[esc(l),statusSelect(`tableau__liv__${i}__${j}`),'<span class="ph">[Responsable]</span>','<span class="ph">[Date]</span>']));
   });
@@ -585,17 +692,26 @@ const BODY = {
  }
 };
 function streamBody(id){
-  const s=STREAMS[id];
-  let h=fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]])
-   +panel("Comment utiliser cette page","<p>Cochez les activités au fil de l'eau, avec un responsable (@) et une date sur chaque ligne. Le statut des livrables se met à jour dans le <a href=\"#tableau\">Tableau de bord</a>. Les codes T01 à T24 ouvrent le template d'atelier dans Miro.</p>");
+  const s=STREAMS[id]; const cs=curStep(); const mine=JTASKS.filter(t=>t.sid===id);
+  const cur=jStats(mine.filter(t=>t.epic===cs)); const tot=jStats(mine);
+  let h=fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]]);
+  h+=`<h2>Où j'en suis</h2>`
+   +`<div class="kpis"><div class="kpi"><b>${esc(PH[cs].n)} · ${esc(PH[cs].name)}</b><span>Étape en cours (réglée dans la <a href="#vue">Vue d'ensemble</a>)</span></div><div class="kpi"><b>${cur.done}/${cur.total}</b><span>tâches de l'étape terminées</span></div><div class="kpi"><b>${cur.blocked}</b><span>tâche${cur.blocked>1?"s":""} bloquée${cur.blocked>1?"s":""}</span></div><div class="kpi"><b>${esc(GATES[cs].t)}</b><span>${GATES[cs].type==="client"?"Prochain jalon client":"Prochaine revue interne"} · [Date]</span></div></div>`
+   +`<div class="mini" title="Avancement par étape">${PH.map((_,i)=>{const c=jStats(mine.filter(t=>t.epic===i));return `<i class="${c.blocked?"bl":""}" title="${esc(PH[i].n+" · "+PH[i].name)} : ${c.pct} %"><b style="width:${c.pct}%"></b></i>`;}).join("")}</div>`
+   +`<p class="meta">${tot.done}/${tot.total} tâches terminées sur tout le projet</p>`;
   const ts=STREAM_T[s.lane]||[];
   h+=`<h2>Ateliers du stream</h2><p>Dans l'ordre des étapes, comme la bande du stream dans Miro. Le Facilitator est le Facilitateur Digital Factory sur chaque atelier.</p>`
    +table(["Atelier","Étape","Doer (anime le contenu)"],ts.map(([k,st])=>[`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(T_NAMES[k])}`,esc(st),esc(doersOf(k))]));
+  h+=`<h2>Mes tâches Jira, par epic</h2>`
+   +panel("Dans Confluence","<p>Chaque tableau ci-dessous est une macro <strong>Jira Issues</strong>. Le statut et l'assigné se modifient dans Jira, la page se met à jour seule.</p>"+jqlBox(`project = ${PRJ} AND component = "${COMP(id)}" ORDER BY "Epic Link", rank`));
   s.phases.forEach((p,i)=>{
-   h+=`<h2>${phaseHead(i)}</h2>${phaseLink(i)}<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
-    +`<h3>Activités</h3>`+tasks(id,"p"+i+"a",p.act)
-    +`<h3>Contributions aux livrables communs</h3>`+tasks(id,"p"+i+"c",p.con,false)
-    +`<h3>Synchronisation</h3>`+tasks(id,"p"+i+"s",p.syn,false);
+   const list=mine.filter(t=>t.epic===i); const c=jStats(list);
+   h+=`<details class="epic${i===cs?" cur":""}" data-i="${i}" ${i===cs?"open":""}><summary><span class="jkey">${esc(EPICS[i].key)}</span><span class="t">${esc(PH[i].n+" · "+PH[i].name)}</span><span class="lz purple">${esc(PH[i].sub)}</span>${i===cs?'<span class="lz blue">En cours</span>':""}<span class="cnt">${c.done}/${c.total}${c.blocked?` · <span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`:""}</span></summary><div class="body">`
+    +`${phaseLink(i)}<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
+    +jTable(list)
+    +`<h3>Ce que je dois livrer</h3>`+tasks(id,"p"+i+"c",p.con,false)
+    +`<h3>Engagements avec les autres streams</h3>`+tasks(id,"p"+i+"s",p.syn,false)
+    +`</div></details>`;
   });
   return h;
 }
@@ -611,7 +727,8 @@ function renderTree(cur){
   treeEl.innerHTML=`<li><a href="#${top.id}" ${cur===top.id?'aria-current="page"':""}><span class="bullet"></span>[Nom du projet] · Accueil</a></li>`
    +PAGES.filter(p=>!p.top).map(p=>`<li class="child"><a href="#${p.id}" ${cur===p.id?'aria-current="page"':""}>${p.lane?`<span class="lane lane-${p.lane}"></span>`:'<span class="bullet"></span>'}<span>${esc(p.tree)}</span></a></li>`).join("");
 }
-function render(){
+function render(keep){
+  const y=window.scrollY; const opened=[...pageEl.querySelectorAll("details.epic[open]")].map(d=>d.dataset.i);
   let id=(location.hash||"").slice(1); if(!PAGES.find(p=>p.id===id)) id="accueil";
   const p=PAGES.find(x=>x.id===id); taskCounter=0;
   const body=STREAMS[id]?streamBody(id):BODY[id]();
@@ -625,11 +742,16 @@ function render(){
   document.getElementById("copyBtn").onclick=copyPage;
   document.getElementById("side").classList.remove("open");
   document.getElementById("menuBtn").setAttribute("aria-expanded","false");
-  window.scrollTo(0,0);
+  if(keep){ pageEl.querySelectorAll("details.epic").forEach(d=>{ d.open=opened.includes(d.dataset.i); }); window.scrollTo(0,y); }
+  else window.scrollTo(0,0);
+  const cb=document.getElementById("csvBtn"); if(cb) cb.onclick=csvExport;
 }
 function updateProgress(){
-  const boxes=[...pageEl.querySelectorAll(".tasks input")];
   const prog=document.getElementById("prog"); if(!prog) return;
+  const jsel=[...pageEl.querySelectorAll('details.epic select.st[data-s^="ji__"]')];
+  if(jsel.length){ const d=jsel.filter(x=>x.value==="Terminé").length, pc=Math.round(d/jsel.length*100); prog.innerHTML=`<span class="bar"><i style="width:${pc}%"></i></span><span style="font-variant-numeric:tabular-nums">${d}/${jsel.length} tâches Jira</span>`; return; }
+  const boxes=[...pageEl.querySelectorAll(".tasks input")];
+  if(pageEl.querySelector("table.mx")){prog.textContent="";return;}
   if(!boxes.length){prog.textContent="";return;}
   const done=boxes.filter(b=>b.checked).length, pct=Math.round(done/boxes.length*100);
   prog.innerHTML=`<span class="bar"><i style="width:${pct}%"></i></span><span style="font-variant-numeric:tabular-nums">${done}/${boxes.length} tâches</span>`;
@@ -637,13 +759,14 @@ function updateProgress(){
 pageEl.addEventListener("change",e=>{
   const t=e.target;
   if(t.matches(".tasks input")){ if(t.checked) state[t.dataset.k]=true; else delete state[t.dataset.k]; save(); updateProgress(); }
-  if(t.matches("select.st")){ state[t.dataset.s]=t.value; save(); const lz=t.previousElementSibling; const opt=[...STATUS,["À décider","grey"],["Go","green"],["Ajustements","yellow"],["No-Go","red"]].find(o=>o[0]===t.value); lz.className="lz "+(opt?opt[1]:"grey"); lz.textContent=t.value; }
+  if(t.matches("select.st")){ state[t.dataset.s]=t.value; save(); if(t.dataset.rerender||t.dataset.s.startsWith("ji__")){ render(true); return; } const lz=t.previousElementSibling; const opt=[...STATUS,...JSTATUS,["À décider","grey"],["Go","green"],["Ajustements","yellow"],["No-Go","red"]].find(o=>o[0]===t.value); lz.className="lz "+(opt?opt[1]:"grey"); lz.textContent=t.value; }
+  if(t.matches("select.as")){ state[t.dataset.a]=t.value; save(); render(true); }
 });
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200);}
 async function copyPage(){
   const src=document.getElementById("content").cloneNode(true);
   src.querySelectorAll(".tasks li").forEach(li=>{const cb=li.querySelector("input");const lab=li.querySelector("label");li.innerHTML=(cb.checked?"☑ ":"☐ ")+lab.innerHTML;});
-  src.querySelectorAll("select").forEach(s=>s.remove());
+  src.querySelectorAll(".as-v").forEach(x=>x.hidden=false); src.querySelectorAll("details").forEach(d=>d.open=true); src.querySelectorAll("select").forEach(s=>s.remove());
   const title=pageEl.querySelector("h1").textContent;
   const miro=pageEl.querySelector(".miro").cloneNode(true);
   const html=`<h1>${esc(title)}</h1>`+`<p><strong>Dans Miro :</strong> ${[...miro.querySelectorAll("a")].map(a=>`<a href="${a.href}">${esc(a.textContent)}</a>`).join(" · ")}</p>`+src.innerHTML;
@@ -660,7 +783,7 @@ async function copyPage(){
   }
 }
 document.getElementById("menuBtn").onclick=e=>{const s=document.getElementById("side");const o=s.classList.toggle("open");e.currentTarget.setAttribute("aria-expanded",o);};
-window.addEventListener("hashchange",render);
+window.addEventListener("hashchange",()=>render());
 render();
 </script>
 </body></html>
