@@ -177,7 +177,8 @@ const W = {
   T05:"3458764689124849396", T06:"3458764689124849397", T07:"3458764689125046318", T08:"3458764689125046319",
   T09:"3458764689125046320", T10:"3458764689125046321", T11:"3458764689125046322", T12:"3458764689125046323",
   T13:"3458764689125046324", T14:"3458764689125140702", T15:"3458764689125140703", T16:"3458764689125140704",
-  T17:"3458764689125140705", T18:"3458764689125140706", T19:"3458764689125140707"
+  T17:"3458764689125140705", T18:"3458764689125140706", T19:"3458764689125140707",
+  T20:"3458764689202293767", T21:"3458764689202494054", T22:"3458764689202494055", T23:"3458764689202494056", T24:"3458764689202293768"
 };
 const FRAME_NAMES = {
   f00:"00 · Start Here", f01:"01 · Project Setup", f02:"02 · Roadmap de transformation",
@@ -189,7 +190,8 @@ const T_NAMES = {
   T06:"The Friction Hunt", T07:"Technical Architecture Assessment", T08:"Application Mapping", T09:"API & Integration Mapping",
   T10:"How Might We", T11:"Ideation Workshop", T12:"Impact / Effort Prioritization", T13:"Target Architecture Workshop",
   T14:"Customer Journey Co-design", T15:"User Testing", T16:"Experience Blueprint", T17:"MVP Definition",
-  T18:"Product Roadmap", T19:"Delivery Readiness Review"
+  T18:"Product Roadmap", T19:"Delivery Readiness Review",
+  T20:"Value at Stake", T21:"Data et Tracking Audit", T22:"KPI Tree", T23:"Plan de mesure", T24:"Restitution et REX"
 };
 const url = k => BOARD + "?moveToWidget=" + W[k];
 const PH = [
@@ -210,10 +212,10 @@ const STREAMS = {
    {act:["1-0 · Définition de la problématique (note d'opportunité) et Product Vision V1","1-0 · Confrontation de la compréhension avec le sponsor","1-0 · Clarification de l'approche, formalisation de l'équipe et sécurisation des ressources","1-0 · Planning des étapes et des parties prenantes","Cartographie des acteurs T02","1-0 · Kick-off global et mise en place de la gouvernance T01","1-0 · Création du backlog Jira avec les jalons"],
     con:["Document de Kick-off","Note d'opportunité","Product Vision V1","Projet Jira"],
     syn:["Utilisateurs et experts à impliquer identifiés avec le stream B","Dépendances avec les autres squads et core systems identifiées avec le stream C"]},
-   {act:["1-1 · Analyse et synthèse des tendances en messages clés, idées et hypothèses","1-2 · Diagnostic des processus existants et du modèle opérationnel actuel","1-3 · Estimation initiale de la Value at Stake","Identification des risques et dépendances","1-2 · Product Vision V2"],
+   {act:["1-1 · Analyse et synthèse des tendances en messages clés, idées et hypothèses","1-2 · Diagnostic des processus existants et du modèle opérationnel actuel","1-3 · Estimation initiale de la Value at Stake T20","Identification des risques et dépendances","1-2 · Product Vision V2"],
     con:["Diagnostic externe (volet business)","Product Vision V2"],
     syn:["Messages clés partagés avec le Design et la Tech pour la synthèse des pain points"]},
-   {act:["2-1 · Atelier d'idéation et priorisation des idées T12","2-3 · Revue de l'impact de la transformation (Value at Stake), valeur par user story","2-3 · Évaluation des impacts processus et du coût d'implémentation des processus","2-3 · Mise en place du modèle opérationnel potentiel","2-3 · Mise à jour de la feuille de route","2-3 · Product Vision V4 (Business Goals)"],
+   {act:["2-1 · Atelier d'idéation et priorisation des idées T12","2-3 · Revue de l'impact de la transformation (Value at Stake), valeur par user story T20","2-3 · Évaluation des impacts processus et du coût d'implémentation des processus","2-3 · Mise en place du modèle opérationnel potentiel","2-3 · Mise à jour de la feuille de route","2-3 · Product Vision V4 (Business Goals)"],
     con:["Deck d'évaluation des impacts","Product Vision V4"],
     syn:["Vision cible transmise à l'Architecture pour le GAP IT (2-2, stream C)","Business goals traduits en KPIs de valeur et d'adoption avec le stream D"]},
    {act:["3-1 · Priorisation des sous-parcours, des Epics et US, et scope du MVP T17","3-1 · Feuille de route de développement et de déploiement T18","3-1 · Mise à jour de la Value at Stake et Definition of Ready","3-2 · User stories des 3 premiers sprints (Definition of Ready)","3-2 · Revue avec les parties prenantes et comités de suivi","3-4 · Feuille de route détaillée des sprints, release planning inter-squads","3-4 · Plan de change management"],
@@ -222,7 +224,7 @@ const STREAMS = {
    {act:["4-1 · Rituels : sprint planning, daily, sprint review, comité de suivi, rétrospective","4-1 · Backlog refinement (5 à 10 % de la capacité)","4-2 · Recette métier (sprint de consolidation)","4-3 · Feuille de route de déploiement, pilote et Go / No-Go","4-3 · Communication, formation et supports clés","4-3 · Déploiement du modèle opérationnel et accompagnement au changement","4-4 · Planification des releases subséquentes"],
     con:["MVP validé par les métiers","Supports de formation","Stratégie de déploiement","Roadmap produit à jour"],
     syn:["Feedbacks utilisateurs (stream B) et indicateurs (stream D) intégrés aux arbitrages de backlog"]},
-   {act:["5-1 · Restitution du MVP","5-1 · Partage du REX et capitalisation des bonnes pratiques","5-3 · Remontée et arbitrage des feedbacks utilisateurs","5-3 · Intégration au backlog et à la feuille de route produit","5-3 · Décision sur la suite : nouvelle release, extension ou arrêt (Program Director, Sponsors)"],
+   {act:["5-1 · Restitution du MVP T24","5-1 · Partage du REX et capitalisation des bonnes pratiques T24","5-3 · Remontée et arbitrage des feedbacks utilisateurs","5-3 · Intégration au backlog et à la feuille de route produit","5-3 · Décision sur la suite : nouvelle release, extension ou arrêt (Program Director, Sponsors)"],
     con:["Document de REX","Décision Go / No-Go documentée"],
     syn:["Bilan des KPIs (stream D) présenté à la restitution"]}
   ]},
@@ -276,13 +278,13 @@ const STREAMS = {
    {act:["Identification des données et des accès nécessaires","Demandes d'accès aux sources de données"],
     con:["Document de Kick-off (volet data)"],
     syn:["Accès data inscrits au planning des étapes (stream A)"]},
-   {act:["1-1 · Définition des sources de données pertinentes","1-1 · Collecte des données quantitatives (volumétrie, KPIs)","1-2 · Analyse des données mobilisées et de leur qualité","Audit du tracking existant et des lacunes de mesure"],
+   {act:["1-1 · Définition des sources de données pertinentes","1-1 · Collecte des données quantitatives (volumétrie, KPIs)","1-2 · Analyse des données mobilisées et de leur qualité T21","Audit du tracking existant et des lacunes de mesure T21"],
     con:["Diagnostic externe (volet data)"],
     syn:["Volumétries et KPIs partagés pour prioriser les pain points (stream B)"]},
-   {act:["2-3 · Traduction en KPIs de valeur et d'adoption, mise en place du suivi","Exploration des opportunités Data et IA"],
+   {act:["2-3 · Traduction en KPIs de valeur et d'adoption, mise en place du suivi T22","Exploration des opportunités Data et IA"],
     con:["Deck d'évaluation des impacts (volet KPIs)"],
     syn:["Besoins data intégrés à l'architecture cible (2-2, stream C)"]},
-   {act:["3-4 · KPIs de suivi de la solution","Plan de marquage et événements de tracking","Préparation des dashboards de suivi"],
+   {act:["3-4 · KPIs de suivi de la solution T23","Plan de marquage et événements de tracking T23","Préparation des dashboards de suivi"],
     con:["Support : plan de mesure (annexe du Deck MVP)"],
     syn:["Tracking intégré aux US des premiers sprints (stream C)"]},
    {act:["4-1 · Indicateurs de suivi","4-3 · Mise à jour des indicateurs","Implémentation et contrôle qualité du tracking"],
@@ -360,7 +362,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 function rich(text){
   // placeholders in grey, T-codes as Miro chips
   let h=esc(text).replace(/\[[^\]]+\]/g,m=>`<span class="ph">${m}</span>`);
-  return h.replace(/\s?\bT(0[1-9]|1[0-9])\b/g,(m,n)=>{const k="T"+n;return ` <a class="tchip" href="${url(k)}" target="_blank" rel="noopener" title="Ouvrir le template ${esc(T_NAMES[k])} dans Miro">${k}</a>`;});
+  return h.replace(/\s?\bT(0[1-9]|1[0-9]|2[0-4])\b/g,(m,n)=>{const k="T"+n;return ` <a class="tchip" href="${url(k)}" target="_blank" rel="noopener" title="Ouvrir le template ${esc(T_NAMES[k])} dans Miro">${k}</a>`;});
 }
 let taskCounter=0;
 function tasks(pageId, group, items, withMeta=true){
@@ -500,7 +502,7 @@ const BODY = {
   const lz=(k)=>{const r=ROLES.find(x=>x[0]===k);return `<span class="lz ${r[3]}">${k}</span> <strong>${r[1]}</strong>`;};
   const STEPS=[
    {t:"Étape 1 · Préparer", w:"5 à 2 jours avant l'atelier", items:{
-     F:["Définir l'objectif de l'atelier et le résultat attendu","Choisir le template Miro (T01 à T19) et le dupliquer","Attribuer un rôle à chaque invité et l'indiquer dans l'invitation","Envoyer l'invitation avec l'agenda et les inputs à lire"],
+     F:["Définir l'objectif de l'atelier et le résultat attendu","Choisir le template Miro (T01 à T24) et le dupliquer","Attribuer un rôle à chaque invité et l'indiquer dans l'invitation","Envoyer l'invitation avec l'agenda et les inputs à lire"],
      V:["Valider l'objectif, le résultat attendu et la liste des invités"],
      D:["Préparer les inputs : données, existant, maquettes, analyses","Pré-remplir les zones du template quand c'est utile"],
      P:["Lire les inputs avant l'atelier"],
@@ -547,7 +549,7 @@ const BODY = {
  },
  "cr-atelier"(){
   return panel("Modèle","<p>À dupliquer comme sous-page de « Comptes-rendus d'ateliers » après chaque atelier. Titre conseillé : [Nom du projet] · CR · [Nom de l'atelier] · [Date].</p>")
-  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T19 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Étape","[00 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
+  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T24 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Étape","[00 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
   +`<h2>Rôles de l'atelier</h2><p>Voir <a href="#roles-atelier">Rôles en atelier</a> pour ce que chaque rôle fait à chaque étape.</p>`
   +fields([["F · Facilitator","[Responsable]"],["V · Validator","[Responsable] (une seule personne par décision)"],["D · Doers","[Noms]"],["P · Participants","[Noms et rôles]"],["I · Informed","[Noms] · reçoivent ce compte-rendu"]])
   +`<h2>Objectif de l'atelier</h2><p class="ph">[Ce que l'atelier devait produire]</p>`
@@ -561,7 +563,7 @@ const BODY = {
 function streamBody(id){
   const s=STREAMS[id];
   let h=fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]])
-   +panel("Comment utiliser cette page","<p>Cochez les activités au fil de l'eau, avec un responsable (@) et une date sur chaque ligne. Le statut des livrables se met à jour dans le <a href=\"#tableau\">Tableau de bord</a>. Les codes T01 à T19 ouvrent le template d'atelier dans Miro.</p>");
+   +panel("Comment utiliser cette page","<p>Cochez les activités au fil de l'eau, avec un responsable (@) et une date sur chaque ligne. Le statut des livrables se met à jour dans le <a href=\"#tableau\">Tableau de bord</a>. Les codes T01 à T24 ouvrent le template d'atelier dans Miro.</p>");
   s.phases.forEach((p,i)=>{
    h+=`<h2>${phaseHead(i)}</h2>${phaseLink(i)}<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
     +`<h3>Activités</h3>`+tasks(id,"p"+i+"a",p.act)
