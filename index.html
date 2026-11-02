@@ -170,9 +170,10 @@ select.st{font:inherit;font-size:12px;border:1px solid var(--line);border-radius
 <script>
 const BOARD = "https://miro.com/app/board/uXjVESgx69w=/";
 const W = {
-  f00:"3458764689125498822", f01:"3458764689125498823", f02:"3458764689124287390",
+  f00:"3458764689125498822", f01:"3458764689125498823", f02:"3458764689186883782",
   f03:"3458764689124497867", f04:"3458764689124497868", f05:"3458764689124497869",
-  f06:"3458764689124497870", f07:"3458764689124497871", f08:"3458764689125498824", f09:"3458764689125372073",
+  f06:"3458764689124497870", f07:"3458764689124497871",
+  la:"3458764689201069752", lb:"3458764689201069753", lc:"3458764689201069754", ld:"3458764689201069755",
   T01:"3458764689124849392", T02:"3458764689124849393", T03:"3458764689124849394", T04:"3458764689124849395",
   T05:"3458764689124849396", T06:"3458764689124849397", T07:"3458764689125046318", T08:"3458764689125046319",
   T09:"3458764689125046320", T10:"3458764689125046321", T11:"3458764689125046322", T12:"3458764689125046323",
@@ -181,9 +182,10 @@ const W = {
   T20:"3458764689202293767", T21:"3458764689202494054", T22:"3458764689202494055", T23:"3458764689202494056", T24:"3458764689202293768"
 };
 const FRAME_NAMES = {
-  f00:"00 · Start Here", f01:"01 · Project Setup", f02:"02 · Roadmap de transformation",
+  f00:"00 · Start Here", f01:"01 · Project Setup", f02:"02 bis · Roadmap · Démarche client",
   f03:"03 · Étape 01 · Diagnostic", f04:"04 · Étape 02 · Design base zéro", f05:"05 · Étape 03 · Design détaillé du MVP",
-  f06:"06 · Étape 04 · Dev Agile, test et déploiement", f07:"07 · Étape 05 · Post-MVP", f08:"08 · Workshop Library", f09:"09 · Governance & Tracking"
+  f06:"06 · Étape 04 · Dev Agile, test et déploiement", f07:"07 · Étape 05 · Post-MVP",
+  la:"Ateliers · Stream A · Product et Business", lb:"Ateliers · Stream B · UX Research et Design", lc:"Ateliers · Stream C · Architecture et Technology", ld:"Ateliers · Stream D · Data, Analytics et Performance"
 };
 const T_NAMES = {
   T01:"Project Kick-off", T02:"Stakeholder Mapping", T03:"UX Audit", T04:"User Interviews", T05:"User Journey Mapping",
@@ -337,19 +339,19 @@ const RACI = [
 const PAGES = [
  {id:"accueil", tree:"Accueil et mode d'emploi", title:"Accueil et mode d'emploi", top:true, miro:["f00","f02"]},
  {id:"fiche", tree:"Fiche projet", title:"Fiche projet", miro:["f01"]},
- {id:"tableau", tree:"Tableau de bord", title:"Tableau de bord", miro:["f02","f09"]},
+ {id:"tableau", tree:"Tableau de bord", title:"Tableau de bord", miro:["f02","f01"]},
  {id:"stream-a", tree:"Stream A · Product et Business", lane:"a"},
  {id:"stream-b", tree:"Stream B · UX Research et Design", lane:"b"},
  {id:"stream-c", tree:"Stream C · Architecture et Technology", lane:"c"},
  {id:"stream-d", tree:"Stream D · Data, Analytics et Performance", lane:"d"},
  {id:"gates", tree:"Jalons et revues", title:"Jalons et revues", lane:"g", miro:["f02","f03","f04","f05","f06","f07"]},
  {id:"sync", tree:"Synchronisation Design et Tech", title:"Synchronisation Design et Tech", miro:["f02"]},
- {id:"gouvernance", tree:"Gouvernance", title:"Gouvernance", miro:["f09"]},
- {id:"roles-atelier", tree:"Rôles en atelier", title:"Rôles en atelier", miro:["f08","f00"]},
+ {id:"gouvernance", tree:"Gouvernance", title:"Gouvernance", miro:["f01"]},
+ {id:"roles-atelier", tree:"Rôles en atelier", title:"Rôles en atelier", miro:["la","lb","lc","ld"]},
  {id:"miro", tree:"Liens Miro", title:"Liens Miro du projet", miro:["f00"]},
- {id:"cr-atelier", tree:"Modèle · Compte-rendu d'atelier", title:"Modèle · Compte-rendu d'atelier", miro:["f08"]}
+ {id:"cr-atelier", tree:"Modèle · Compte-rendu d'atelier", title:"Modèle · Compte-rendu d'atelier", miro:["la","lb","lc","ld"]}
 ];
-PAGES.forEach(p=>{ if(STREAMS[p.id]){ p.title="Stream "+STREAMS[p.id].name; p.miro=["f02","f03","f04","f05","f06","f07"]; }});
+PAGES.forEach(p=>{ if(STREAMS[p.id]){ p.title="Stream "+STREAMS[p.id].name; p.miro=["l"+STREAMS[p.id].lane,"f02","f03","f04","f05","f06","f07"]; }});
 
 /* ---------- Storage ---------- */
 const KEY="playbook-confluence-v1";
@@ -388,50 +390,67 @@ function table(head, rows, center=false){
 const ROLE_MAP={"R":"D","A":"V","A/R":"V/D","C":"P","I":"I"};
 const raciLz=v=>{const r=ROLE_MAP[v]||v;const m={"D":"blue","V":"green","V/D":"purple","P":"yellow","I":"grey"};return `<span class="lz ${m[r]}">${r}</span>`;};
 const ROLES=[
- ["D","Doer","Réalise les actions et produit les livrables.","blue"],
+ ["D","Doer","Anime le contenu de l'atelier, apporte l'expertise et produit les livrables.","blue"],
  ["P","Participant","Contribue aux discussions, partage ses idées et son expertise.","yellow"],
  ["I","Informed","Est tenu informé des décisions, des résultats et de l'avancement.","grey"],
  ["V","Validator","Valide les propositions, les décisions et les livrables.","green"],
- ["F","Facilitator","Structure les échanges, anime les ateliers, coordonne les contributions et veille au respect de la méthodologie.","purple"]
+ ["F","Facilitator","Garant du cadre, présent sur tous les ateliers (Facilitateur Digital Factory, binôme : Scrum master) : ouvre et clôture l'atelier, tient le temps, veille à la dynamique et prépare le Doer.","purple"]
 ];
 const STAKE=[
- ["SP","Sponsor · Hicham","Porte l'ambition du projet, arbitre les investissements et tranche aux gates."],
+ ["FD","Facilitateur Digital Factory","Garant du cadre et de la méthode sur tous les ateliers, en binôme avec le Scrum master. Ne tranche pas et n'anime pas le contenu."],
+ ["SP","Sponsor · Hicham","Porte l'ambition du projet, arbitre les investissements et tranche aux jalons."],
  ["FO","Functional owner","Responsable du périmètre fonctionnel : valide les choix métier et l'expérience cible."],
  ["TO","Technical owner","Responsable de la solution technique : valide les choix d'architecture et de delivery."],
  ["PO","PO / PPO","Porte la vision produit, le backlog et la priorisation."],
- ["SM","Scrum master","Garantit le cadre agile et anime les rituels de delivery."],
+ ["SM","Scrum master","Garantit le cadre agile, anime les rituels de delivery et assure le binôme du Facilitateur."],
  ["RM","Référent métier","Expert du terrain et des processus : apporte la connaissance métier."],
- ["UX","UX","Mène la recherche, conçoit l'expérience et anime les ateliers de design."],
+ ["UX","UX","Mène la recherche, conçoit l'expérience et anime le contenu des ateliers de design."],
  ["US","Users","Utilisateurs finaux : interviewés, co-concepteurs et testeurs."],
  ["AR","Archis","Analysent l'architecture existante et conçoivent l'architecture cible."],
  ["IO","IT owner","Responsable des systèmes et applications existants (run)."],
  ["TL","Tech lead","Responsable technique de l'équipe : faisabilité, estimation, qualité du code."],
+ ["DL","[Data lead]","Responsable des données, du tracking et des KPIs (stream D). À nommer dans la Fiche projet."],
  ["SQ","Squad","Équipe de développement : développeurs et QA."]
 ];
-/* Order of values follows STAKE. "-" = non concerné. "F/D" = anime et produit. */
-const ATELIER_ROLES=[
- ["T01","V","P","P","F","I","P","P","-","P","P","P","I"],
- ["T02","V","P","P","D","I","P","F","-","I","I","I","-"],
- ["T03","I","V","I","P","-","P","F/D","-","-","-","I","-"],
- ["T04","I","V","-","P","-","P","F/D","P","-","-","-","-"],
- ["T05","I","V","P","P","-","P","F/D","P","P","I","I","-"],
- ["T06","I","V","P","P","-","P","F/D","P","P","P","P","-"],
- ["T07","I","I","V","P","-","-","P","-","F/D","P","D","I"],
- ["T08","-","I","V","I","-","P","P","-","F/D","D","P","I"],
- ["T09","-","I","V","P","-","-","P","-","F","P","D","P"],
- ["T10","I","V","P","P","-","P","F/D","-","P","-","P","-"],
- ["T11","P","V","P","P","-","P","F/D","-","P","-","P","P"],
- ["T12","I","V","P","F/D","P","P","P","-","P","I","P","-"],
- ["T13","I","P","V","P","-","-","P","-","F/D","P","D","I"],
- ["T14","I","V","P","P","-","P","F/D","P","P","-","P","I"],
- ["T15","I","V","I","P","-","P","F/D","P","-","-","I","I"],
- ["T16","I","V","P","P","-","P","F/D","-","D","P","P","-"],
- ["T17","V","P","P","F/D","P","P","P","-","P","I","P","I"],
- ["T18","V","P","P","F/D","P","I","P","-","P","P","P","I"],
- ["T19","I","P","V","D","F","-","P","-","P","P","D","P"],
- ["Gates","V","P","P","F/D","I","P","P","-","P","P","P","I"]
-];
-const FACILITATORS=["Project Manager","UX Lead","Architecture Lead","Data Lead","UX Lead","Architecture Lead","UX Lead","Product Owner","Product Owner","Project Manager","Tech Lead","UX Lead","Data Lead"];
+/* Rôles par atelier, alignés sur le bloc « Rôles de l'atelier » de chaque template Miro.
+   F = Facilitateur Digital Factory sur tous les ateliers. Les autres codes par partie prenante. */
+const AR_SRC={
+ T01:{V:"SP",D:"PO",P:"FO TO RM UX AR IO TL",I:"SM SQ"},
+ T02:{V:"SP",D:"UX PO",P:"FO TO RM",I:"SM AR IO TL"},
+ T03:{V:"FO",D:"UX",P:"PO RM",I:"SP TO TL"},
+ T04:{V:"FO",D:"UX",P:"PO RM US",I:"SP"},
+ T05:{V:"FO",D:"UX",P:"TO PO RM US AR",I:"SP IO TL"},
+ T06:{V:"FO",D:"UX",P:"TO PO RM US AR IO TL",I:"SP"},
+ T07:{V:"TO",D:"AR TL",P:"PO UX IO",I:"SP FO SQ"},
+ T08:{V:"TO",D:"AR IO",P:"RM UX TL",I:"FO PO SQ"},
+ T09:{V:"TO",D:"AR TL",P:"PO UX IO SQ",I:"FO"},
+ T10:{V:"FO",D:"UX",P:"TO PO RM AR TL",I:"SP"},
+ T11:{V:"FO",D:"UX",P:"SP TO PO RM AR TL SQ",I:""},
+ T12:{V:"FO",D:"PO",P:"TO SM RM UX AR TL",I:"SP IO"},
+ T13:{V:"TO",D:"AR TL",P:"FO PO UX IO",I:"SP SQ"},
+ T14:{V:"FO",D:"UX",P:"TO PO RM US AR TL",I:"SP SQ"},
+ T15:{V:"FO",D:"UX",P:"PO RM US",I:"SP TO TL SQ"},
+ T16:{V:"FO",D:"UX AR",P:"TO PO RM IO TL",I:"SP"},
+ T17:{V:"SP",D:"PO",P:"FO TO SM RM UX AR TL",I:"IO SQ"},
+ T18:{V:"SP",D:"PO",P:"FO TO SM UX AR IO TL",I:"RM SQ"},
+ T19:{V:"TO",D:"SM PO TL",P:"FO UX AR IO SQ",I:"SP"},
+ T20:{V:"SP",D:"PO",P:"FO TO RM AR TL",I:"SM UX SQ"},
+ T21:{V:"TO",D:"DL IO",P:"PO RM UX TL",I:"SP FO"},
+ T22:{V:"SP",D:"DL PO",P:"FO TO RM UX",I:"SM SQ"},
+ T23:{V:"FO",D:"DL TL",P:"PO UX IO SQ",I:"SP TO"},
+ T24:{V:"SP",D:"PO",P:"FO TO SM RM UX AR TL DL",I:"US IO SQ"},
+ Gates:{V:"SP",D:"PO",P:"FO TO RM UX AR IO TL DL",I:"SM SQ"}
+};
+const ATELIER_ROLES=Object.keys(AR_SRC).map(k=>[k,...STAKE.map(st=>{ if(st[0]==="FD") return "F"; const r=AR_SRC[k]; for(const c of ["V","D","P","I"]){ if(r[c].split(" ").includes(st[0])) return c; } return "-"; })]);
+/* Ateliers rangés par stream, dans l'ordre des étapes (comme les bandes du board Miro). */
+const STREAM_T={
+ a:[["T01","00"],["T02","00"],["T20","01 et 02"],["T12","02"],["T17","03"],["T18","03"],["T24","05"]],
+ b:[["T03","01"],["T04","01"],["T05","01"],["T06","01"],["T10","01"],["T11","02"],["T14","02"],["T15","02 et 04"],["T16","02"]],
+ c:[["T07","01"],["T08","01"],["T09","01"],["T13","02"],["T19","03"]],
+ d:[["T21","01"],["T22","02"],["T23","03"]]
+};
+const stakeName=c=>STAKE.find(x=>x[0]===c)[1].replace(" · Hicham","");
+const doersOf=k=>AR_SRC[k].D.split(" ").map(stakeName).join(", ");
 const phaseTitle=i=>`${PH[i].n} · ${PH[i].name} · ${PH[i].sub}`;
 const phaseHead=i=>`${esc(PH[i].n+' · '+PH[i].name)} <span class="lz purple" style="vertical-align:3px">${esc(PH[i].sub)}</span>`;
 const gateLabel=(g,i)=>(g.type==='client'?'Jalon client':'Revue interne')+' · '+g.t;
@@ -483,8 +502,8 @@ const BODY = {
  gouvernance(){
   return `<h2>Rôles</h2><p>Chaque personne impliquée dans une activité a l'un de ces cinq rôles. Leur usage concret avant, pendant et après un atelier est décrit dans <a href="#roles-atelier">Rôles en atelier</a>.</p>`
   +table(["Rôle","Définition"],ROLES.map(([k,n,d,c])=>[`<span class="lz ${c}">${k}</span> <strong>${n}</strong>`,esc(d)]))
-  +`<h2>Matrice des rôles</h2><p>Proposition par défaut, à adapter. D = Doer · P = Participant · I = Informed · V = Validator. Le Facilitator anime l'activité et garantit le respect de la méthodologie.</p>`
-  +table(["Activité ou livrable",...RACI_COLS,"Facilitator"],RACI.map((r,i)=>[esc(r[0]),...r.slice(1).map(raciLz),`<span class="lz purple">F</span> ${esc(FACILITATORS[i])}`]),true)
+  +`<h2>Matrice des rôles</h2><p>Proposition par défaut, à adapter. D = Doer · P = Participant · I = Informed · V = Validator. Le Facilitator est le Facilitateur Digital Factory sur toutes les activités, en binôme avec le Scrum master.</p>`
+  +table(["Activité ou livrable",...RACI_COLS],RACI.map(r=>[esc(r[0]),...r.slice(1).map(raciLz)]),true)
   +`<h2>Decision Log</h2>`+table(["Décision","Date","Étape","Responsable","Contexte","Statut"],[[rich("[Décision]"),rich("[Date]"),"01 · Diagnostic",rich("[Responsable]"),rich("[Options étudiées, impacts Design et Tech]"),'<span class="lz yellow">Proposée</span>'],[rich("Exemple : périmètre MVP limité à [Parcours]"),rich("[Date]"),"03 · Design détaillé du MVP",rich("[Responsable]"),rich("[Justification]"),'<span class="lz yellow">Proposée</span>']])
   +`<h2>Registre des risques et dépendances</h2>`+table(["Risque ou dépendance","Type","Stream","Probabilité","Impact","Responsable","Mitigation","Statut"],[[rich("[Risque]"),"Risque","Transverse","Moyenne","Moyen",rich("[Responsable]"),rich("[Action]"),'<span class="lz red">Ouvert</span>'],[rich("Exemple : disponibilité des API du [Système]"),"Dépendance","C · Tech","Forte","Fort",rich("[Responsable]"),"Planifier un PoC en phase 03",'<span class="lz red">Ouvert</span>']])
   +`<h2>Rituels de gouvernance</h2>`+tasks("gouvernance","rit",["Comité projet toutes les [Fréquence] · sponsor, Product Owner, leads des 4 streams","Revue du registre des risques à chaque comité","Mise à jour du Tableau de bord avant chaque comité","Revue pré-gate 2 jours avant chaque gate"],false);
@@ -502,56 +521,61 @@ const BODY = {
   const lz=(k)=>{const r=ROLES.find(x=>x[0]===k);return `<span class="lz ${r[3]}">${k}</span> <strong>${r[1]}</strong>`;};
   const STEPS=[
    {t:"Étape 1 · Préparer", w:"5 à 2 jours avant l'atelier", items:{
-     F:["Définir l'objectif de l'atelier et le résultat attendu","Choisir le template Miro (T01 à T24) et le dupliquer","Attribuer un rôle à chaque invité et l'indiquer dans l'invitation","Envoyer l'invitation avec l'agenda et les inputs à lire"],
+     F:["Caler avec le Doer l'objectif, le résultat attendu et l'agenda","Dupliquer le template Miro (T01 à T24) et vérifier les rôles de l'atelier","Préparer le Doer : déroulé, timing, questions clés","Envoyer l'invitation avec l'agenda, les rôles et les inputs à lire"],
      V:["Valider l'objectif, le résultat attendu et la liste des invités"],
-     D:["Préparer les inputs : données, existant, maquettes, analyses","Pré-remplir les zones du template quand c'est utile"],
+     D:["Préparer le contenu : inputs, données, existant, maquettes, analyses","Pré-remplir les zones du template quand c'est utile"],
      P:["Lire les inputs avant l'atelier"],
      I:["Recevoir l'agenda pour information (pas d'invitation à l'atelier)"]}},
    {t:"Étape 2 · Animer", w:"Pendant l'atelier", items:{
-     F:["Ouvrir en rappelant l'objectif, les rôles et les règles","Tenir le temps avec le minuteur du template","Faire contribuer tout le monde, puis faire converger","Rester neutre : le Facilitator ne tranche pas"],
-     D:["Présenter les inputs","Capturer et structurer les contributions dans Miro"],
+     F:["Ouvrir l'atelier : objectif, rôles, règles","Tenir le temps avec le minuteur du template","Veiller à la bonne dynamique et à la participation de tous","Recadrer les hors-sujets et rester neutre : le Facilitator ne tranche pas"],
+     D:["Animer le contenu : présenter les inputs, poser les questions, faire converger","Capturer et structurer les contributions dans Miro"],
      P:["Contribuer : post-it, idées, expertise, votes"],
      V:["Écouter et poser les questions qui aideront à décider"]}},
    {t:"Étape 3 · Décider", w:"Les 10 dernières minutes", items:{
-     F:["Relire à voix haute les décisions et les actions"],
+     F:["Clôturer : relire à voix haute les décisions et les actions"],
      V:["Valider, demander des ajustements ou refuser chaque décision"],
      D:["Prendre les actions avec une date d'échéance"],
      P:["Signaler un désaccord ou un risque avant la clôture"]}},
    {t:"Étape 4 · Restituer", w:"Dans les 24 heures", items:{
-     F:["Rédiger le compte-rendu à partir du modèle et le publier sous « Comptes-rendus d'ateliers »","Reporter les décisions dans le Decision Log"],
-     D:["Mettre à jour le statut des livrables dans le Tableau de bord"],
+     D:["Rédiger le compte-rendu à partir du modèle","Mettre à jour le statut des livrables dans le Tableau de bord"],
+     F:["S'assurer que le compte-rendu est publié sous « Comptes-rendus d'ateliers »","Reporter les décisions dans le Decision Log"],
      V:["Relire le compte-rendu et confirmer les décisions"],
      I:["Recevoir le compte-rendu"]}},
    {t:"Étape 5 · Suivre", w:"Jusqu'à l'atelier suivant ou au jalon", items:{
      D:["Réaliser les actions et produire les livrables"],
      V:["Valider les livrables quand ils sont prêts"],
-     F:["Vérifier l'avancement des actions","Déclencher les points de synchronisation avec les autres streams","Préparer l'atelier suivant ou le jalon ou la revue"],
+     F:["Vérifier l'avancement des actions","Déclencher les points de synchronisation avec les autres streams","Préparer l'atelier suivant avec son Doer"],
      I:["Suivre l'avancement dans le Tableau de bord"]}}
   ];
-  let h=panel("En une phrase","<p>Le Facilitator fait avancer le groupe, les Doers produisent, les Participants enrichissent, le Validator tranche, les Informed sont tenus au courant.</p>");
-  const roleLz=v=>{ if(v==="-") return '<span class="ph">–</span>'; const c={"F":"purple","F/D":"purple","V":"green","D":"blue","P":"yellow","I":"grey"}[v]; return `<span class="lz ${c}">${v}</span>`; };
+  let h=panel("En une phrase","<p>Le Facilitator tient le cadre et la dynamique sur tous les ateliers, le Doer anime le contenu et produit, les Participants enrichissent, le Validator tranche, les Informed sont tenus au courant.</p>");
+  const roleLz=v=>{ if(v==="-") return '<span class="ph">–</span>'; const c={"F":"purple","V":"green","D":"blue","P":"yellow","I":"grey"}[v]; return `<span class="lz ${c}">${v}</span>`; };
   h+=`<h2>Parties prenantes de la Digital Factory</h2>`
    +table(["Partie prenante","Rôle dans le projet"],STAKE.map(s=>[`<strong>${esc(s[1])}</strong>`,esc(s[2])]));
   h+=`<h2>Rôle de chaque partie prenante, atelier par atelier</h2>`
-   +`<p>Proposition par défaut, à ajuster au projet. F = Facilitator · V = Validator · D = Doer · P = Participant · I = Informed · F/D = anime et produit · – = non concerné. Cliquez sur un code d'atelier pour ouvrir son template dans Miro.</p>`
-   +table(["Atelier",...STAKE.map(s=>s[1].replace(" · Hicham",""))],ATELIER_ROLES.map(r=>{
-      const k=r[0]; const name=k==="Gates"?"Jalons client et revues internes":T_NAMES[k];
-      const head=k==="Gates"?`<a href="#gates"><strong>${esc(name)}</strong></a>`:`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(name)}`;
-      return [head,...r.slice(1).map(roleLz)];
-    }),true);
+   +`<p>Repris du bloc « Rôles de l'atelier » de chaque template Miro, à ajuster au projet. F = Facilitator · V = Validator · D = Doer · P = Participant · I = Informed · – = non concerné. Cliquez sur un code d'atelier pour ouvrir son template dans Miro.</p>`;
+  const head=["Atelier",...STAKE.map(s=>s[1].replace(" · Hicham",""))];
+  const row=r=>{ const k=r[0]; const name=k==="Gates"?"Jalons client et revues internes":T_NAMES[k];
+      const c=k==="Gates"?`<a href="#gates"><strong>${esc(name)}</strong></a>`:`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(name)}`;
+      return [c,...r.slice(1).map(roleLz)]; };
+  Object.entries(STREAM_T).forEach(([l,ts])=>{
+    const sid="stream-"+l;
+    h+=`<h3><span class="lane lane-${l}"></span> Stream ${esc(STREAMS[sid].name)}</h3>`
+     +table(head,ts.map(([k])=>row(ATELIER_ROLES.find(r=>r[0]===k))),true);
+  });
+  h+=`<h3>Jalons et revues</h3>`+table(head,[row(ATELIER_ROLES.find(r=>r[0]==="Gates"))],true);
   h+=`<h2>Ce que fait chaque rôle à chaque étape</h2>`+table(["Rôle","Préparer","Animer","Décider","Restituer","Suivre"],
     ["F","V","D","P","I"].map(k=>[lz(k),...STEPS.map(s=>s.items[k]?esc(s.items[k][0]):'<span class="ph">·</span>')]));
   STEPS.forEach((s,i)=>{
     h+=`<h2>${esc(s.t)}</h2><p><strong>Quand :</strong> ${esc(s.w)}</p>`;
     ["F","V","D","P","I"].forEach(k=>{ if(s.items[k]){ h+=`<h3>${lz(k)}</h3>`+tasks("roles-atelier",`s${i}${k}`,s.items[k],false); }});
   });
-  return h+`<h2>Règles d'or</h2>`+list(["Une seule personne Validator par décision.","Le Facilitator ne tranche pas : il garantit la méthode, pas le contenu.","Au-delà de 8 Participants actifs, faire des sous-groupes.","Les Informed ne sont pas invités à l'atelier : ils reçoivent le compte-rendu.","Chaque action sort de l'atelier avec un Doer et une date."]);
+  return h+`<h2>Règles d'or</h2>`+list(["Une seule personne Validator par décision.","Le Facilitator est le même sur tous les ateliers. En son absence, le Scrum master prend le relais.","Le Facilitator ne tranche pas et n'anime pas le contenu : il garantit le cadre, le Doer anime.","Au-delà de 8 Participants actifs, faire des sous-groupes.","Les Informed ne sont pas invités à l'atelier : ils reçoivent le compte-rendu.","Chaque action sort de l'atelier avec un Doer et une date."]);
  },
  "cr-atelier"(){
   return panel("Modèle","<p>À dupliquer comme sous-page de « Comptes-rendus d'ateliers » après chaque atelier. Titre conseillé : [Nom du projet] · CR · [Nom de l'atelier] · [Date].</p>")
   +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T24 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Étape","[00 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
   +`<h2>Rôles de l'atelier</h2><p>Voir <a href="#roles-atelier">Rôles en atelier</a> pour ce que chaque rôle fait à chaque étape.</p>`
-  +fields([["F · Facilitator","[Responsable]"],["V · Validator","[Responsable] (une seule personne par décision)"],["D · Doers","[Noms]"],["P · Participants","[Noms et rôles]"],["I · Informed","[Noms] · reçoivent ce compte-rendu"]])
+  +fields([["F · Facilitator","[Facilitateur Digital Factory] · binôme : [Scrum master]"],["V · Validator","[Responsable] (une seule personne par décision)"],["D · Doers","[Noms] · animent le contenu et produisent les livrables"],["P · Participants","[Noms et rôles]"],["I · Informed","[Noms] · reçoivent ce compte-rendu"]])
   +`<h2>Objectif de l'atelier</h2><p class="ph">[Ce que l'atelier devait produire]</p>`
   +`<h2>Ce qui en ressort</h2>`+list(["[Résultat clé 1]","[Résultat clé 2]","[Résultat clé 3]"])
   +`<h2>Décisions prises</h2>`+list(["[Décision] · à reporter dans le Decision Log"])
@@ -564,6 +588,9 @@ function streamBody(id){
   const s=STREAMS[id];
   let h=fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]])
    +panel("Comment utiliser cette page","<p>Cochez les activités au fil de l'eau, avec un responsable (@) et une date sur chaque ligne. Le statut des livrables se met à jour dans le <a href=\"#tableau\">Tableau de bord</a>. Les codes T01 à T24 ouvrent le template d'atelier dans Miro.</p>");
+  const ts=STREAM_T[s.lane]||[];
+  h+=`<h2>Ateliers du stream</h2><p>Dans l'ordre des étapes, comme la bande du stream dans Miro. Le Facilitator est le Facilitateur Digital Factory sur chaque atelier.</p>`
+   +table(["Atelier","Étape","Doer (anime le contenu)"],ts.map(([k,st])=>[`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(T_NAMES[k])}`,esc(st),esc(doersOf(k))]));
   s.phases.forEach((p,i)=>{
    h+=`<h2>${phaseHead(i)}</h2>${phaseLink(i)}<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
     +`<h3>Activités</h3>`+tasks(id,"p"+i+"a",p.act)
