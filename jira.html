@@ -230,7 +230,7 @@ function card(t){
   </button>`;
 }
 function board(){
-  if(F.epic===null) F.epic=String(curStep());
+  if(F.epic===null) F.epic="all";
   const list=JTASKS.filter(pass);
   let h=`<div class="crumbs">Projets / [Nom du projet]</div><h1>Tableau · ${F.epic==="all"?"Toutes les epics":esc(epicLabel(+F.epic))}</h1>`+filtersBar(true);
   h+=`<div class="board">${JSTATUS.map(([s])=>{const items=list.filter(t=>jStatus(t)===s);return `<section class="col" data-status="${s}" aria-label="${s}"><h2>${esc(s)} <span>${items.length}</span></h2>${items.map(card).join("")||'<div class="empty">Aucun ticket</div>'}</section>`;}).join("")}</div>`;
