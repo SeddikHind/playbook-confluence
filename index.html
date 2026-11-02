@@ -1,0 +1,544 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playbook Confluence</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: Confluence-like shell. Top bar, page tree on the left, a 760px reading column on the right. */
+:root{
+  --bg:#ffffff; --fg:#172b4d; --muted:#505f79; --faint:#6b778c;
+  --line:#dfe1e6; --side:#f7f8f9; --hover:#ebecf0; --accent:#0c66e4; --accent-fg:#ffffff;
+  --info-bg:#e9f2ff; --info-line:#cce0ff;
+  --note-bg:#fff7d6; --note-line:#f8e6a0;
+  --miro-bg:#fff9e0; --miro-line:#f5cd47;
+  --lz-grey:#dfe1e6; --lz-grey-fg:#44546f; --lz-blue:#cce0ff; --lz-blue-fg:#0055cc;
+  --lz-yellow:#f8e6a0; --lz-yellow-fg:#7f5f01; --lz-green:#baf3db; --lz-green-fg:#216e4e;
+  --lz-red:#ffd5d2; --lz-red-fg:#ae2e24; --lz-purple:#dfd8fd; --lz-purple-fg:#5e4db2;
+  --done:#6b778c; --check:#0c66e4;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans",Ubuntu,"Helvetica Neue",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1d2125; --fg:#dee4ea; --muted:#9fadbc; --faint:#8c9bab;
+  --line:#2c333a; --side:#161a1d; --hover:#282e33; --accent:#579dff; --accent-fg:#1d2125;
+  --info-bg:#092957; --info-line:#0c3a7a; --note-bg:#3a2c00; --note-line:#533f04;
+  --miro-bg:#332a05; --miro-line:#7f5f01;
+  --lz-grey:#2c333a; --lz-grey-fg:#b6c2cf; --lz-blue:#09326c; --lz-blue-fg:#85b8ff;
+  --lz-yellow:#533f04; --lz-yellow-fg:#f8e6a0; --lz-green:#164b35; --lz-green-fg:#7ee2b8;
+  --lz-red:#5d1f1a; --lz-red-fg:#fd9891; --lz-purple:#352c63; --lz-purple-fg:#b8acf6;
+  --done:#8c9bab; --check:#579dff; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#1d2125; --fg:#dee4ea; --muted:#9fadbc; --faint:#8c9bab;
+  --line:#2c333a; --side:#161a1d; --hover:#282e33; --accent:#579dff; --accent-fg:#1d2125;
+  --info-bg:#092957; --info-line:#0c3a7a; --note-bg:#3a2c00; --note-line:#533f04;
+  --miro-bg:#332a05; --miro-line:#7f5f01;
+  --lz-grey:#2c333a; --lz-grey-fg:#b6c2cf; --lz-blue:#09326c; --lz-blue-fg:#85b8ff;
+  --lz-yellow:#533f04; --lz-yellow-fg:#f8e6a0; --lz-green:#164b35; --lz-green-fg:#7ee2b8;
+  --lz-red:#5d1f1a; --lz-red-fg:#fd9891; --lz-purple:#352c63; --lz-purple-fg:#b8acf6;
+  --done:#8c9bab; --check:#579dff; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:14px/1.6 var(--sans)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:12px;height:52px;
+  border-bottom:1px solid var(--line);background:var(--bg);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.space-icon{width:28px;height:28px;border-radius:4px;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.space-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.space-name small{display:block;font-weight:400;color:var(--faint);font-size:12px;line-height:1.2}
+.top .grow{flex:1}
+.menu-btn{display:none;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:4px;padding:6px 10px;font:inherit;cursor:pointer}
+.sim-tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:3px;padding:2px 6px;white-space:nowrap}
+
+.shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100% - 52px)}
+.side{background:var(--side);border-right:1px solid var(--line);padding:16px 8px 32px;padding-left:max(8px,env(safe-area-inset-left,0px))}
+.side h2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:8px 12px 8px;font-weight:600}
+.tree{list-style:none;margin:0;padding:0}
+.tree a{display:flex;align-items:center;gap:8px;padding:5px 12px;border-radius:4px;color:var(--fg);font-size:14px;line-height:1.35}
+.tree a:hover{background:var(--hover);text-decoration:none}
+.tree a[aria-current="page"]{background:var(--lz-blue);color:var(--lz-blue-fg);font-weight:600}
+.tree .child a{padding-left:30px}
+.tree .bullet{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:none}
+.tree .lane{width:10px;height:10px;border-radius:2px;flex:none}
+.tree .count{margin-left:auto;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+main{min-width:0;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.page{max-width:780px;margin:0 auto}
+.crumbs{font-size:13px;color:var(--faint);margin-bottom:12px}
+.crumbs a{color:var(--faint)}
+h1.title{font-size:28px;line-height:1.25;font-weight:600;margin:0 0 8px;text-wrap:balance;letter-spacing:-.01em}
+.byline{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;color:var(--faint);font-size:13px;margin-bottom:20px}
+.progress{display:flex;align-items:center;gap:8px}
+.bar{width:120px;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--lz-green-fg);width:0}
+.tools{display:flex;gap:8px;margin-left:auto}
+.btn{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:4px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.btn:hover{background:var(--hover)}
+
+.content h2{font-size:20px;font-weight:600;margin:32px 0 8px;line-height:1.3;text-wrap:balance}
+.content h3{font-size:16px;font-weight:600;margin:20px 0 6px}
+.content p{margin:6px 0 10px;max-width:68ch}
+.content ul.list{margin:6px 0 12px;padding-left:22px}
+.content ul.list li{margin:3px 0}
+
+.panel{border:1px solid var(--info-line);background:var(--info-bg);border-radius:4px;padding:12px 16px;margin:12px 0 16px}
+.panel.note{background:var(--note-bg);border-color:var(--note-line)}
+.panel p{margin:4px 0}
+.panel-title{font-weight:600;margin-bottom:4px}
+
+.miro{border:1px solid var(--miro-line);background:var(--miro-bg);border-radius:4px;padding:12px 16px;margin:0 0 20px}
+.miro-head{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:8px}
+.miro-dot{width:18px;height:18px;border-radius:4px;background:#ffd02f;color:#050038;display:grid;place-items:center;font-size:11px;font-weight:800;flex:none}
+.miro-links{display:flex;flex-wrap:wrap;gap:6px}
+.miro-links a{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:4px;padding:3px 9px;font-size:13px;color:var(--fg)}
+.miro-links a:hover{border-color:var(--accent);text-decoration:none}
+.miro-links a::after{content:"↗";color:var(--faint);font-size:11px}
+.phase-link{font-size:13px;margin:-2px 0 8px;display:inline-flex;gap:6px;align-items:center}
+
+.tasks{list-style:none;margin:4px 0 12px;padding:0}
+.tasks li{display:flex;gap:10px;align-items:flex-start;padding:4px 6px;border-radius:4px}
+.tasks li:hover{background:var(--hover)}
+.tasks input{appearance:none;width:16px;height:16px;margin:3px 0 0;border:2px solid var(--faint);border-radius:3px;flex:none;cursor:pointer;display:grid;place-items:center;background:var(--bg)}
+.tasks input:checked{background:var(--check);border-color:var(--check)}
+.tasks input:checked::after{content:"";width:4px;height:8px;border:solid var(--accent-fg);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.tasks label{cursor:pointer;min-width:0}
+.tasks input:checked + label .txt{text-decoration:line-through;color:var(--done)}
+.meta{color:var(--faint);font-size:12.5px;white-space:nowrap}
+.tchip{display:inline-block;font-family:var(--mono);font-size:11.5px;border:1px solid var(--miro-line);background:var(--miro-bg);color:var(--fg);border-radius:3px;padding:0 5px;margin-left:4px;vertical-align:1px}
+.tchip:hover{text-decoration:none;border-color:var(--accent)}
+
+.lz{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:3px;padding:1px 5px;white-space:nowrap;line-height:1.5}
+.lz.grey{background:var(--lz-grey);color:var(--lz-grey-fg)} .lz.blue{background:var(--lz-blue);color:var(--lz-blue-fg)}
+.lz.yellow{background:var(--lz-yellow);color:var(--lz-yellow-fg)} .lz.green{background:var(--lz-green);color:var(--lz-green-fg)}
+.lz.red{background:var(--lz-red);color:var(--lz-red-fg)} .lz.purple{background:var(--lz-purple);color:var(--lz-purple-fg)}
+
+.fields{display:grid;grid-template-columns:200px minmax(0,1fr);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:8px 0 16px}
+.fields div{padding:8px 12px;border-bottom:1px solid var(--line)}
+.fields div:nth-last-child(-n+2){border-bottom:0}
+.fields .k{background:var(--side);font-weight:600}
+.ph{color:var(--faint)}
+
+.tbl-wrap{overflow-x:auto;margin:8px 0 16px;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--side);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.c{text-align:center}
+select.st{font:inherit;font-size:12px;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--fg);padding:2px 4px}
+
+.lane-a{background:#8f7fee}.lane-b{background:#fe9f4d}.lane-c{background:#659df2}.lane-d{background:#2dc75c}.lane-g{background:#ffdc4a}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:4px;font-size:13px}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .side{display:none;border-right:0;border-bottom:1px solid var(--line);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .side.open{display:block}
+  .menu-btn{display:inline-block}
+  .sim-tag{display:none}
+  .fields{grid-template-columns:1fr}
+  .fields .k{border-bottom:0;padding-bottom:2px}
+  .tools{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+
+<header class="top">
+  <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="side">Pages</button>
+  <div class="space-icon">DT</div>
+  <div class="space-name">Digital Transformation Playbook<small>Espace · [Nom du projet]</small></div>
+  <div class="grow"></div>
+  <span class="sim-tag">Simulation Confluence</span>
+</header>
+
+<div class="shell">
+  <nav class="side" id="side" aria-label="Arborescence des pages">
+    <h2>Pages</h2>
+    <ul class="tree" id="tree"></ul>
+  </nav>
+  <main>
+    <article class="page" id="page"></article>
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const BOARD = "https://miro.com/app/board/uXjVESgx69w=/";
+const W = {
+  f00:"3458764689125498822", f01:"3458764689125498823", f02:"3458764689124287390",
+  f03:"3458764689124497867", f04:"3458764689124497868", f05:"3458764689124497869",
+  f06:"3458764689124497870", f07:"3458764689124497871", f08:"3458764689125498824", f09:"3458764689125372073",
+  T01:"3458764689124849392", T02:"3458764689124849393", T03:"3458764689124849394", T04:"3458764689124849395",
+  T05:"3458764689124849396", T06:"3458764689124849397", T07:"3458764689125046318", T08:"3458764689125046319",
+  T09:"3458764689125046320", T10:"3458764689125046321", T11:"3458764689125046322", T12:"3458764689125046323",
+  T13:"3458764689125046324", T14:"3458764689125140702", T15:"3458764689125140703", T16:"3458764689125140704",
+  T17:"3458764689125140705", T18:"3458764689125140706", T19:"3458764689125140707"
+};
+const FRAME_NAMES = {
+  f00:"00 · Start Here", f01:"01 · Project Setup", f02:"02 · Roadmap de transformation",
+  f03:"03 · Discovery & Diagnosis", f04:"04 · Ideation & Vision", f05:"05 · Prototyping & Validation",
+  f06:"06 · Target Vision & Roadmap", f07:"07 · Delivery & Optimization", f08:"08 · Workshop Library", f09:"09 · Governance & Tracking"
+};
+const T_NAMES = {
+  T01:"Project Kick-off", T02:"Stakeholder Mapping", T03:"UX Audit", T04:"User Interviews", T05:"User Journey Mapping",
+  T06:"The Friction Hunt", T07:"Technical Architecture Assessment", T08:"Application Mapping", T09:"API & Integration Mapping",
+  T10:"How Might We", T11:"Ideation Workshop", T12:"Impact / Effort Prioritization", T13:"Target Architecture Workshop",
+  T14:"Customer Journey Co-design", T15:"User Testing", T16:"Experience Blueprint", T17:"MVP Definition",
+  T18:"Product Roadmap", T19:"Delivery Readiness Review"
+};
+const url = k => BOARD + "?moveToWidget=" + W[k];
+const PH = [
+  {n:"01", name:"Comprendre", en:"Discover & Define", f:"f03"},
+  {n:"02", name:"Imaginer", en:"Imagine", f:"f04"},
+  {n:"03", name:"Expérimenter", en:"Prototype", f:"f05"},
+  {n:"04", name:"Concrétiser", en:"Validate", f:"f06"},
+  {n:"05", name:"Déployer et améliorer", en:"Deliver & Improve", f:"f07"}
+];
+const PR = "[Responsable] · [Date]";
+
+/* ---------- Streams ---------- */
+const STREAMS = {
+ "stream-a": {lane:"a", name:"A · Product et Business",
+  role:"Objectifs business, stratégie produit, alignement des parties prenantes, exigences métier, proposition de valeur, priorisation, roadmap produit, métriques de succès.",
+  phases:[
+   {obj:"Cadrer les enjeux business, le périmètre et les acteurs.",
+    act:["Kick-off projet T01","Alignement des parties prenantes","Identification des objectifs business","Cartographie des acteurs T02","Analyse des processus existants","Définition du périmètre","Identification des risques et dépendances"],
+    con:["Diagnostic global (volet Business)","Cartographie de l'existant (processus métier)","Opportunités de transformation"],
+    syn:["Objectifs business et périmètre partagés avec les streams B, C et D dès le kick-off"]},
+   {obj:"Définir la vision produit et prioriser les opportunités.",
+    act:["Définition de la vision produit","Identification des opportunités","Proposition de valeur","Définition des objectifs cibles","Priorisation des besoins T12","Identification des hypothèses business"],
+    con:["Vision produit cible","KPI de transformation (avec le stream D)"],
+    syn:["Vision produit transmise à l'Architecture pour les scénarios cibles (stream C)","Objectifs cibles traduits en KPI avec le stream D"]},
+   {obj:"Formaliser les besoins et définir le MVP.",
+    act:["Formalisation des besoins","Priorisation des fonctionnalités","Définition du MVP T17","Identification des règles métier","Construction du backlog fonctionnel"],
+    con:["MVP priorisé","Backlog fonctionnel et technique (volet fonctionnel)"],
+    syn:["Règles métier partagées avec le Design (parcours cibles) et la Tech (besoins API)"]},
+   {obj:"Sécuriser le business case, la roadmap et les investissements.",
+    act:["Consolidation de la vision cible","Priorisation des opportunités T12","Business case","Définition de la roadmap T18","Alignement management","Validation des investissements"],
+    con:["Roadmap de transformation","Backlog priorisé"],
+    syn:["Estimations de charges reçues du stream C et intégrées au business case"]},
+   {obj:"Piloter le delivery et la valeur produite.",
+    act:["Product backlog management","Sprint planning","Suivi des objectifs","Arbitrages fonctionnels","Validation métier","Pilotage de la roadmap T18"],
+    con:["Backlog d'amélioration continue (avec le stream D)"],
+    syn:["Analyse des usages (stream D) intégrée aux arbitrages de backlog"]}
+  ]},
+ "stream-b": {lane:"b", name:"B · UX Research et Design",
+  role:"UX research, entretiens utilisateurs, benchmark, journey mapping, idéation, design UX/UI, prototypage interactif, tests utilisateurs, validation de l'expérience.",
+  phases:[
+   {obj:"Comprendre les utilisateurs, leurs parcours actuels et leurs irritants.",
+    act:["Audit UX de l'existant T03","Entretiens utilisateurs T04","Questionnaires","Benchmark multisectoriel","Analyse des irritants","Cartographie des parcours actuels T05","Synthèse des insights","Atelier « The Friction Hunt » T06"],
+    con:["Parcours utilisateurs actuels","Synthèse des irritants","Diagnostic global (volet UX)"],
+    syn:["Parcours actuels mis en regard de la cartographie des systèmes (stream C)","Insights UX transmis au diagnostic technique (stream C)","Irritants UX croisés avec les contraintes techniques (stream C)"]},
+   {obj:"Explorer des concepts innovants et poser les principes UX.",
+    act:["Atelier « Kill the Website »","Atelier « [Entreprise] 2030 »","Design base zéro","Idéation collaborative T11","How Might We T10","Définition des principes UX","Exploration des concepts","Digital Design Day","Première vision du Dream Product"],
+    con:["Concepts d'innovation","Principes UX"],
+    syn:["Concepts soumis à l'évaluation de faisabilité (stream C)"]},
+   {obj:"Concevoir, prototyper et tester la solution avec les utilisateurs.",
+    act:["Co-conception des parcours cibles T14","User flows","Wireframes","Design UI","Prototypes interactifs","Tests utilisateurs T15","Atelier « The Customer Jury »","Itérations sur les retours"],
+    con:["Parcours cibles","Prototypes interactifs","Résultats des tests utilisateurs"],
+    syn:["Prototypes transmis à la Tech pour définir les besoins API (stream C)","Résultats des tests partagés pour les ajustements techniques (stream C)","Parcours cibles partagés pour le plan de marquage (stream D)"]},
+   {obj:"Consolider la vision UX cible et la relier aux processus et systèmes.",
+    act:["Consolidation du Dream Product","Finalisation des parcours","Consolidation des prototypes","Experience Blueprint T16","Recommandations UX","Restitution de la vision au management"],
+    con:["Dream Product","Vision UX cible","Experience Blueprint"],
+    syn:["Experience Blueprint utilisé pour l'architecture d'intégration (stream C)"]},
+   {obj:"Garantir la qualité de l'expérience livrée et l'améliorer en continu.",
+    act:["Design handoff","Documentation des composants","Accompagnement des développeurs","Design QA","Validation UX des développements","Optimisation continue"],
+    con:["Design System actualisé"],
+    syn:["Handoff validé avec les développeurs avant le sprint (stream C)","Analytics produit intégrés aux optimisations (stream D)"]}
+  ]},
+ "stream-c": {lane:"c", name:"C · Architecture et Technology",
+  role:"Architecture existante, cartographie applicative et infrastructure, architecture data, API et intégrations, contraintes techniques, sécurité et conformité, architecture cible, faisabilité, backlog technique, développement et intégration.",
+  phases:[
+   {obj:"Diagnostiquer l'existant technique, ses dépendances et ses contraintes.",
+    act:["Entretiens avec les architectes, développeurs et équipes IT Ops","Diagnostic de l'architecture existante T07","Cartographie des applications T08","Inventaire des systèmes d'entreprise","Analyse des API et intégrations T09","Identification des dépendances techniques","Analyse des flux de données","Analyse des contraintes de sécurité","Identification de la dette technique"],
+    con:["Cartographie des systèmes","Contraintes techniques","Diagnostic global (volet IT)"],
+    syn:["Cartographie des systèmes reliée aux parcours actuels (stream B)","Contraintes techniques partagées avec le Design avant l'idéation (stream B)"]},
+   {obj:"Explorer les scénarios d'architecture cible et la faisabilité des concepts.",
+    act:["Exploration des scénarios d'architecture cible T13","Identification des technologies potentielles","Analyse des opportunités de réutilisation","Identification des besoins API","Étude des scénarios d'intégration","Analyse des contraintes techniques des concepts","Premières estimations de complexité","Identification des dépendances structurantes"],
+    con:["Scénarios techniques possibles","Hypothèses de faisabilité","Première cartographie des capacités cibles"],
+    syn:["Faisabilité de chaque concept rendue au Design (stream B)","Scénarios cibles alignés sur la vision produit (stream A)"]},
+   {obj:"Détailler l'architecture cible et valider la faisabilité des prototypes.",
+    act:["Définition de l'architecture cible détaillée T13","Validation des choix techniques","Définition des contrats API T09","Identification des besoins Backend et Frontend","Proof of Concept techniques si nécessaire","Analyse des risques d'intégration","Identification des exigences non fonctionnelles","Revue de faisabilité des prototypes"],
+    con:["Architecture cible détaillée","Contrats API préliminaires","Backlog fonctionnel et technique (volet technique)"],
+    syn:["Besoins API déduits des prototypes (stream B)","Ajustements techniques remontés après les tests utilisateurs (stream B)"]},
+   {obj:"Valider l'architecture cible, la trajectoire et les prérequis de delivery.",
+    act:["Validation de l'architecture cible","Revue des risques techniques","Définition de la trajectoire de transformation","Plan de migration si nécessaire","Stratégie d'intégration","Estimation des charges","Identification des prérequis de delivery","Validation des dépendances"],
+    con:["Architecture cible validée","Estimations et dépendances"],
+    syn:["Stratégie d'intégration alignée sur l'Experience Blueprint (stream B)","Estimations transmises au business case (stream A)"]},
+   {obj:"Construire, tester, déployer et opérer la solution.",
+    act:["Delivery Readiness Review avant le premier sprint T19","Développement Frontend et Backend","Implémentation des API","Intégration des systèmes","Tests techniques","Tests de sécurité","Tests de performance","CI/CD","Déploiement","Supervision et maintenance"],
+    con:["Produit déployé","Documentation technique","Tests validés"],
+    syn:["Handoff Design reçu et validé avant chaque sprint (stream B)","Tracking implémenté selon le plan de marquage (stream D)"]}
+  ]},
+ "stream-d": {lane:"d", name:"D · Data, Analytics et Performance",
+  role:"Analyse des données existantes, audit du tracking et des analytics, définition des KPI, qualité des données, plan de mesure, suivi de la performance, analytics post-lancement.",
+  phases:[
+   {obj:"Savoir ce qui est mesuré aujourd'hui, et ce qui ne l'est pas.",
+    act:["Audit du tracking existant","Analyse des données disponibles","Identification des KPI actuels","Analyse des performances des parcours","Identification des lacunes de mesure"],
+    con:["Diagnostic global (volet Data)","Synthèse des irritants (données de performance des parcours)"],
+    syn:["Performances des parcours partagées avec le Design pour la cartographie actuelle (stream B)"]},
+   {obj:"Définir comment le succès de la transformation sera mesuré.",
+    act:["Définition des KPI cibles","Identification des besoins de collecte","Définition des principes de mesure","Exploration des opportunités Data et IA"],
+    con:["KPI de transformation (avec le stream A)"],
+    syn:["KPI cibles alignés sur les objectifs cibles (stream A)","Opportunités Data et IA partagées pendant l'idéation (stream B)"]},
+   {obj:"Préparer le dispositif de mesure de la solution cible.",
+    act:["Construction du plan de marquage","Définition des événements de tracking","Validation des KPI","Préparation du dispositif de mesure"],
+    con:["Plan de mesure (version 1)"],
+    syn:["Événements de tracking définis à partir des parcours cibles (stream B)","Besoins de collecte intégrés au backlog technique (stream C)"]},
+   {obj:"Figer le plan de mesure et les objectifs de performance.",
+    act:["Finalisation du measurement plan","Définition des objectifs de performance","Validation des indicateurs de succès","Préparation des dashboards de suivi"],
+    con:["Plan de mesure (version finale)"],
+    syn:["Indicateurs de succès intégrés au business case (stream A)"]},
+   {obj:"Mesurer les usages et nourrir l'amélioration continue.",
+    act:["Implémentation du tracking","Contrôle qualité des données","Suivi des KPI","Analyse des usages","Identification des opportunités d'amélioration"],
+    con:["Dashboard de performance","Backlog d'amélioration continue (avec le stream A)"],
+    syn:["Analyse des usages partagée avec le Design et le Product (streams A et B)"]}
+  ]}
+};
+
+const LIVRABLES = [
+ ["Diagnostic global UX + Business + IT","Cartographie de l'existant","Parcours utilisateurs actuels","Cartographie des systèmes","Synthèse des irritants","Contraintes techniques","Opportunités de transformation"],
+ ["Vision produit cible","Concepts d'innovation","Principes UX","Scénarios techniques possibles","Hypothèses de faisabilité","Première cartographie des capacités cibles","KPI de transformation"],
+ ["Parcours cibles","Prototypes interactifs","Résultats des tests utilisateurs","Architecture cible détaillée","Contrats API préliminaires","MVP priorisé","Backlog fonctionnel et technique","Plan de mesure (version 1)"],
+ ["Dream Product","Vision UX cible","Experience Blueprint","Architecture cible validée","Roadmap de transformation","Backlog priorisé","Estimations et dépendances","Plan de mesure (version finale)","Recommandations de mise en œuvre"],
+ ["Produit déployé","Documentation technique","Design System actualisé","Tests validés","Dashboard de performance","Backlog d'amélioration continue"]
+];
+
+const GATES = [
+ {t:"Diagnostic partagé et validé", d:"Business, Design et Architecture s'alignent sur les problèmes prioritaires.",
+  c:["Problèmes prioritaires partagés par Business, Design et Architecture","Parcours actuels et systèmes cartographiés","Contraintes techniques et dette identifiées","Lacunes de mesure connues","Périmètre et risques validés par le sponsor"]},
+ {t:"Vision cible et concepts prioritaires validés", d:"Les concepts retenus présentent une valeur utilisateur et business, avec des hypothèses de faisabilité technique explicites.",
+  c:["Vision produit cible formalisée","Concepts prioritaires retenus et argumentés","Hypothèses de faisabilité explicites pour chaque concept","KPI de transformation définis","Scénarios d'architecture cible identifiés"]},
+ {t:"Solution validée par les utilisateurs et techniquement réalisable", d:"Le prototype cible est confronté aux utilisateurs et revu par l'Architecture et les équipes techniques.",
+  c:["Prototype testé avec des utilisateurs représentatifs","Retours intégrés et itérations documentées","Revue de faisabilité réalisée par l'Architecture","Contrats API préliminaires définis","MVP et plan de mesure validés"]},
+ {t:"Go / No-Go pour le delivery", d:"Décision commune sur le périmètre, les investissements, la faisabilité, les risques et les conditions de lancement.",
+  c:["Business case validé","Architecture cible validée","Roadmap et backlog priorisés","Estimations et dépendances consolidées","Delivery Readiness Review sans critère bloquant T19","Conditions de lancement réunies"]},
+ {t:"Mise en production validée et dispositif de suivi opérationnel", d:"Le produit est en production, les KPI sont suivis et le backlog d'amélioration continue est alimenté.",
+  c:["Tests techniques, de sécurité et de performance validés","Design QA réalisée","Tracking implémenté et contrôlé","Dashboard de performance opérationnel","Backlog d'amélioration continue alimenté"]}
+];
+
+const SYNC = [
+ ["Insights UX → Diagnostic technique · B vers C","Parcours actuels ↔ Cartographie des systèmes · B et C","Irritants UX ↔ Contraintes techniques · B et C","Performances des parcours → Cartographie des parcours · D vers B"],
+ ["Vision produit → Scénarios d'architecture cible · A vers C","Concepts → Évaluation de faisabilité · B vers C","Objectifs cibles → KPI cibles · A vers D"],
+ ["Prototypes interactifs → Besoins API · B vers C","Tests utilisateurs → Ajustements techniques · B vers C","Parcours cibles → Plan de marquage · B vers D","Règles métier → Parcours cibles et besoins API · A vers B et C"],
+ ["Experience Blueprint → Architecture d'intégration · B vers C","Estimations de charges → Business case · C vers A","Indicateurs de succès → Business case · D vers A"],
+ ["Design handoff → Développement · B vers C","Plan de marquage → Implémentation du tracking · D vers C","Analytics produit → Amélioration continue · D vers A et B"]
+];
+
+const RACI_COLS = ["Business","Product","Design","Architecture","IT","Data"];
+const RACI = [
+ ["Cadrage et kick-off","A","R","C","C","I","I"],["Diagnostic UX et parcours actuels","I","A","R","C","C","C"],
+ ["Diagnostic architecture et SI","I","C","C","A","R","C"],["Audit tracking et KPI actuels","C","A","C","I","C","R"],
+ ["Vision produit et concepts","A","R","R","C","I","C"],["Architecture cible","I","C","C","A","R","C"],
+ ["Prototypes et tests utilisateurs","C","A","R","C","C","I"],["MVP et backlog","C","A/R","C","C","C","C"],
+ ["Business case et roadmap","A","R","C","C","C","C"],["Go / No-Go delivery","A","R","C","C","C","C"],
+ ["Développement et déploiement","I","C","C","C","A/R","I"],["Design QA et handoff","I","C","A/R","I","C","I"],
+ ["Mesure et amélioration continue","C","A","C","I","C","R"]
+];
+
+/* ---------- Page definitions ---------- */
+const PAGES = [
+ {id:"accueil", tree:"Accueil et mode d'emploi", title:"Accueil et mode d'emploi", top:true, miro:["f00","f02"]},
+ {id:"fiche", tree:"Fiche projet", title:"Fiche projet", miro:["f01"]},
+ {id:"tableau", tree:"Tableau de bord", title:"Tableau de bord", miro:["f02","f09"]},
+ {id:"stream-a", tree:"Stream A · Product et Business", lane:"a"},
+ {id:"stream-b", tree:"Stream B · UX Research et Design", lane:"b"},
+ {id:"stream-c", tree:"Stream C · Architecture et Technology", lane:"c"},
+ {id:"stream-d", tree:"Stream D · Data, Analytics et Performance", lane:"d"},
+ {id:"gates", tree:"Gates de validation", title:"Gates de validation", lane:"g", miro:["f02","f03","f04","f05","f06","f07"]},
+ {id:"sync", tree:"Synchronisation Design et Tech", title:"Synchronisation Design et Tech", miro:["f02"]},
+ {id:"gouvernance", tree:"Gouvernance", title:"Gouvernance", miro:["f09"]},
+ {id:"miro", tree:"Liens Miro", title:"Liens Miro du projet", miro:["f00"]},
+ {id:"cr-atelier", tree:"Modèle · Compte-rendu d'atelier", title:"Modèle · Compte-rendu d'atelier", miro:["f08"]}
+];
+PAGES.forEach(p=>{ if(STREAMS[p.id]){ p.title="Stream "+STREAMS[p.id].name; p.miro=["f02","f03","f04","f05","f06","f07"]; }});
+
+/* ---------- Storage ---------- */
+const KEY="playbook-confluence-v1";
+let state={};
+try{ state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ state={}; }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(state)); }catch(e){} }
+
+/* ---------- Render helpers ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function rich(text){
+  // placeholders in grey, T-codes as Miro chips
+  let h=esc(text).replace(/\[[^\]]+\]/g,m=>`<span class="ph">${m}</span>`);
+  return h.replace(/\s?\bT(0[1-9]|1[0-9])\b/g,(m,n)=>{const k="T"+n;return ` <a class="tchip" href="${url(k)}" target="_blank" rel="noopener" title="Ouvrir le template ${esc(T_NAMES[k])} dans Miro">${k}</a>`;});
+}
+let taskCounter=0;
+function tasks(pageId, group, items, withMeta=true){
+  return `<ul class="tasks">${items.map((t,i)=>{
+    const id=`${pageId}__${group}__${i}`; const dom="t"+(taskCounter++);
+    return `<li><input type="checkbox" id="${dom}" data-k="${id}" ${state[id]?"checked":""}><label for="${dom}"><span class="txt">${rich(t)}</span>${withMeta?` <span class="meta">· ${rich(PR)}</span>`:""}</label></li>`;
+  }).join("")}</ul>`;
+}
+const list=items=>`<ul class="list">${items.map(i=>`<li>${rich(i)}</li>`).join("")}</ul>`;
+const panel=(title,body,cls="")=>`<div class="panel ${cls}">${title?`<div class="panel-title">${title}</div>`:""}${body}</div>`;
+function miroBox(keys){
+  return `<div class="miro"><div class="miro-head"><span class="miro-dot">M</span>Dans Miro</div><div class="miro-links">${keys.map(k=>`<a href="${url(k)}" target="_blank" rel="noopener">${esc(FRAME_NAMES[k])}</a>`).join("")}</div></div>`;
+}
+function fields(rows){ return `<div class="fields">${rows.map(([k,v])=>`<div class="k">${esc(k)}</div><div>${rich(v)}</div>`).join("")}</div>`; }
+const STATUS=[["Non démarré","grey"],["En cours","blue"],["En revue","yellow"],["Validé","green"]];
+function statusSelect(key, opts=STATUS){
+  const v=state[key]||opts[0][0]; const col=(opts.find(o=>o[0]===v)||opts[0])[1];
+  return `<span class="lz ${col}">${esc(v)}</span> <select class="st" data-s="${key}" aria-label="Changer le statut">${opts.map(o=>`<option ${o[0]===v?"selected":""}>${esc(o[0])}</option>`).join("")}</select>`;
+}
+function table(head, rows, center=false){
+  return `<div class="tbl-wrap"><table><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td${center&&i>0?' class="c"':""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+const raciLz=v=>{const m={"R":"blue","A":"red","A/R":"purple","C":"yellow","I":"grey"};return `<span class="lz ${m[v]}">${v}</span>`;};
+const phaseTitle=i=>`Phase ${PH[i].n} · ${PH[i].name}`;
+const phaseLink=i=>`<a class="phase-link" href="${url(PH[i].f)}" target="_blank" rel="noopener"><span class="miro-dot">M</span>${esc(FRAME_NAMES[PH[i].f])} ↗</a>`;
+
+/* ---------- Page bodies ---------- */
+const BODY = {
+ accueil(){
+  return panel("Page parent du projet","<p>Toutes les autres pages sont ses sous-pages. Pour démarrer un nouveau projet, copiez cette page avec toutes ses sous-pages.</p>")
+  +`<h2>Démarrer un nouveau projet en 10 minutes</h2>`
+  +tasks("accueil","start",["Copier la page « [Nom du projet] · Accueil » avec l'option d'inclure les pages enfants","Renommer chaque page : remplacer [Nom du projet] par le nom réel (titres uniques dans l'espace)","Supprimer le préfixe « Copie de » ajouté par Confluence","Dupliquer le board Miro « Digital Transformation Playbook »","Mettre à jour la page Liens Miro avec les liens du board dupliqué","Compléter la Fiche projet","Nommer un responsable par stream et le mentionner (@) dans sa page","Planifier le Project Kick-off T01 et les 5 gates dans le Tableau de bord"],false)
+  +`<h2>Arborescence</h2><ul class="list">${PAGES.filter(p=>!p.top).map(p=>`<li><a href="#${p.id}">${esc(p.tree)}</a></li>`).join("")}</ul>`
+  +`<h2>Règles du jeu</h2>`+list(["Les 4 streams avancent en parallèle dans chaque phase. Ce ne sont pas des étapes successives.","Chaque phase se termine par une gate commune : Business, Design, Architecture et Data décident ensemble.","Le statut des livrables se suit uniquement dans le Tableau de bord.","Les ateliers se font dans Miro. Confluence garde la trace : décisions, actions, livrables.","Chaque case cochée a un responsable (@) et une date."])
+  +`<h2>Les 5 phases</h2>`+list(PH.map(p=>`Phase ${p.n} · ${p.name} (${p.en})`));
+ },
+ fiche(){
+  return `<p>À compléter au kick-off, puis à tenir à jour.</p><h2>Identité du projet</h2>`
+  +fields([["Nom du projet","[Nom du projet]"],["Objectif business","[Objectif business]"],["Population cible","[Population cible]"],["Business sponsor","[Responsable]"],["Product Owner","[Responsable]"],["UX Lead","[Responsable]"],["Architecture Lead","[Responsable]"],["Tech Lead","[Responsable]"],["Data Lead","[Responsable]"],["Project Manager","[Responsable]"],["Date de démarrage","[Date]"],["Mise en production visée","[Date]"]])
+  +`<h2>Contexte et enjeux</h2><p class="ph">[Pourquoi ce projet, pourquoi maintenant, quel problème on résout]</p>`
+  +`<h2>Périmètre</h2><h3>Dans le périmètre</h3>`+list(["[Livrable ou parcours inclus]"])+`<h3>Hors périmètre</h3>`+list(["[Livrable ou parcours exclu]"])
+  +`<h2>Indicateurs de succès</h2>`+table(["KPI","Valeur actuelle","Cible"],[["[KPI 1]",'<span class="ph">[Valeur]</span>','<span class="ph">[Valeur]</span>'],["[KPI 2]",'<span class="ph">[Valeur]</span>','<span class="ph">[Valeur]</span>']].map(r=>[rich(r[0]),r[1],r[2]]))
+  +`<h2>Équipe par stream</h2>`+fields([["A · Product et Business","[Responsable] · Contributeurs : [Noms]"],["B · UX Research et Design","[Responsable] · Contributeurs : [Noms]"],["C · Architecture et Technology","[Responsable] · Contributeurs : [Noms]"],["D · Data, Analytics et Performance","[Responsable] · Contributeurs : [Noms]"]])
+  +`<h2>Jalons cibles</h2>`+fields(GATES.map((g,i)=>[`Gate 0${i+1}`,"[Date]"]));
+ },
+ tableau(){
+  let h=panel("","<p>Seule source de vérité pour l'avancement. Mettre à jour après chaque atelier et chaque gate.</p>")
+  +`<h2>Avancement par phase</h2>`+table(["Phase","Statut","Gate prévue le"],PH.map((p,i)=>[`${esc(phaseTitle(i))} <a class="tchip" href="${url(p.f)}" target="_blank" rel="noopener">Miro</a>`,statusSelect(`tableau__phase__${i}`),'<span class="ph">[Date]</span>']));
+  LIVRABLES.forEach((ls,i)=>{
+   h+=`<h2>Livrables · ${esc(phaseTitle(i))}</h2>`+table(["Livrable","Statut","Responsable","Échéance"],ls.map((l,j)=>[esc(l),statusSelect(`tableau__liv__${i}__${j}`),'<span class="ph">[Responsable]</span>','<span class="ph">[Date]</span>']));
+  });
+  return h+`<h2>Points d'attention de la semaine</h2>`+list(["[Point bloquant, risque ou décision attendue]"]);
+ },
+ gates(){
+  let h=panel("Décisions communes","<p>Les gates ne se valident jamais dans la page d'un seul stream. Participants obligatoires : Business sponsor, Product Owner, UX Lead, Architecture Lead, Tech Lead, Data Lead.</p>");
+  GATES.forEach((g,i)=>{
+   h+=`<h2>Gate 0${i+1} · ${esc(g.t)}</h2>${phaseLink(i)}<p>${esc(g.d)}</p>`+tasks("gates","g"+i,g.c,false)
+   +fields([["Date","[Date]"],["Décideur","[Responsable]"]])
+   +`<p><strong>Décision :</strong> ${statusSelect(`gates__dec__${i}`,[["À décider","grey"],["Go","green"],["Ajustements","yellow"],["No-Go","red"]])}</p>`
+   +`<p><strong>Commentaires et conditions :</strong> <span class="ph">[Décision]</span></p>`;
+  });
+  return h;
+ },
+ sync(){
+  let h=`<p>Les points où les streams doivent se parler avant d'avancer. Un point non tenu se signale dans le registre des risques.</p>`;
+  SYNC.forEach((s,i)=>{ h+=`<h2>${esc(phaseTitle(i))}</h2>`+tasks("sync","p"+i,s.map(x=>x+" · [Date]"),false); });
+  return h+`<h2>Rituels recommandés</h2>`+list(["Point de synchronisation Design et Tech hebdomadaire de 30 minutes pendant les phases 01 à 04","Revue commune avant chaque gate, 2 jours avant la date de décision","En phase 05, Design QA intégrée à la définition du « done » de chaque sprint"]);
+ },
+ gouvernance(){
+  return `<h2>RACI</h2><p>Proposition par défaut, à adapter. R = Réalise · A = Approuve · C = Consulté · I = Informé.</p>`
+  +table(["Activité ou livrable",...RACI_COLS],RACI.map(r=>[esc(r[0]),...r.slice(1).map(raciLz)]),true)
+  +`<h2>Decision Log</h2>`+table(["Décision","Date","Phase","Responsable","Contexte","Statut"],[[rich("[Décision]"),rich("[Date]"),"Phase 01",rich("[Responsable]"),rich("[Options étudiées, impacts Design et Tech]"),'<span class="lz yellow">Proposée</span>'],[rich("Exemple : périmètre MVP limité à [Parcours]"),rich("[Date]"),"Phase 03",rich("[Responsable]"),rich("[Justification]"),'<span class="lz yellow">Proposée</span>']])
+  +`<h2>Registre des risques et dépendances</h2>`+table(["Risque ou dépendance","Type","Stream","Probabilité","Impact","Responsable","Mitigation","Statut"],[[rich("[Risque]"),"Risque","Transverse","Moyenne","Moyen",rich("[Responsable]"),rich("[Action]"),'<span class="lz red">Ouvert</span>'],[rich("Exemple : disponibilité des API du [Système]"),"Dépendance","C · Tech","Forte","Fort",rich("[Responsable]"),"Planifier un PoC en phase 03",'<span class="lz red">Ouvert</span>']])
+  +`<h2>Rituels de gouvernance</h2>`+tasks("gouvernance","rit",["Comité projet toutes les [Fréquence] · sponsor, Product Owner, leads des 4 streams","Revue du registre des risques à chaque comité","Mise à jour du Tableau de bord avant chaque comité","Revue pré-gate 2 jours avant chaque gate"],false);
+ },
+ miro(){
+  const frames=Object.keys(FRAME_NAMES).map(k=>[esc(FRAME_NAMES[k]),`<a href="${url(k)}" target="_blank" rel="noopener">Ouvrir ↗</a>`,'<span class="ph">[Lien du board dupliqué]</span>']);
+  const tpl=Object.keys(T_NAMES).map(k=>[`<span class="tchip" style="margin:0">${k}</span> ${esc(T_NAMES[k])}`,`<a href="${url(k)}" target="_blank" rel="noopener">Ouvrir ↗</a>`,'<span class="ph">[Lien du board dupliqué]</span>']);
+  return panel("Une seule page à mettre à jour","<p>Quand vous dupliquez le board Miro, chaque frame reçoit un nouvel identifiant : les liens du master ne pointent plus vers votre copie. Mettez à jour cette page une fois au démarrage, et les autres pages y renvoient.</p>","note")
+  +`<div class="fields"><div class="k">Board Miro du projet</div><div>${rich("[Lien vers le board Miro]")}</div><div class="k">Board master (référence)</div><div><a href="${BOARD}" target="_blank" rel="noopener">Digital Transformation Playbook ↗</a></div></div>`
+  +`<h2>Sections du board</h2>`+table(["Section","Master","Projet"],frames)
+  +`<h2>Templates d'ateliers</h2>`+table(["Template","Master","Projet"],tpl)
+  +`<h2>Comment récupérer un lien de frame dans Miro</h2>`+list(["Clic droit sur le frame dans Miro, puis « Copier le lien »","Coller le lien dans la colonne Projet du tableau ci-dessus"]);
+ },
+ "cr-atelier"(){
+  return panel("Modèle","<p>À dupliquer comme sous-page de « Comptes-rendus d'ateliers » après chaque atelier. Titre conseillé : [Nom du projet] · CR · [Nom de l'atelier] · [Date].</p>")
+  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T19 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Phase","[01 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"],["Facilitateur","[Responsable]"],["Participants","[Noms et rôles]"]])
+  +`<h2>Objectif de l'atelier</h2><p class="ph">[Ce que l'atelier devait produire]</p>`
+  +`<h2>Ce qui en ressort</h2>`+list(["[Résultat clé 1]","[Résultat clé 2]","[Résultat clé 3]"])
+  +`<h2>Décisions prises</h2>`+list(["[Décision] · à reporter dans le Decision Log"])
+  +`<h2>Actions</h2>`+tasks("cr","act",["[Action]","[Action]"])
+  +`<h2>Livrables impactés</h2>`+list(["[Livrable] · nouveau statut à reporter dans le Tableau de bord"])
+  +`<h2>Critères de validation de l'atelier</h2>`+tasks("cr","crit",["Les critères du template Miro sont atteints","Les décisions sont tracées","Les actions ont un responsable et une date"],false);
+ }
+};
+function streamBody(id){
+  const s=STREAMS[id];
+  let h=fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]])
+   +panel("Comment utiliser cette page","<p>Cochez les activités au fil de l'eau, avec un responsable (@) et une date sur chaque ligne. Le statut des livrables se met à jour dans le <a href=\"#tableau\">Tableau de bord</a>. Les codes T01 à T19 ouvrent le template d'atelier dans Miro.</p>");
+  s.phases.forEach((p,i)=>{
+   h+=`<h2>${esc(phaseTitle(i))}</h2>${phaseLink(i)}<p><strong>Objectif :</strong> ${esc(p.obj)}</p>`
+    +`<h3>Activités</h3>`+tasks(id,"p"+i+"a",p.act)
+    +`<h3>Contributions aux livrables communs</h3>`+tasks(id,"p"+i+"c",p.con,false)
+    +`<h3>Synchronisation</h3>`+tasks(id,"p"+i+"s",p.syn,false);
+  });
+  return h;
+}
+
+/* ---------- Shell ---------- */
+const treeEl=document.getElementById("tree"), pageEl=document.getElementById("page");
+function pageProgress(id){
+  const keys=Object.keys(state).filter(k=>k.startsWith(id+"__")&&state[k]===true).length;
+  return keys;
+}
+function renderTree(cur){
+  const top=PAGES.find(p=>p.top);
+  treeEl.innerHTML=`<li><a href="#${top.id}" ${cur===top.id?'aria-current="page"':""}><span class="bullet"></span>[Nom du projet] · Accueil</a></li>`
+   +PAGES.filter(p=>!p.top).map(p=>`<li class="child"><a href="#${p.id}" ${cur===p.id?'aria-current="page"':""}>${p.lane?`<span class="lane lane-${p.lane}"></span>`:'<span class="bullet"></span>'}<span>${esc(p.tree)}</span></a></li>`).join("");
+}
+function render(){
+  let id=(location.hash||"").slice(1); if(!PAGES.find(p=>p.id===id)) id="accueil";
+  const p=PAGES.find(x=>x.id===id); taskCounter=0;
+  const body=STREAMS[id]?streamBody(id):BODY[id]();
+  pageEl.innerHTML=`<div class="crumbs"><a href="#accueil">Digital Transformation Playbook</a>${p.top?"":` / <a href="#accueil">[Nom du projet] · Accueil</a>`}</div>
+   <h1 class="title">[Nom du projet] · ${esc(p.title)}</h1>
+   <div class="byline"><span>Modèle de page · Playbook v1</span><span class="progress" id="prog"></span>
+     <span class="tools"><button class="btn" id="copyBtn" type="button">Copier pour Confluence</button></span></div>
+   ${miroBox(p.miro)}
+   <div class="content" id="content">${body}</div>`;
+  renderTree(id); updateProgress();
+  document.getElementById("copyBtn").onclick=copyPage;
+  document.getElementById("side").classList.remove("open");
+  document.getElementById("menuBtn").setAttribute("aria-expanded","false");
+  window.scrollTo(0,0);
+}
+function updateProgress(){
+  const boxes=[...pageEl.querySelectorAll(".tasks input")];
+  const prog=document.getElementById("prog"); if(!prog) return;
+  if(!boxes.length){prog.textContent="";return;}
+  const done=boxes.filter(b=>b.checked).length, pct=Math.round(done/boxes.length*100);
+  prog.innerHTML=`<span class="bar"><i style="width:${pct}%"></i></span><span style="font-variant-numeric:tabular-nums">${done}/${boxes.length} tâches</span>`;
+}
+pageEl.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.matches(".tasks input")){ if(t.checked) state[t.dataset.k]=true; else delete state[t.dataset.k]; save(); updateProgress(); }
+  if(t.matches("select.st")){ state[t.dataset.s]=t.value; save(); const lz=t.previousElementSibling; const opt=[...STATUS,["À décider","grey"],["Go","green"],["Ajustements","yellow"],["No-Go","red"]].find(o=>o[0]===t.value); lz.className="lz "+(opt?opt[1]:"grey"); lz.textContent=t.value; }
+});
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200);}
+async function copyPage(){
+  const src=document.getElementById("content").cloneNode(true);
+  src.querySelectorAll(".tasks li").forEach(li=>{const cb=li.querySelector("input");const lab=li.querySelector("label");li.innerHTML=(cb.checked?"☑ ":"☐ ")+lab.innerHTML;});
+  src.querySelectorAll("select").forEach(s=>s.remove());
+  const title=pageEl.querySelector("h1").textContent;
+  const miro=pageEl.querySelector(".miro").cloneNode(true);
+  const html=`<h1>${esc(title)}</h1>`+`<p><strong>Dans Miro :</strong> ${[...miro.querySelectorAll("a")].map(a=>`<a href="${a.href}">${esc(a.textContent)}</a>`).join(" · ")}</p>`+src.innerHTML;
+  const tmp=document.createElement("div"); tmp.innerHTML=html; const text=tmp.innerText;
+  try{
+    if(window.ClipboardItem&&navigator.clipboard.write){
+      await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([html],{type:"text/html"}),"text/plain":new Blob([text],{type:"text/plain"})})]);
+    }else{ await navigator.clipboard.writeText(text); }
+    toast("Page copiée, collez-la dans Confluence");
+  }catch(e){
+    const r=document.createRange(); r.selectNodeContents(document.getElementById("content"));
+    const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    toast("Contenu sélectionné : utilisez Ctrl+C ou Cmd+C");
+  }
+}
+document.getElementById("menuBtn").onclick=e=>{const s=document.getElementById("side");const o=s.classList.toggle("open");e.currentTarget.setAttribute("aria-expanded",o);};
+window.addEventListener("hashchange",render);
+render();
+</script>
+</body></html>
