@@ -402,6 +402,43 @@ const ROLES=[
  ["V","Validator","Valide les propositions, les décisions et les livrables.","green"],
  ["F","Facilitator","Structure les échanges, anime les ateliers, coordonne les contributions et veille au respect de la méthodologie.","purple"]
 ];
+const STAKE=[
+ ["SP","Sponsor · Hicham","Porte l'ambition du projet, arbitre les investissements et tranche aux gates."],
+ ["FO","Functional owner","Responsable du périmètre fonctionnel : valide les choix métier et l'expérience cible."],
+ ["TO","Technical owner","Responsable de la solution technique : valide les choix d'architecture et de delivery."],
+ ["PO","PO / PPO","Porte la vision produit, le backlog et la priorisation."],
+ ["SM","Scrum master","Garantit le cadre agile et anime les rituels de delivery."],
+ ["RM","Référent métier","Expert du terrain et des processus : apporte la connaissance métier."],
+ ["UX","UX","Mène la recherche, conçoit l'expérience et anime les ateliers de design."],
+ ["US","Users","Utilisateurs finaux : interviewés, co-concepteurs et testeurs."],
+ ["AR","Archis","Analysent l'architecture existante et conçoivent l'architecture cible."],
+ ["IO","IT owner","Responsable des systèmes et applications existants (run)."],
+ ["TL","Tech lead","Responsable technique de l'équipe : faisabilité, estimation, qualité du code."],
+ ["SQ","Squad","Équipe de développement : développeurs et QA."]
+];
+/* Order of values follows STAKE. "-" = non concerné. "F/D" = anime et produit. */
+const ATELIER_ROLES=[
+ ["T01","V","P","P","F","I","P","P","-","P","P","P","I"],
+ ["T02","V","P","P","D","I","P","F","-","I","I","I","-"],
+ ["T03","I","V","I","P","-","P","F/D","-","-","-","I","-"],
+ ["T04","I","V","-","P","-","P","F/D","P","-","-","-","-"],
+ ["T05","I","V","P","P","-","P","F/D","P","P","I","I","-"],
+ ["T06","I","V","P","P","-","P","F/D","P","P","P","P","-"],
+ ["T07","I","I","V","P","-","-","P","-","F/D","P","D","I"],
+ ["T08","-","I","V","I","-","P","P","-","F/D","D","P","I"],
+ ["T09","-","I","V","P","-","-","P","-","F","P","D","P"],
+ ["T10","I","V","P","P","-","P","F/D","-","P","-","P","-"],
+ ["T11","P","V","P","P","-","P","F/D","-","P","-","P","P"],
+ ["T12","I","V","P","F/D","P","P","P","-","P","I","P","-"],
+ ["T13","I","P","V","P","-","-","P","-","F/D","P","D","I"],
+ ["T14","I","V","P","P","-","P","F/D","P","P","-","P","I"],
+ ["T15","I","V","I","P","-","P","F/D","P","-","-","I","I"],
+ ["T16","I","V","P","P","-","P","F/D","-","D","P","P","-"],
+ ["T17","V","P","P","F/D","P","P","P","-","P","I","P","I"],
+ ["T18","V","P","P","F/D","P","I","P","-","P","P","P","I"],
+ ["T19","I","P","V","D","F","-","P","-","P","P","D","P"],
+ ["Gates","V","P","P","F/D","I","P","P","-","P","P","P","I"]
+];
 const FACILITATORS=["Project Manager","UX Lead","Architecture Lead","Data Lead","UX Lead","Architecture Lead","UX Lead","Product Owner","Product Owner","Project Manager","Tech Lead","UX Lead","Data Lead"];
 const phaseTitle=i=>`Phase ${PH[i].n} · ${PH[i].name}`;
 const phaseLink=i=>`<a class="phase-link" href="${url(PH[i].f)}" target="_blank" rel="noopener"><span class="miro-dot">M</span>${esc(FRAME_NAMES[PH[i].f])} ↗</a>`;
@@ -497,7 +534,17 @@ const BODY = {
      I:["Suivre l'avancement dans le Tableau de bord"]}}
   ];
   let h=panel("En une phrase","<p>Le Facilitator fait avancer le groupe, les Doers produisent, les Participants enrichissent, le Validator tranche, les Informed sont tenus au courant.</p>");
-  h+=`<h2>Qui fait quoi, en un coup d'œil</h2>`+table(["Rôle","Préparer","Animer","Décider","Restituer","Suivre"],
+  const roleLz=v=>{ if(v==="-") return '<span class="ph">–</span>'; const c={"F":"purple","F/D":"purple","V":"green","D":"blue","P":"yellow","I":"grey"}[v]; return `<span class="lz ${c}">${v}</span>`; };
+  h+=`<h2>Parties prenantes de la Digital Factory</h2>`
+   +table(["Partie prenante","Rôle dans le projet"],STAKE.map(s=>[`<strong>${esc(s[1])}</strong>`,esc(s[2])]));
+  h+=`<h2>Rôle de chaque partie prenante, atelier par atelier</h2>`
+   +`<p>Proposition par défaut, à ajuster au projet. F = Facilitator · V = Validator · D = Doer · P = Participant · I = Informed · F/D = anime et produit · – = non concerné. Cliquez sur un code d'atelier pour ouvrir son template dans Miro.</p>`
+   +table(["Atelier",...STAKE.map(s=>s[1].replace(" · Hicham",""))],ATELIER_ROLES.map(r=>{
+      const k=r[0]; const name=k==="Gates"?"Gates de validation G01 à G05":T_NAMES[k];
+      const head=k==="Gates"?`<a href="#gates"><strong>${esc(name)}</strong></a>`:`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(name)}`;
+      return [head,...r.slice(1).map(roleLz)];
+    }),true);
+  h+=`<h2>Ce que fait chaque rôle à chaque étape</h2>`+table(["Rôle","Préparer","Animer","Décider","Restituer","Suivre"],
     ["F","V","D","P","I"].map(k=>[lz(k),...STEPS.map(s=>s.items[k]?esc(s.items[k][0]):'<span class="ph">·</span>')]));
   STEPS.forEach((s,i)=>{
     h+=`<h2>${esc(s.t)}</h2><p><strong>Quand :</strong> ${esc(s.w)}</p>`;
