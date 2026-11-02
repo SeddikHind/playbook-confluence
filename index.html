@@ -353,6 +353,7 @@ const PAGES = [
  {id:"gates", tree:"Gates de validation", title:"Gates de validation", lane:"g", miro:["f02","f03","f04","f05","f06","f07"]},
  {id:"sync", tree:"Synchronisation Design et Tech", title:"Synchronisation Design et Tech", miro:["f02"]},
  {id:"gouvernance", tree:"Gouvernance", title:"Gouvernance", miro:["f09"]},
+ {id:"roles-atelier", tree:"Rôles en atelier", title:"Rôles en atelier", miro:["f08","f00"]},
  {id:"miro", tree:"Liens Miro", title:"Liens Miro du projet", miro:["f00"]},
  {id:"cr-atelier", tree:"Modèle · Compte-rendu d'atelier", title:"Modèle · Compte-rendu d'atelier", miro:["f08"]}
 ];
@@ -448,7 +449,7 @@ const BODY = {
   return h+`<h2>Rituels recommandés</h2>`+list(["Point de synchronisation Design et Tech hebdomadaire de 30 minutes pendant les phases 01 à 04","Revue commune avant chaque gate, 2 jours avant la date de décision","En phase 05, Design QA intégrée à la définition du « done » de chaque sprint"]);
  },
  gouvernance(){
-  return `<h2>Rôles</h2><p>Chaque personne impliquée dans une activité a l'un de ces cinq rôles.</p>`
+  return `<h2>Rôles</h2><p>Chaque personne impliquée dans une activité a l'un de ces cinq rôles. Leur usage concret avant, pendant et après un atelier est décrit dans <a href="#roles-atelier">Rôles en atelier</a>.</p>`
   +table(["Rôle","Définition"],ROLES.map(([k,n,d,c])=>[`<span class="lz ${c}">${k}</span> <strong>${n}</strong>`,esc(d)]))
   +`<h2>Matrice des rôles</h2><p>Proposition par défaut, à adapter. D = Doer · P = Participant · I = Informed · V = Validator. Le Facilitator anime l'activité et garantit le respect de la méthodologie.</p>`
   +table(["Activité ou livrable",...RACI_COLS,"Facilitator"],RACI.map((r,i)=>[esc(r[0]),...r.slice(1).map(raciLz),`<span class="lz purple">F</span> ${esc(FACILITATORS[i])}`]),true)
@@ -465,9 +466,50 @@ const BODY = {
   +`<h2>Templates d'ateliers</h2>`+table(["Template","Master","Projet"],tpl)
   +`<h2>Comment récupérer un lien de frame dans Miro</h2>`+list(["Clic droit sur le frame dans Miro, puis « Copier le lien »","Coller le lien dans la colonne Projet du tableau ci-dessus"]);
  },
+ "roles-atelier"(){
+  const lz=(k)=>{const r=ROLES.find(x=>x[0]===k);return `<span class="lz ${r[3]}">${k}</span> <strong>${r[1]}</strong>`;};
+  const STEPS=[
+   {t:"Étape 1 · Préparer", w:"5 à 2 jours avant l'atelier", items:{
+     F:["Définir l'objectif de l'atelier et le résultat attendu","Choisir le template Miro (T01 à T19) et le dupliquer","Attribuer un rôle à chaque invité et l'indiquer dans l'invitation","Envoyer l'invitation avec l'agenda et les inputs à lire"],
+     V:["Valider l'objectif, le résultat attendu et la liste des invités"],
+     D:["Préparer les inputs : données, existant, maquettes, analyses","Pré-remplir les zones du template quand c'est utile"],
+     P:["Lire les inputs avant l'atelier"],
+     I:["Recevoir l'agenda pour information (pas d'invitation à l'atelier)"]}},
+   {t:"Étape 2 · Animer", w:"Pendant l'atelier", items:{
+     F:["Ouvrir en rappelant l'objectif, les rôles et les règles","Tenir le temps avec le minuteur du template","Faire contribuer tout le monde, puis faire converger","Rester neutre : le Facilitator ne tranche pas"],
+     D:["Présenter les inputs","Capturer et structurer les contributions dans Miro"],
+     P:["Contribuer : post-it, idées, expertise, votes"],
+     V:["Écouter et poser les questions qui aideront à décider"]}},
+   {t:"Étape 3 · Décider", w:"Les 10 dernières minutes", items:{
+     F:["Relire à voix haute les décisions et les actions"],
+     V:["Valider, demander des ajustements ou refuser chaque décision"],
+     D:["Prendre les actions avec une date d'échéance"],
+     P:["Signaler un désaccord ou un risque avant la clôture"]}},
+   {t:"Étape 4 · Restituer", w:"Dans les 24 heures", items:{
+     F:["Rédiger le compte-rendu à partir du modèle et le publier sous « Comptes-rendus d'ateliers »","Reporter les décisions dans le Decision Log"],
+     D:["Mettre à jour le statut des livrables dans le Tableau de bord"],
+     V:["Relire le compte-rendu et confirmer les décisions"],
+     I:["Recevoir le compte-rendu"]}},
+   {t:"Étape 5 · Suivre", w:"Jusqu'à l'atelier suivant ou la gate", items:{
+     D:["Réaliser les actions et produire les livrables"],
+     V:["Valider les livrables quand ils sont prêts"],
+     F:["Vérifier l'avancement des actions","Déclencher les points de synchronisation avec les autres streams","Préparer l'atelier suivant ou la revue de gate"],
+     I:["Suivre l'avancement dans le Tableau de bord"]}}
+  ];
+  let h=panel("En une phrase","<p>Le Facilitator fait avancer le groupe, les Doers produisent, les Participants enrichissent, le Validator tranche, les Informed sont tenus au courant.</p>");
+  h+=`<h2>Qui fait quoi, en un coup d'œil</h2>`+table(["Rôle","Préparer","Animer","Décider","Restituer","Suivre"],
+    ["F","V","D","P","I"].map(k=>[lz(k),...STEPS.map(s=>s.items[k]?esc(s.items[k][0]):'<span class="ph">·</span>')]));
+  STEPS.forEach((s,i)=>{
+    h+=`<h2>${esc(s.t)}</h2><p><strong>Quand :</strong> ${esc(s.w)}</p>`;
+    ["F","V","D","P","I"].forEach(k=>{ if(s.items[k]){ h+=`<h3>${lz(k)}</h3>`+tasks("roles-atelier",`s${i}${k}`,s.items[k],false); }});
+  });
+  return h+`<h2>Règles d'or</h2>`+list(["Une seule personne Validator par décision.","Le Facilitator ne tranche pas : il garantit la méthode, pas le contenu.","Au-delà de 8 Participants actifs, faire des sous-groupes.","Les Informed ne sont pas invités à l'atelier : ils reçoivent le compte-rendu.","Chaque action sort de l'atelier avec un Doer et une date."]);
+ },
  "cr-atelier"(){
   return panel("Modèle","<p>À dupliquer comme sous-page de « Comptes-rendus d'ateliers » après chaque atelier. Titre conseillé : [Nom du projet] · CR · [Nom de l'atelier] · [Date].</p>")
-  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T19 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Phase","[01 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"],["Facilitateur","[Responsable]"],["Participants","[Noms et rôles]"]])
+  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T19 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Phase","[01 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
+  +`<h2>Rôles de l'atelier</h2><p>Voir <a href="#roles-atelier">Rôles en atelier</a> pour ce que chaque rôle fait à chaque étape.</p>`
+  +fields([["F · Facilitator","[Responsable]"],["V · Validator","[Responsable] (une seule personne par décision)"],["D · Doers","[Noms]"],["P · Participants","[Noms et rôles]"],["I · Informed","[Noms] · reçoivent ce compte-rendu"]])
   +`<h2>Objectif de l'atelier</h2><p class="ph">[Ce que l'atelier devait produire]</p>`
   +`<h2>Ce qui en ressort</h2>`+list(["[Résultat clé 1]","[Résultat clé 2]","[Résultat clé 3]"])
   +`<h2>Décisions prises</h2>`+list(["[Décision] · à reporter dans le Decision Log"])
