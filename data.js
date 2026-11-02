@@ -230,7 +230,8 @@ const doersOf=k=>AR_SRC[k].D.split(" ").map(stakeName).join(", ");
 const gateLabel=(g,i)=>(g.type==='client'?'Jalon client':'Revue interne')+' · '+g.t;
 /* ---------- Jira : une epic par étape, une tâche par activité, un composant par stream ---------- */
 const PRJ="[PRJ]";
-const JSTATUS=[["À faire","grey"],["En cours","blue"],["Bloqué","red"],["Terminé","green"]];
+const JSTATUS=[["À faire","grey"],["En cours","blue"],["Bloqué","red"],["Terminé","green"],["Non applicable","na"]];
+const jMotif=t=>state["ji__"+t.id+"__m"]||"";
 const STREAM_IDS=["stream-a","stream-b","stream-c","stream-d"];
 const COMP=sid=>STREAMS[sid].name;
 const EPICS=PH.map((p,i)=>({i,key:`${PRJ}-${i+1}`,name:`${p.n} · ${p.name}`,sub:p.sub}));
@@ -248,4 +249,4 @@ const jStatus=t=>state["ji__"+t.id+"__s"]||"À faire";
 const jAssignee=t=>state["ji__"+t.id+"__a"]||t.def;
 const ASSIGNEES=STAKE.map(x=>x[1].replace(" · Hicham",""));
 const curStep=()=>{const v=parseInt(state.cur_step,10);return isNaN(v)?1:v;};
-function jStats(list){ const c={total:list.length,done:0,doing:0,blocked:0}; list.forEach(t=>{const v=jStatus(t); if(v==="Terminé")c.done++; else if(v==="En cours")c.doing++; else if(v==="Bloqué")c.blocked++;}); c.pct=c.total?Math.round(c.done/c.total*100):0; return c; }
+function jStats(list){ const c={total:list.length,done:0,doing:0,blocked:0,na:0}; list.forEach(t=>{const v=jStatus(t); if(v==="Non applicable"){c.na++;c.total--;} else if(v==="Terminé")c.done++; else if(v==="En cours")c.doing++; else if(v==="Bloqué")c.blocked++;}); c.pct=c.total?Math.round(c.done/c.total*100):0; return c; }

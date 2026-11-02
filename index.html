@@ -114,7 +114,7 @@ h1.title{font-size:28px;line-height:1.25;font-weight:600;margin:0 0 8px;text-wra
 .lz{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:3px;padding:1px 5px;white-space:nowrap;line-height:1.5}
 .lz.grey{background:var(--lz-grey);color:var(--lz-grey-fg)} .lz.blue{background:var(--lz-blue);color:var(--lz-blue-fg)}
 .lz.yellow{background:var(--lz-yellow);color:var(--lz-yellow-fg)} .lz.green{background:var(--lz-green);color:var(--lz-green-fg)}
-.lz.red{background:var(--lz-red);color:var(--lz-red-fg)} .lz.purple{background:var(--lz-purple);color:var(--lz-purple-fg)}
+.lz.red{background:var(--lz-red);color:var(--lz-red-fg)} .lz.na{background:transparent;color:var(--faint);box-shadow:inset 0 0 0 1px var(--faint)} .lz.purple{background:var(--lz-purple);color:var(--lz-purple-fg)}
 
 .fields{display:grid;grid-template-columns:200px minmax(0,1fr);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:8px 0 16px}
 .fields div{padding:8px 12px;border-bottom:1px solid var(--line)}
@@ -260,10 +260,10 @@ const phaseLink=i=>`<a class="phase-link" href="${url(PH[i].f)}" target="_blank"
 function assigneeSelect(t){ const v=jAssignee(t); const opts=ASSIGNEES.includes(v)?ASSIGNEES:[v,...ASSIGNEES];
   return `<span class="as-v" hidden>${esc(v)}</span><select class="as" data-a="ji__${t.id}__a" aria-label="Assigné">${opts.map(o=>`<option ${o===v?"selected":""}>${esc(o)}</option>`).join("")}</select>`; }
 function jTable(list,showStream=false){
-  return table(["Clé","Tâche",...(showStream?["Stream"]:[]),"Assigné","Statut"],list.map(t=>[`<span class="jkey">${esc(t.key)}</span>`,rich(t.txt),...(showStream?[t.sid?`<span class="lane lane-${t.lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(STREAMS[t.sid].name.split(" · ")[0])}`:"Transverse"]:[]),assigneeSelect(t),statusSelect("ji__"+t.id+"__s",JSTATUS)]));
+  return table(["Clé","Tâche",...(showStream?["Stream"]:[]),"Assigné","Statut"],list.map(t=>[`<span class="jkey">${esc(t.key)}</span>`,rich(t.txt)+(jStatus(t)==="Non applicable"?`<div class="meta" style="white-space:normal">Non applicable${jMotif(t)?" · "+esc(jMotif(t)):""}</div>`:""),...(showStream?[t.sid?`<span class="lane lane-${t.lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(STREAMS[t.sid].name.split(" · ")[0])}`:"Transverse"]:[]),assigneeSelect(t),statusSelect("ji__"+t.id+"__s",JSTATUS)]));
 }
 const jqlBox=q=>`<div class="jql" title="Requête JQL de la macro Jira">${esc(q)}</div>`;
-function cellLz(c){ if(!c.total) return '<span class="ph">–</span>';
+function cellLz(c){ if(!c.total) return c.na?'<span class="lz na">N/A</span>':'<span class="ph">–</span>';
   if(c.blocked) return `<span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`;
   if(c.done===c.total) return '<span class="lz green">Terminé</span>';
   if(c.done) return `<span class="lz blue">${c.pct} %</span>`;
@@ -309,7 +309,7 @@ const BODY = {
   +fields([["Projet",`${PRJ} · [Nom du projet]`],["Epics","Une par étape de la démarche, soit 6 epics"],["Tâches","Une par activité du playbook, rattachée à l'epic de son étape"],["Composants","Un par stream : A, B, C, D, plus Transverse pour les jalons"],["Assigné","La personne concernée. Proposition par défaut : le Doer de l'atelier ou le responsable du stream"],["Labels",'atelier-T01 à atelier-T24 pour relier une tâche à son template Miro, jalon pour les jalons et revues']])
   +`<h3>Epics</h3>`+table(["Clé","Epic","Se termine par"],EPICS.map((e,i)=>[`<span class="jkey">${esc(e.key)}</span>`,`<span class="jicon epic"></span>${esc(e.name)} <span class="lz purple">${esc(e.sub)}</span>`,esc(gateLabel(GATES[i],i))]))
   +`<h3>Composants</h3>`+table(["Composant","Responsable","Tâches"],[...STREAM_IDS.map(sid=>[`<span class="lane lane-${STREAMS[sid].lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(COMP(sid))}`,'<span class="ph">[Responsable]</span>',String(JTASKS.filter(t=>t.sid===sid).length)]),["Transverse",'<span class="ph">[Facilitateur Digital Factory]</span>',String(JTASKS.filter(t=>t.gate).length)]])
-  +`<h3>Workflow</h3><p>${JSTATUS.map(([n,c])=>`<span class="lz ${c}">${esc(n)}</span>`).join(" → ")}. Une tâche « Bloqué » remonte automatiquement dans la Vue d'ensemble.</p>`
+  +`<h3>Workflow</h3><p>${JSTATUS.map(([n,c])=>`<span class="lz ${c}">${esc(n)}</span>`).join(" → ")}. Une tâche « Bloqué » remonte automatiquement dans la Vue d'ensemble. « Non applicable » signifie que l'équipe a décidé de ne pas faire cette tâche sur ce projet : la décision et son motif restent tracés, et la tâche sort du calcul d'avancement.</p>`
   +`<h2>Créer le projet en 15 minutes</h2>`+tasks("jira","setup",["Créer le projet Jira (modèle Scrum ou Kanban) avec la clé du projet","Créer les 5 composants : les 4 streams et Transverse","Télécharger le CSV ci-dessous et l'importer (Paramètres système › Import externe › CSV)","Pendant l'import, faire correspondre la colonne Assignee aux vrais comptes Jira","Vérifier que chaque tâche est assignée à la bonne personne","Dans chaque page stream de Confluence, remplacer [PRJ] par la clé du projet dans la macro Jira"],false)
   +`<p><button class="btn" type="button" id="csvBtn">Télécharger le CSV d'import Jira</button> <span class="meta">${EPICS.length} epics · ${JTASKS.length} tâches, avec les assignés actuels</span></p>`
   +`<h2>Macros Jira dans Confluence</h2>`+table(["Page","Macro","Filtre JQL"],[
@@ -457,7 +457,7 @@ function streamBody(id){
    +panel("Dans Confluence",`<p><a href="jira.html#board-${s.lane}">Ouvrir le tableau Jira du stream ↗</a></p>`+"<p>Chaque tableau ci-dessous est une macro <strong>Jira Issues</strong>. Le statut et l'assigné se modifient dans Jira, la page se met à jour seule.</p>"+jqlBox(`project = ${PRJ} AND component = "${COMP(id)}" ORDER BY "Epic Link", rank`));
   s.phases.forEach((p,i)=>{
    const list=mine.filter(t=>t.epic===i); const c=jStats(list);
-   h+=`<details class="epic${i===cs?" cur":""}" data-i="${i}" ${i===cs?"open":""}><summary><span class="jkey">${esc(EPICS[i].key)}</span><span class="t">${esc(PH[i].n+" · "+PH[i].name)}</span><span class="lz purple">${esc(PH[i].sub)}</span>${i===cs?'<span class="lz blue">En cours</span>':""}<span class="cnt">${c.done}/${c.total}${c.blocked?` · <span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`:""}</span></summary><div class="body">`
+   h+=`<details class="epic${i===cs?" cur":""}" data-i="${i}" ${i===cs?"open":""}><summary><span class="jkey">${esc(EPICS[i].key)}</span><span class="t">${esc(PH[i].n+" · "+PH[i].name)}</span><span class="lz purple">${esc(PH[i].sub)}</span>${i===cs?'<span class="lz blue">En cours</span>':""}<span class="cnt">${c.done}/${c.total}${c.na?` · ${c.na} N/A`:""}${c.blocked?` · <span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`:""}</span></summary><div class="body">`
     +`${phaseLink(i)}<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
     +jTable(list)
     +`<h3>Ce que je dois livrer</h3>`+tasks(id,"p"+i+"c",p.con,false)
