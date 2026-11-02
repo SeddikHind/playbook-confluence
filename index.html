@@ -193,141 +193,131 @@ const T_NAMES = {
 };
 const url = k => BOARD + "?moveToWidget=" + W[k];
 const PH = [
-  {n:"01", name:"Comprendre", en:"Discover & Define", f:"f03"},
-  {n:"02", name:"Imaginer", en:"Imagine", f:"f04"},
-  {n:"03", name:"Expérimenter", en:"Prototype", f:"f05"},
-  {n:"04", name:"Concrétiser", en:"Validate", f:"f06"},
-  {n:"05", name:"Déployer et améliorer", en:"Deliver & Improve", f:"f07"}
+  {n:"00", name:"Pré-projet", sub:"Cadrer", f:"f01", obj:"Cadrer le besoin, constituer l'équipe et lancer la gouvernance jusqu'au Kick-off."},
+  {n:"01", name:"Diagnostic", sub:"Comprendre", f:"f03", obj:"Comprendre le contexte, les usages, les données et les contraintes afin d'identifier les leviers de valeur."},
+  {n:"02", name:"Design base zéro", sub:"Imaginer et expérimenter", f:"f04", obj:"Définir la vision cible, la solution, l'architecture, les impacts et la trajectoire."},
+  {n:"03", name:"Design détaillé du MVP", sub:"Concrétiser", f:"f06", obj:"Traduire la vision cible en un MVP priorisé, prêt à être développé, avec un backlog clair et une planification maîtrisée."},
+  {n:"04", name:"Dev Agile, test & déploiement", sub:"Déployer", f:"f07", obj:"Développer, tester, déployer et améliorer la solution de manière itérative jusqu'à la mise en production."},
+  {n:"05", name:"Post-MVP", sub:"Améliorer", f:"f07", obj:"Restituer, évaluer la valeur créée, capitaliser et décider de la suite de la trajectoire."}
 ];
 const PR = "[Responsable] · [Date]";
 
-/* ---------- Streams ---------- */
+/* ---------- Streams : sous-blocs de la démarche client (1-0 à 5-3) rangés par stream ---------- */
 const STREAMS = {
  "stream-a": {lane:"a", name:"A · Product et Business",
   role:"Objectifs business, stratégie produit, alignement des parties prenantes, exigences métier, proposition de valeur, priorisation, roadmap produit, métriques de succès.",
   phases:[
-   {obj:"Cadrer les enjeux business, le périmètre et les acteurs.",
-    act:["Kick-off projet T01","Alignement des parties prenantes","Identification des objectifs business","Cartographie des acteurs T02","Analyse des processus existants","Définition du périmètre","Identification des risques et dépendances"],
-    con:["Diagnostic global (volet Business)","Cartographie de l'existant (processus métier)","Opportunités de transformation"],
-    syn:["Objectifs business et périmètre partagés avec les streams B, C et D dès le kick-off"]},
-   {obj:"Définir la vision produit et prioriser les opportunités.",
-    act:["Définition de la vision produit","Identification des opportunités","Proposition de valeur","Définition des objectifs cibles","Priorisation des besoins T12","Identification des hypothèses business"],
-    con:["Vision produit cible","KPI de transformation (avec le stream D)"],
-    syn:["Vision produit transmise à l'Architecture pour les scénarios cibles (stream C)","Objectifs cibles traduits en KPI avec le stream D"]},
-   {obj:"Formaliser les besoins et définir le MVP.",
-    act:["Formalisation des besoins","Priorisation des fonctionnalités","Définition du MVP T17","Identification des règles métier","Construction du backlog fonctionnel"],
-    con:["MVP priorisé","Backlog fonctionnel et technique (volet fonctionnel)"],
-    syn:["Règles métier partagées avec le Design (parcours cibles) et la Tech (besoins API)"]},
-   {obj:"Sécuriser le business case, la roadmap et les investissements.",
-    act:["Consolidation de la vision cible","Priorisation des opportunités T12","Business case","Définition de la roadmap T18","Alignement management","Validation des investissements"],
-    con:["Roadmap de transformation","Backlog priorisé"],
-    syn:["Estimations de charges reçues du stream C et intégrées au business case"]},
-   {obj:"Piloter le delivery et la valeur produite.",
-    act:["Product backlog management","Sprint planning","Suivi des objectifs","Arbitrages fonctionnels","Validation métier","Pilotage de la roadmap T18"],
-    con:["Backlog d'amélioration continue (avec le stream D)"],
-    syn:["Analyse des usages (stream D) intégrée aux arbitrages de backlog"]}
+   {act:["1-0 · Définition de la problématique (note d'opportunité) et Product Vision V1","1-0 · Confrontation de la compréhension avec le sponsor","1-0 · Clarification de l'approche, formalisation de l'équipe et sécurisation des ressources","1-0 · Planning des étapes et des parties prenantes","Cartographie des acteurs T02","1-0 · Kick-off global et mise en place de la gouvernance T01","1-0 · Création du backlog Jira avec les jalons"],
+    con:["Document de Kick-off","Note d'opportunité","Product Vision V1","Projet Jira"],
+    syn:["Utilisateurs et experts à impliquer identifiés avec le stream B","Dépendances avec les autres squads et core systems identifiées avec le stream C"]},
+   {act:["1-1 · Analyse et synthèse des tendances en messages clés, idées et hypothèses","1-2 · Diagnostic des processus existants et du modèle opérationnel actuel","1-3 · Estimation initiale de la Value at Stake","Identification des risques et dépendances","1-2 · Product Vision V2"],
+    con:["Diagnostic externe (volet business)","Product Vision V2"],
+    syn:["Messages clés partagés avec le Design et la Tech pour la synthèse des pain points"]},
+   {act:["2-1 · Atelier d'idéation et priorisation des idées T12","2-3 · Revue de l'impact de la transformation (Value at Stake), valeur par user story","2-3 · Évaluation des impacts processus et du coût d'implémentation des processus","2-3 · Mise en place du modèle opérationnel potentiel","2-3 · Mise à jour de la feuille de route","2-3 · Product Vision V4 (Business Goals)"],
+    con:["Deck d'évaluation des impacts","Product Vision V4"],
+    syn:["Vision cible transmise à l'Architecture pour le GAP IT (2-2, stream C)","Business goals traduits en KPIs de valeur et d'adoption avec le stream D"]},
+   {act:["3-1 · Priorisation des sous-parcours, des Epics et US, et scope du MVP T17","3-1 · Feuille de route de développement et de déploiement T18","3-1 · Mise à jour de la Value at Stake et Definition of Ready","3-2 · User stories des 3 premiers sprints (Definition of Ready)","3-2 · Revue avec les parties prenantes et comités de suivi","3-4 · Feuille de route détaillée des sprints, release planning inter-squads","3-4 · Plan de change management"],
+    con:["Deck MVP","Roadmap complète (3 sprints détaillés)"],
+    syn:["Estimations des US reçues du stream C","Readiness validée avec la Tech avant le démarrage des sprints T19"]},
+   {act:["4-1 · Rituels : sprint planning, daily, sprint review, comité de suivi, rétrospective","4-1 · Backlog refinement (5 à 10 % de la capacité)","4-2 · Recette métier (sprint de consolidation)","4-3 · Feuille de route de déploiement, pilote et Go / No-Go","4-3 · Communication, formation et supports clés","4-3 · Déploiement du modèle opérationnel et accompagnement au changement","4-4 · Planification des releases subséquentes"],
+    con:["MVP validé par les métiers","Supports de formation","Stratégie de déploiement","Roadmap produit à jour"],
+    syn:["Feedbacks utilisateurs (stream B) et indicateurs (stream D) intégrés aux arbitrages de backlog"]},
+   {act:["5-1 · Restitution du MVP","5-1 · Partage du REX et capitalisation des bonnes pratiques","5-3 · Remontée et arbitrage des feedbacks utilisateurs","5-3 · Intégration au backlog et à la feuille de route produit","5-3 · Décision sur la suite : nouvelle release, extension ou arrêt (Program Director, Sponsors)"],
+    con:["Document de REX","Décision Go / No-Go documentée"],
+    syn:["Bilan des KPIs (stream D) présenté à la restitution"]}
   ]},
  "stream-b": {lane:"b", name:"B · UX Research et Design",
   role:"UX research, entretiens utilisateurs, benchmark, journey mapping, idéation, design UX/UI, prototypage interactif, tests utilisateurs, validation de l'expérience.",
   phases:[
-   {obj:"Comprendre les utilisateurs, leurs parcours actuels et leurs irritants.",
-    act:["Audit UX de l'existant T03","Entretiens utilisateurs T04","Questionnaires","Benchmark multisectoriel","Analyse des irritants","Cartographie des parcours actuels T05","Synthèse des insights","Atelier « The Friction Hunt » T06"],
-    con:["Parcours utilisateurs actuels","Synthèse des irritants","Diagnostic global (volet UX)"],
-    syn:["Parcours actuels mis en regard de la cartographie des systèmes (stream C)","Insights UX transmis au diagnostic technique (stream C)","Irritants UX croisés avec les contraintes techniques (stream C)"]},
-   {obj:"Explorer des concepts innovants et poser les principes UX.",
-    act:["Atelier « Kill the Website »","Atelier « [Entreprise] 2030 »","Design base zéro","Idéation collaborative T11","How Might We T10","Définition des principes UX","Exploration des concepts","Digital Design Day","Première vision du Dream Product"],
-    con:["Concepts d'innovation","Principes UX"],
-    syn:["Concepts soumis à l'évaluation de faisabilité (stream C)"]},
-   {obj:"Concevoir, prototyper et tester la solution avec les utilisateurs.",
-    act:["Co-conception des parcours cibles T14","User flows","Wireframes","Design UI","Prototypes interactifs","Tests utilisateurs T15","Atelier « The Customer Jury »","Itérations sur les retours"],
-    con:["Parcours cibles","Prototypes interactifs","Résultats des tests utilisateurs"],
-    syn:["Prototypes transmis à la Tech pour définir les besoins API (stream C)","Résultats des tests partagés pour les ajustements techniques (stream C)","Parcours cibles partagés pour le plan de marquage (stream D)"]},
-   {obj:"Consolider la vision UX cible et la relier aux processus et systèmes.",
-    act:["Consolidation du Dream Product","Finalisation des parcours","Consolidation des prototypes","Experience Blueprint T16","Recommandations UX","Restitution de la vision au management"],
-    con:["Dream Product","Vision UX cible","Experience Blueprint"],
-    syn:["Experience Blueprint utilisé pour l'architecture d'intégration (stream C)"]},
-   {obj:"Garantir la qualité de l'expérience livrée et l'améliorer en continu.",
-    act:["Design handoff","Documentation des composants","Accompagnement des développeurs","Design QA","Validation UX des développements","Optimisation continue"],
-    con:["Design System actualisé"],
-    syn:["Handoff validé avec les développeurs avant le sprint (stream C)","Analytics produit intégrés aux optimisations (stream D)"]}
+   {act:["1-0 · Identification des utilisateurs et experts à impliquer","Préparation du plan de recherche et du recrutement"],
+    con:["Document de Kick-off (volet recherche utilisateurs)"],
+    syn:["Plan de recherche intégré au planning des étapes (stream A)"]},
+   {act:["1-2 · Identification et formalisation des personas et usages métiers","1-2 · Entretiens experts et utilisateurs T04","Audit UX de l'existant T03","1-2 · Cartographie des parcours, usages et dispositifs T05","1-2 · Identification et priorisation des pain points T06","1-2 · Ateliers « How might we » T10","1-3 · UX bench, benchmarks national et international"],
+    con:["Diagnostic parcours & fiches personas","Deck benchmark","Support : synthèse des irritants (Friction Hunt)"],
+    syn:["Parcours mis en regard de la capability map (1-4, stream C)","Pain points croisés avec les volumétries et KPIs (1-1, stream D)"]},
+   {act:["2-1 · Atelier d'idéation et priorisation des idées T11","Ateliers « Kill the Website », « [Entreprise] 2030 », Design base zéro, Digital Design Day","2-1 · Vision cible à partir des personas et experts","2-1 · Mapping des étapes clés (full flow diagram), validation expert et itérations T14","2-1 · Persona business needs mapping","2-1 · Prototypes interactifs AI generated (parcours) ou scénarios de référence","2-1 · Test auprès des utilisateurs et experts, collecte des retours T15","Atelier « The Customer Jury »","2-1 · Product Vision V3","Experience Blueprint T16"],
+    con:["Deck vision cible + full flow diagram","Product Vision V3","Support : Experience Blueprint"],
+    syn:["Full flow diagram transmis au GAP IT (2-2, stream C)","Prototypes soumis à l'évaluation de faisabilité (stream C)"]},
+   {act:["3-5 · Prototypes et maquettes dev oriented (Figma)","3-5 · Scénario de référence et résultats attendus","3-5 · Hand-off document (UX, processus métier, Data et IA)","Documentation des composants et du Design System"],
+    con:["Prototype & UX Hand-off Deck"],
+    syn:["Hand-off revu avec le Tech lead avant le démarrage des sprints (stream C)"]},
+   {act:["4-1 · Design de l'interface, hand-off dev et specs","Accompagnement des développeurs","Design QA des incréments","4-1 · Tests avec les utilisateurs finaux et amélioration itérative T15"],
+    con:["Incréments de valeur (volet UX)","Support : Design System actualisé"],
+    syn:["Design QA intégrée à la définition du « done » de chaque sprint (stream C)","Feedbacks utilisateurs transmis au PO (stream A)"]},
+   {act:["5-3 · Remontée des feedbacks utilisateurs","Optimisation continue de l'expérience"],
+    con:["Document de REX (volet expérience)"],
+    syn:["Retours d'usage croisés avec les KPIs post-lancement (stream D)"]}
   ]},
  "stream-c": {lane:"c", name:"C · Architecture et Technology",
   role:"Architecture existante, cartographie applicative et infrastructure, architecture data, API et intégrations, contraintes techniques, sécurité et conformité, architecture cible, faisabilité, backlog technique, développement et intégration.",
   phases:[
-   {obj:"Diagnostiquer l'existant technique, ses dépendances et ses contraintes.",
-    act:["Entretiens avec les architectes, développeurs et équipes IT Ops","Diagnostic de l'architecture existante T07","Cartographie des applications T08","Inventaire des systèmes d'entreprise","Analyse des API et intégrations T09","Identification des dépendances techniques","Analyse des flux de données","Analyse des contraintes de sécurité","Identification de la dette technique"],
-    con:["Cartographie des systèmes","Contraintes techniques","Diagnostic global (volet IT)"],
-    syn:["Cartographie des systèmes reliée aux parcours actuels (stream B)","Contraintes techniques partagées avec le Design avant l'idéation (stream B)"]},
-   {obj:"Explorer les scénarios d'architecture cible et la faisabilité des concepts.",
-    act:["Exploration des scénarios d'architecture cible T13","Identification des technologies potentielles","Analyse des opportunités de réutilisation","Identification des besoins API","Étude des scénarios d'intégration","Analyse des contraintes techniques des concepts","Premières estimations de complexité","Identification des dépendances structurantes"],
-    con:["Scénarios techniques possibles","Hypothèses de faisabilité","Première cartographie des capacités cibles"],
-    syn:["Faisabilité de chaque concept rendue au Design (stream B)","Scénarios cibles alignés sur la vision produit (stream A)"]},
-   {obj:"Détailler l'architecture cible et valider la faisabilité des prototypes.",
-    act:["Définition de l'architecture cible détaillée T13","Validation des choix techniques","Définition des contrats API T09","Identification des besoins Backend et Frontend","Proof of Concept techniques si nécessaire","Analyse des risques d'intégration","Identification des exigences non fonctionnelles","Revue de faisabilité des prototypes"],
-    con:["Architecture cible détaillée","Contrats API préliminaires","Backlog fonctionnel et technique (volet technique)"],
-    syn:["Besoins API déduits des prototypes (stream B)","Ajustements techniques remontés après les tests utilisateurs (stream B)"]},
-   {obj:"Valider l'architecture cible, la trajectoire et les prérequis de delivery.",
-    act:["Validation de l'architecture cible","Revue des risques techniques","Définition de la trajectoire de transformation","Plan de migration si nécessaire","Stratégie d'intégration","Estimation des charges","Identification des prérequis de delivery","Validation des dépendances"],
-    con:["Architecture cible validée","Estimations et dépendances"],
-    syn:["Stratégie d'intégration alignée sur l'Experience Blueprint (stream B)","Estimations transmises au business case (stream A)"]},
-   {obj:"Construire, tester, déployer et opérer la solution.",
-    act:["Delivery Readiness Review avant le premier sprint T19","Développement Frontend et Backend","Implémentation des API","Intégration des systèmes","Tests techniques","Tests de sécurité","Tests de performance","CI/CD","Déploiement","Supervision et maintenance"],
-    con:["Produit déployé","Documentation technique","Tests validés"],
-    syn:["Handoff Design reçu et validé avant chaque sprint (stream B)","Tracking implémenté selon le plan de marquage (stream D)"]}
+   {act:["1-0 · Identification des dépendances avec d'autres squads et core systems","Identification des interlocuteurs Archi, IT Ops et sécurité"],
+    con:["Projet Jira (dépendances et jalons techniques)"],
+    syn:["Dépendances intégrées au planning des étapes (stream A)"]},
+   {act:["1-4 · Transparence sur les outils et systèmes : architecture actuelle, capability map T07 T08","1-4 · Transparence data","Analyse des API et intégrations T09","Identification de la dette technique et des contraintes de sécurité","1-4 · Synthèse des pain points et forces à capitaliser"],
+    con:["Transparence IT"],
+    syn:["Capability map reliée aux parcours actuels (stream B)"]},
+   {act:["2-2 · Conception de l'architecture cible IT et Data : sources, APIs, modèles et agents IA T13","2-2 · Évaluation des écarts actuel vs cible, première estimation des US","2-2 · Prérequis technologiques (IT, Data, IA) et choix de solutions","2-2 · Feuille de route de migration","2-2 · Identification des croisements et impacts avec d'autres parcours","2-2 · Validation en comité architecture et comité SI"],
+    con:["Solution technique cible validée"],
+    syn:["Faisabilité des prototypes rendue au Design (2-1, stream B)","Premières estimations transmises pour l'évaluation des impacts (2-3, stream A)"]},
+   {act:["3-3 · Finalisation des spikes techniques","3-3 · Plan de développement IT, formation technico-fonctionnelle","3-3 · Intégration continue, environnements, repo, stratégie de test","3-2 · Critères de priorisation des tickets techniques","3-2 · Intégration des dépendances dans les backlogs et feuilles de route des autres squads et core systems","Delivery Readiness Review T19"],
+    con:["Code, environnements, CI initialisés"],
+    syn:["Hand-off Design reçu et validé (3-5, stream B)","Estimations des US transmises au PO (stream A)"]},
+   {act:["4-1 · Développement et test quotidien des US (TDD, code review) : applicatif, pipelines Data, modèles et agents IA","4-2 · Dette technique et couverture de tests automatiques","4-2 · Correction des anomalies remontées par le métier","4-2 · Release notes avant chaque MEPP et MEP","Tests de sécurité et de performance","Déploiement, supervision et maintenance"],
+    con:["Incréments de valeur"],
+    syn:["Tracking implémenté selon le plan de mesure (stream D)"]},
+   {act:["5-3 · Backlog refinement : tâches techniques, spikes","5-3 · Release planning intersquad pour la suite"],
+    con:["Document de REX (volet technique)"],
+    syn:["Capacité et prérequis techniques intégrés à la décision de trajectoire (stream A)"]}
   ]},
  "stream-d": {lane:"d", name:"D · Data, Analytics et Performance",
   role:"Analyse des données existantes, audit du tracking et des analytics, définition des KPI, qualité des données, plan de mesure, suivi de la performance, analytics post-lancement.",
   phases:[
-   {obj:"Savoir ce qui est mesuré aujourd'hui, et ce qui ne l'est pas.",
-    act:["Audit du tracking existant","Analyse des données disponibles","Identification des KPI actuels","Analyse des performances des parcours","Identification des lacunes de mesure"],
-    con:["Diagnostic global (volet Data)","Synthèse des irritants (données de performance des parcours)"],
-    syn:["Performances des parcours partagées avec le Design pour la cartographie actuelle (stream B)"]},
-   {obj:"Définir comment le succès de la transformation sera mesuré.",
-    act:["Définition des KPI cibles","Identification des besoins de collecte","Définition des principes de mesure","Exploration des opportunités Data et IA"],
-    con:["KPI de transformation (avec le stream A)"],
-    syn:["KPI cibles alignés sur les objectifs cibles (stream A)","Opportunités Data et IA partagées pendant l'idéation (stream B)"]},
-   {obj:"Préparer le dispositif de mesure de la solution cible.",
-    act:["Construction du plan de marquage","Définition des événements de tracking","Validation des KPI","Préparation du dispositif de mesure"],
-    con:["Plan de mesure (version 1)"],
-    syn:["Événements de tracking définis à partir des parcours cibles (stream B)","Besoins de collecte intégrés au backlog technique (stream C)"]},
-   {obj:"Figer le plan de mesure et les objectifs de performance.",
-    act:["Finalisation du measurement plan","Définition des objectifs de performance","Validation des indicateurs de succès","Préparation des dashboards de suivi"],
-    con:["Plan de mesure (version finale)"],
-    syn:["Indicateurs de succès intégrés au business case (stream A)"]},
-   {obj:"Mesurer les usages et nourrir l'amélioration continue.",
-    act:["Implémentation du tracking","Contrôle qualité des données","Suivi des KPI","Analyse des usages","Identification des opportunités d'amélioration"],
-    con:["Dashboard de performance","Backlog d'amélioration continue (avec le stream A)"],
-    syn:["Analyse des usages partagée avec le Design et le Product (streams A et B)"]}
+   {act:["Identification des données et des accès nécessaires","Demandes d'accès aux sources de données"],
+    con:["Document de Kick-off (volet data)"],
+    syn:["Accès data inscrits au planning des étapes (stream A)"]},
+   {act:["1-1 · Définition des sources de données pertinentes","1-1 · Collecte des données quantitatives (volumétrie, KPIs)","1-2 · Analyse des données mobilisées et de leur qualité","Audit du tracking existant et des lacunes de mesure"],
+    con:["Diagnostic externe (volet data)"],
+    syn:["Volumétries et KPIs partagés pour prioriser les pain points (stream B)"]},
+   {act:["2-3 · Traduction en KPIs de valeur et d'adoption, mise en place du suivi","Exploration des opportunités Data et IA"],
+    con:["Deck d'évaluation des impacts (volet KPIs)"],
+    syn:["Besoins data intégrés à l'architecture cible (2-2, stream C)"]},
+   {act:["3-4 · KPIs de suivi de la solution","Plan de marquage et événements de tracking","Préparation des dashboards de suivi"],
+    con:["Support : plan de mesure (annexe du Deck MVP)"],
+    syn:["Tracking intégré aux US des premiers sprints (stream C)"]},
+   {act:["4-1 · Indicateurs de suivi","4-3 · Mise à jour des indicateurs","Implémentation et contrôle qualité du tracking"],
+    con:["Support : dashboard de suivi"],
+    syn:["Indicateurs partagés en sprint review (streams A et B)"]},
+   {act:["5-2 · KPIs et valeur créée vs Value at Stake initiale","Analyse des usages et opportunités d'amélioration"],
+    con:["Bilan des KPIs post-lancement"],
+    syn:["Bilan présenté à la restitution (stream A)"]}
   ]}
 };
 
+/* Livrables : intitulés exacts de la démarche client. Les « supports » viennent de notre méthode. */
 const LIVRABLES = [
- ["Diagnostic global UX + Business + IT","Cartographie de l'existant","Parcours utilisateurs actuels","Cartographie des systèmes","Synthèse des irritants","Contraintes techniques","Opportunités de transformation"],
- ["Vision produit cible","Concepts d'innovation","Principes UX","Scénarios techniques possibles","Hypothèses de faisabilité","Première cartographie des capacités cibles","KPI de transformation"],
- ["Parcours cibles","Prototypes interactifs","Résultats des tests utilisateurs","Architecture cible détaillée","Contrats API préliminaires","MVP priorisé","Backlog fonctionnel et technique","Plan de mesure (version 1)"],
- ["Dream Product","Vision UX cible","Experience Blueprint","Architecture cible validée","Roadmap de transformation","Backlog priorisé","Estimations et dépendances","Plan de mesure (version finale)","Recommandations de mise en œuvre"],
- ["Produit déployé","Documentation technique","Design System actualisé","Tests validés","Dashboard de performance","Backlog d'amélioration continue"]
+ ["Document de Kick-off","Note d'opportunité","Product Vision V1","Projet Jira"],
+ ["Diagnostic externe","Diagnostic parcours & fiches personas","Deck benchmark","Transparence IT","Product Vision V2","Support : synthèse des irritants"],
+ ["Deck vision cible + full flow diagram","Solution technique cible validée","Deck d'évaluation des impacts","Product Vision V4","Support : Experience Blueprint"],
+ ["Deck MVP","Roadmap complète (3 sprints détaillés)","Code, environnements, CI initialisés","Prototype & UX Hand-off Deck","Support : plan de mesure"],
+ ["Incréments de valeur","MVP validé par les métiers","Supports de formation","Stratégie de déploiement","Roadmap produit à jour","Support : Design System actualisé"],
+ ["Document de REX","Bilan des KPIs post-lancement","Décision Go/No-Go documentée"]
 ];
 
+/* Jalons : 4 jalons de la démarche client + 2 revues internes (non présentées comme jalons client). */
 const GATES = [
- {t:"Diagnostic partagé et validé", d:"Business, Design et Architecture s'alignent sur les problèmes prioritaires.",
-  c:["Problèmes prioritaires partagés par Business, Design et Architecture","Parcours actuels et systèmes cartographiés","Contraintes techniques et dette identifiées","Lacunes de mesure connues","Périmètre et risques validés par le sponsor"]},
- {t:"Vision cible et concepts prioritaires validés", d:"Les concepts retenus présentent une valeur utilisateur et business, avec des hypothèses de faisabilité technique explicites.",
-  c:["Vision produit cible formalisée","Concepts prioritaires retenus et argumentés","Hypothèses de faisabilité explicites pour chaque concept","KPI de transformation définis","Scénarios d'architecture cible identifiés"]},
- {t:"Solution validée par les utilisateurs et techniquement réalisable", d:"Le prototype cible est confronté aux utilisateurs et revu par l'Architecture et les équipes techniques.",
-  c:["Prototype testé avec des utilisateurs représentatifs","Retours intégrés et itérations documentées","Revue de faisabilité réalisée par l'Architecture","Contrats API préliminaires définis","MVP et plan de mesure validés"]},
- {t:"Go / No-Go pour le delivery", d:"Décision commune sur le périmètre, les investissements, la faisabilité, les risques et les conditions de lancement.",
-  c:["Business case validé","Architecture cible validée","Roadmap et backlog priorisés","Estimations et dépendances consolidées","Delivery Readiness Review sans critère bloquant T19","Conditions de lancement réunies"]},
- {t:"Mise en production validée et dispositif de suivi opérationnel", d:"Le produit est en production, les KPI sont suivis et le backlog d'amélioration continue est alimenté.",
-  c:["Tests techniques, de sécurité et de performance validés","Design QA réalisée","Tracking implémenté et contrôlé","Dashboard de performance opérationnel","Backlog d'amélioration continue alimenté"]}
-];
-
-const SYNC = [
- ["Insights UX → Diagnostic technique · B vers C","Parcours actuels ↔ Cartographie des systèmes · B et C","Irritants UX ↔ Contraintes techniques · B et C","Performances des parcours → Cartographie des parcours · D vers B"],
- ["Vision produit → Scénarios d'architecture cible · A vers C","Concepts → Évaluation de faisabilité · B vers C","Objectifs cibles → KPI cibles · A vers D"],
- ["Prototypes interactifs → Besoins API · B vers C","Tests utilisateurs → Ajustements techniques · B vers C","Parcours cibles → Plan de marquage · B vers D","Règles métier → Parcours cibles et besoins API · A vers B et C"],
- ["Experience Blueprint → Architecture d'intégration · B vers C","Estimations de charges → Business case · C vers A","Indicateurs de succès → Business case · D vers A"],
- ["Design handoff → Développement · B vers C","Plan de marquage → Implémentation du tracking · D vers C","Analytics produit → Amélioration continue · D vers A et B"]
+ {type:"client", t:"Kick-off", d:"Le projet démarre avec un besoin cadré, une équipe constituée et une gouvernance en place.",
+  c:["Note d'opportunité et Product Vision V1 partagées avec le sponsor","Équipe formalisée et ressources sécurisées","Utilisateurs, experts et dépendances identifiés","Gouvernance en place et projet Jira créé avec les jalons"]},
+ {type:"interne", t:"Diagnostic partagé", d:"Business, Design, Tech et Data s'alignent sur les pain points et les leviers de valeur prioritaires.",
+  c:["Pain points priorisés et partagés par les 4 streams","Personas et parcours actuels validés","Transparence IT réalisée (architecture actuelle, capability map)","Données mobilisées et leur qualité analysées","Value at Stake initiale estimée","Product Vision V2 formalisée"]},
+ {type:"interne", t:"Vision cible validée", d:"La vision cible est désirable pour les utilisateurs et faisable techniquement, avec des impacts évalués.",
+  c:["Full flow diagram validé par les experts","Prototypes testés auprès des utilisateurs et experts","Solution technique cible validée en comité architecture et SI","Impacts et Value at Stake évalués","Product Vision V4 formalisée"]},
+ {type:"client", t:"Démarrage des sprints", d:"Go / No-Go pour le delivery : le MVP est prêt à être développé.",
+  c:["Scope du MVP validé","User stories des 3 premiers sprints en Definition of Ready","Roadmap complète et release planning inter-squads","Code, environnements et CI initialisés","Prototype et UX Hand-off Deck livrés","Delivery Readiness Review sans critère bloquant"]},
+ {type:"client", t:"Mise en service", d:"Le MVP est validé par les métiers et déployé.",
+  c:["Recette métier validée","Release notes publiées avant la MEP","Stratégie de déploiement, pilote et Go / No-Go validés","Formation et supports diffusés","Indicateurs de suivi en place"]},
+ {type:"client", t:"Restitution", d:"La valeur créée est évaluée et la suite de la trajectoire décidée.",
+  c:["MVP restitué aux parties prenantes","KPIs comparés à la Value at Stake initiale","REX partagé et bonnes pratiques capitalisées","Décision documentée : nouvelle release, extension ou arrêt"]}
 ];
 
 const RACI_COLS = ["Business","Product","Design","Architecture","IT","Data"];
@@ -350,7 +340,7 @@ const PAGES = [
  {id:"stream-b", tree:"Stream B · UX Research et Design", lane:"b"},
  {id:"stream-c", tree:"Stream C · Architecture et Technology", lane:"c"},
  {id:"stream-d", tree:"Stream D · Data, Analytics et Performance", lane:"d"},
- {id:"gates", tree:"Gates de validation", title:"Gates de validation", lane:"g", miro:["f02","f03","f04","f05","f06","f07"]},
+ {id:"gates", tree:"Jalons et revues", title:"Jalons et revues", lane:"g", miro:["f02","f03","f04","f05","f06","f07"]},
  {id:"sync", tree:"Synchronisation Design et Tech", title:"Synchronisation Design et Tech", miro:["f02"]},
  {id:"gouvernance", tree:"Gouvernance", title:"Gouvernance", miro:["f09"]},
  {id:"roles-atelier", tree:"Rôles en atelier", title:"Rôles en atelier", miro:["f08","f00"]},
@@ -440,7 +430,10 @@ const ATELIER_ROLES=[
  ["Gates","V","P","P","F/D","I","P","P","-","P","P","P","I"]
 ];
 const FACILITATORS=["Project Manager","UX Lead","Architecture Lead","Data Lead","UX Lead","Architecture Lead","UX Lead","Product Owner","Product Owner","Project Manager","Tech Lead","UX Lead","Data Lead"];
-const phaseTitle=i=>`Phase ${PH[i].n} · ${PH[i].name}`;
+const phaseTitle=i=>`${PH[i].n} · ${PH[i].name} · ${PH[i].sub}`;
+const phaseHead=i=>`${esc(PH[i].n+' · '+PH[i].name)} <span class="lz purple" style="vertical-align:3px">${esc(PH[i].sub)}</span>`;
+const gateLabel=(g,i)=>(g.type==='client'?'Jalon client':'Revue interne')+' · '+g.t;
+const SYNC=PH.map((p,i)=>Object.values(STREAMS).flatMap(s=>s.phases[i].syn.map(x=>s.name.split(' · ')[0]+' · '+x)));
 const phaseLink=i=>`<a class="phase-link" href="${url(PH[i].f)}" target="_blank" rel="noopener"><span class="miro-dot">M</span>${esc(FRAME_NAMES[PH[i].f])} ↗</a>`;
 
 /* ---------- Page bodies ---------- */
@@ -448,10 +441,10 @@ const BODY = {
  accueil(){
   return panel("Page parent du projet","<p>Toutes les autres pages sont ses sous-pages. Pour démarrer un nouveau projet, copiez cette page avec toutes ses sous-pages.</p>")
   +`<h2>Démarrer un nouveau projet en 10 minutes</h2>`
-  +tasks("accueil","start",["Copier la page « [Nom du projet] · Accueil » avec l'option d'inclure les pages enfants","Renommer chaque page : remplacer [Nom du projet] par le nom réel (titres uniques dans l'espace)","Supprimer le préfixe « Copie de » ajouté par Confluence","Dupliquer le board Miro « Digital Transformation Playbook »","Mettre à jour la page Liens Miro avec les liens du board dupliqué","Compléter la Fiche projet","Nommer un responsable par stream et le mentionner (@) dans sa page","Planifier le Project Kick-off T01 et les 5 gates dans le Tableau de bord"],false)
+  +tasks("accueil","start",["Copier la page « [Nom du projet] · Accueil » avec l'option d'inclure les pages enfants","Renommer chaque page : remplacer [Nom du projet] par le nom réel (titres uniques dans l'espace)","Supprimer le préfixe « Copie de » ajouté par Confluence","Dupliquer le board Miro « Digital Transformation Playbook »","Mettre à jour la page Liens Miro avec les liens du board dupliqué","Compléter la Fiche projet","Nommer un responsable par stream et le mentionner (@) dans sa page","Planifier le Project Kick-off T01, les 4 jalons client et les 2 revues internes dans le Tableau de bord"],false)
   +`<h2>Arborescence</h2><ul class="list">${PAGES.filter(p=>!p.top).map(p=>`<li><a href="#${p.id}">${esc(p.tree)}</a></li>`).join("")}</ul>`
-  +`<h2>Règles du jeu</h2>`+list(["Les 4 streams avancent en parallèle dans chaque phase. Ce ne sont pas des étapes successives.","Chaque phase se termine par une gate commune : Business, Design, Architecture et Data décident ensemble.","Le statut des livrables se suit uniquement dans le Tableau de bord.","Les ateliers se font dans Miro. Confluence garde la trace : décisions, actions, livrables.","Chaque case cochée a un responsable (@) et une date."])
-  +`<h2>Les 5 phases</h2>`+list(PH.map(p=>`Phase ${p.n} · ${p.name} (${p.en})`));
+  +`<h2>Règles du jeu</h2>`+list(["Les 4 streams avancent en parallèle dans chaque étape de la démarche. Ce ne sont pas des étapes successives.","Chaque étape se termine par un jalon client ou une revue interne commune : Business, Design, Architecture et Data décident ensemble.","Le statut des livrables se suit uniquement dans le Tableau de bord.","Les ateliers se font dans Miro. Confluence garde la trace : décisions, actions, livrables.","Chaque case cochée a un responsable (@) et une date."])
+  +`<h2>Les 6 étapes</h2><p>Démarche méthodologique partagée avec le client. Notre phase de travail est indiquée pour chaque étape.</p>`+list(PH.map(p=>`${p.n} · ${p.name} · ${p.sub}`));
  },
  fiche(){
   return `<p>À compléter au kick-off, puis à tenir à jour.</p><h2>Identité du projet</h2>`
@@ -460,20 +453,20 @@ const BODY = {
   +`<h2>Périmètre</h2><h3>Dans le périmètre</h3>`+list(["[Livrable ou parcours inclus]"])+`<h3>Hors périmètre</h3>`+list(["[Livrable ou parcours exclu]"])
   +`<h2>Indicateurs de succès</h2>`+table(["KPI","Valeur actuelle","Cible"],[["[KPI 1]",'<span class="ph">[Valeur]</span>','<span class="ph">[Valeur]</span>'],["[KPI 2]",'<span class="ph">[Valeur]</span>','<span class="ph">[Valeur]</span>']].map(r=>[rich(r[0]),r[1],r[2]]))
   +`<h2>Équipe par stream</h2>`+fields([["A · Product et Business","[Responsable] · Contributeurs : [Noms]"],["B · UX Research et Design","[Responsable] · Contributeurs : [Noms]"],["C · Architecture et Technology","[Responsable] · Contributeurs : [Noms]"],["D · Data, Analytics et Performance","[Responsable] · Contributeurs : [Noms]"]])
-  +`<h2>Jalons cibles</h2>`+fields(GATES.map((g,i)=>[`Gate 0${i+1}`,"[Date]"]));
+  +`<h2>Jalons cibles</h2>`+fields(GATES.map((g,i)=>[gateLabel(g,i),"[Date]"]));
  },
  tableau(){
-  let h=panel("","<p>Seule source de vérité pour l'avancement. Mettre à jour après chaque atelier et chaque gate.</p>")
-  +`<h2>Avancement par phase</h2>`+table(["Phase","Statut","Gate prévue le"],PH.map((p,i)=>[`${esc(phaseTitle(i))} <a class="tchip" href="${url(p.f)}" target="_blank" rel="noopener">Miro</a>`,statusSelect(`tableau__phase__${i}`),'<span class="ph">[Date]</span>']));
+  let h=panel("","<p>Seule source de vérité pour l'avancement. Mettre à jour après chaque atelier, chaque jalon et chaque revue.</p>")
+  +`<h2>Avancement par étape</h2>`+table(["Étape","Statut","Jalon ou revue prévu le"],PH.map((p,i)=>[`${esc(phaseTitle(i))} <a class="tchip" href="${url(p.f)}" target="_blank" rel="noopener">Miro</a>`,statusSelect(`tableau__phase__${i}`),'<span class="ph">[Date]</span>']));
   LIVRABLES.forEach((ls,i)=>{
    h+=`<h2>Livrables · ${esc(phaseTitle(i))}</h2>`+table(["Livrable","Statut","Responsable","Échéance"],ls.map((l,j)=>[esc(l),statusSelect(`tableau__liv__${i}__${j}`),'<span class="ph">[Responsable]</span>','<span class="ph">[Date]</span>']));
   });
   return h+`<h2>Points d'attention de la semaine</h2>`+list(["[Point bloquant, risque ou décision attendue]"]);
  },
  gates(){
-  let h=panel("Décisions communes","<p>Les gates ne se valident jamais dans la page d'un seul stream. Participants obligatoires : Business sponsor, Product Owner, UX Lead, Architecture Lead, Tech Lead, Data Lead.</p>");
+  let h=panel("Décisions communes","<p>Quatre jalons client (Kick-off, Démarrage des sprints, Mise en service, Restitution) et deux revues internes (fin du Diagnostic, fin du Design base zéro). Ils ne se valident jamais dans la page d'un seul stream. Participants obligatoires : Business sponsor, Product Owner, UX Lead, Architecture Lead, Tech Lead, Data Lead.</p>");
   GATES.forEach((g,i)=>{
-   h+=`<h2>Gate 0${i+1} · ${esc(g.t)}</h2>${phaseLink(i)}<p>${esc(g.d)}</p>`+tasks("gates","g"+i,g.c,false)
+   h+=`<h2>${esc(gateLabel(g,i))}</h2><p>Fin de l'étape ${phaseHead(i)} ${phaseLink(i)}</p><p>${esc(g.d)}</p>`+tasks("gates","g"+i,g.c,false)
    +fields([["Date","[Date]"],["Décideur","[Responsable]"]])
    +`<p><strong>Décision :</strong> ${statusSelect(`gates__dec__${i}`,[["À décider","grey"],["Go","green"],["Ajustements","yellow"],["No-Go","red"]])}</p>`
    +`<p><strong>Commentaires et conditions :</strong> <span class="ph">[Décision]</span></p>`;
@@ -482,15 +475,15 @@ const BODY = {
  },
  sync(){
   let h=`<p>Les points où les streams doivent se parler avant d'avancer. Un point non tenu se signale dans le registre des risques.</p>`;
-  SYNC.forEach((s,i)=>{ h+=`<h2>${esc(phaseTitle(i))}</h2>`+tasks("sync","p"+i,s.map(x=>x+" · [Date]"),false); });
-  return h+`<h2>Rituels recommandés</h2>`+list(["Point de synchronisation Design et Tech hebdomadaire de 30 minutes pendant les phases 01 à 04","Revue commune avant chaque gate, 2 jours avant la date de décision","En phase 05, Design QA intégrée à la définition du « done » de chaque sprint"]);
+  SYNC.forEach((s,i)=>{ h+=`<h2>${phaseHead(i)}</h2>`+tasks("sync","p"+i,s.map(x=>x+" · [Date]"),false); });
+  return h+`<h2>Rituels recommandés</h2>`+list(["Point de synchronisation Design et Tech hebdomadaire de 30 minutes pendant les étapes 01 à 03","Revue commune avant chaque jalon ou revue, 2 jours avant la date de décision","En étape 04, Design QA intégrée à la définition du « done » de chaque sprint"]);
  },
  gouvernance(){
   return `<h2>Rôles</h2><p>Chaque personne impliquée dans une activité a l'un de ces cinq rôles. Leur usage concret avant, pendant et après un atelier est décrit dans <a href="#roles-atelier">Rôles en atelier</a>.</p>`
   +table(["Rôle","Définition"],ROLES.map(([k,n,d,c])=>[`<span class="lz ${c}">${k}</span> <strong>${n}</strong>`,esc(d)]))
   +`<h2>Matrice des rôles</h2><p>Proposition par défaut, à adapter. D = Doer · P = Participant · I = Informed · V = Validator. Le Facilitator anime l'activité et garantit le respect de la méthodologie.</p>`
   +table(["Activité ou livrable",...RACI_COLS,"Facilitator"],RACI.map((r,i)=>[esc(r[0]),...r.slice(1).map(raciLz),`<span class="lz purple">F</span> ${esc(FACILITATORS[i])}`]),true)
-  +`<h2>Decision Log</h2>`+table(["Décision","Date","Phase","Responsable","Contexte","Statut"],[[rich("[Décision]"),rich("[Date]"),"Phase 01",rich("[Responsable]"),rich("[Options étudiées, impacts Design et Tech]"),'<span class="lz yellow">Proposée</span>'],[rich("Exemple : périmètre MVP limité à [Parcours]"),rich("[Date]"),"Phase 03",rich("[Responsable]"),rich("[Justification]"),'<span class="lz yellow">Proposée</span>']])
+  +`<h2>Decision Log</h2>`+table(["Décision","Date","Étape","Responsable","Contexte","Statut"],[[rich("[Décision]"),rich("[Date]"),"01 · Diagnostic",rich("[Responsable]"),rich("[Options étudiées, impacts Design et Tech]"),'<span class="lz yellow">Proposée</span>'],[rich("Exemple : périmètre MVP limité à [Parcours]"),rich("[Date]"),"03 · Design détaillé du MVP",rich("[Responsable]"),rich("[Justification]"),'<span class="lz yellow">Proposée</span>']])
   +`<h2>Registre des risques et dépendances</h2>`+table(["Risque ou dépendance","Type","Stream","Probabilité","Impact","Responsable","Mitigation","Statut"],[[rich("[Risque]"),"Risque","Transverse","Moyenne","Moyen",rich("[Responsable]"),rich("[Action]"),'<span class="lz red">Ouvert</span>'],[rich("Exemple : disponibilité des API du [Système]"),"Dépendance","C · Tech","Forte","Fort",rich("[Responsable]"),"Planifier un PoC en phase 03",'<span class="lz red">Ouvert</span>']])
   +`<h2>Rituels de gouvernance</h2>`+tasks("gouvernance","rit",["Comité projet toutes les [Fréquence] · sponsor, Product Owner, leads des 4 streams","Revue du registre des risques à chaque comité","Mise à jour du Tableau de bord avant chaque comité","Revue pré-gate 2 jours avant chaque gate"],false);
  },
@@ -527,10 +520,10 @@ const BODY = {
      D:["Mettre à jour le statut des livrables dans le Tableau de bord"],
      V:["Relire le compte-rendu et confirmer les décisions"],
      I:["Recevoir le compte-rendu"]}},
-   {t:"Étape 5 · Suivre", w:"Jusqu'à l'atelier suivant ou la gate", items:{
+   {t:"Étape 5 · Suivre", w:"Jusqu'à l'atelier suivant ou au jalon", items:{
      D:["Réaliser les actions et produire les livrables"],
      V:["Valider les livrables quand ils sont prêts"],
-     F:["Vérifier l'avancement des actions","Déclencher les points de synchronisation avec les autres streams","Préparer l'atelier suivant ou la revue de gate"],
+     F:["Vérifier l'avancement des actions","Déclencher les points de synchronisation avec les autres streams","Préparer l'atelier suivant ou le jalon ou la revue"],
      I:["Suivre l'avancement dans le Tableau de bord"]}}
   ];
   let h=panel("En une phrase","<p>Le Facilitator fait avancer le groupe, les Doers produisent, les Participants enrichissent, le Validator tranche, les Informed sont tenus au courant.</p>");
@@ -540,7 +533,7 @@ const BODY = {
   h+=`<h2>Rôle de chaque partie prenante, atelier par atelier</h2>`
    +`<p>Proposition par défaut, à ajuster au projet. F = Facilitator · V = Validator · D = Doer · P = Participant · I = Informed · F/D = anime et produit · – = non concerné. Cliquez sur un code d'atelier pour ouvrir son template dans Miro.</p>`
    +table(["Atelier",...STAKE.map(s=>s[1].replace(" · Hicham",""))],ATELIER_ROLES.map(r=>{
-      const k=r[0]; const name=k==="Gates"?"Gates de validation G01 à G05":T_NAMES[k];
+      const k=r[0]; const name=k==="Gates"?"Jalons client et revues internes":T_NAMES[k];
       const head=k==="Gates"?`<a href="#gates"><strong>${esc(name)}</strong></a>`:`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(name)}`;
       return [head,...r.slice(1).map(roleLz)];
     }),true);
@@ -554,7 +547,7 @@ const BODY = {
  },
  "cr-atelier"(){
   return panel("Modèle","<p>À dupliquer comme sous-page de « Comptes-rendus d'ateliers » après chaque atelier. Titre conseillé : [Nom du projet] · CR · [Nom de l'atelier] · [Date].</p>")
-  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T19 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Phase","[01 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
+  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T19 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Étape","[00 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
   +`<h2>Rôles de l'atelier</h2><p>Voir <a href="#roles-atelier">Rôles en atelier</a> pour ce que chaque rôle fait à chaque étape.</p>`
   +fields([["F · Facilitator","[Responsable]"],["V · Validator","[Responsable] (une seule personne par décision)"],["D · Doers","[Noms]"],["P · Participants","[Noms et rôles]"],["I · Informed","[Noms] · reçoivent ce compte-rendu"]])
   +`<h2>Objectif de l'atelier</h2><p class="ph">[Ce que l'atelier devait produire]</p>`
@@ -570,7 +563,7 @@ function streamBody(id){
   let h=fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]])
    +panel("Comment utiliser cette page","<p>Cochez les activités au fil de l'eau, avec un responsable (@) et une date sur chaque ligne. Le statut des livrables se met à jour dans le <a href=\"#tableau\">Tableau de bord</a>. Les codes T01 à T19 ouvrent le template d'atelier dans Miro.</p>");
   s.phases.forEach((p,i)=>{
-   h+=`<h2>${esc(phaseTitle(i))}</h2>${phaseLink(i)}<p><strong>Objectif :</strong> ${esc(p.obj)}</p>`
+   h+=`<h2>${phaseHead(i)}</h2>${phaseLink(i)}<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
     +`<h3>Activités</h3>`+tasks(id,"p"+i+"a",p.act)
     +`<h3>Contributions aux livrables communs</h3>`+tasks(id,"p"+i+"c",p.con,false)
     +`<h3>Synchronisation</h3>`+tasks(id,"p"+i+"s",p.syn,false);
