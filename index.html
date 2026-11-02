@@ -392,7 +392,16 @@ function statusSelect(key, opts=STATUS){
 function table(head, rows, center=false){
   return `<div class="tbl-wrap"><table><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td${center&&i>0?' class="c"':""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 }
-const raciLz=v=>{const m={"R":"blue","A":"red","A/R":"purple","C":"yellow","I":"grey"};return `<span class="lz ${m[v]}">${v}</span>`;};
+const ROLE_MAP={"R":"D","A":"V","A/R":"V/D","C":"P","I":"I"};
+const raciLz=v=>{const r=ROLE_MAP[v]||v;const m={"D":"blue","V":"green","V/D":"purple","P":"yellow","I":"grey"};return `<span class="lz ${m[r]}">${r}</span>`;};
+const ROLES=[
+ ["D","Doer","Réalise les actions et produit les livrables.","blue"],
+ ["P","Participant","Contribue aux discussions, partage ses idées et son expertise.","yellow"],
+ ["I","Informed","Est tenu informé des décisions, des résultats et de l'avancement.","grey"],
+ ["V","Validator","Valide les propositions, les décisions et les livrables.","green"],
+ ["F","Facilitator","Structure les échanges, anime les ateliers, coordonne les contributions et veille au respect de la méthodologie.","purple"]
+];
+const FACILITATORS=["Project Manager","UX Lead","Architecture Lead","Data Lead","UX Lead","Architecture Lead","UX Lead","Product Owner","Product Owner","Project Manager","Tech Lead","UX Lead","Data Lead"];
 const phaseTitle=i=>`Phase ${PH[i].n} · ${PH[i].name}`;
 const phaseLink=i=>`<a class="phase-link" href="${url(PH[i].f)}" target="_blank" rel="noopener"><span class="miro-dot">M</span>${esc(FRAME_NAMES[PH[i].f])} ↗</a>`;
 
@@ -439,8 +448,10 @@ const BODY = {
   return h+`<h2>Rituels recommandés</h2>`+list(["Point de synchronisation Design et Tech hebdomadaire de 30 minutes pendant les phases 01 à 04","Revue commune avant chaque gate, 2 jours avant la date de décision","En phase 05, Design QA intégrée à la définition du « done » de chaque sprint"]);
  },
  gouvernance(){
-  return `<h2>RACI</h2><p>Proposition par défaut, à adapter. R = Réalise · A = Approuve · C = Consulté · I = Informé.</p>`
-  +table(["Activité ou livrable",...RACI_COLS],RACI.map(r=>[esc(r[0]),...r.slice(1).map(raciLz)]),true)
+  return `<h2>Rôles</h2><p>Chaque personne impliquée dans une activité a l'un de ces cinq rôles.</p>`
+  +table(["Rôle","Définition"],ROLES.map(([k,n,d,c])=>[`<span class="lz ${c}">${k}</span> <strong>${n}</strong>`,esc(d)]))
+  +`<h2>Matrice des rôles</h2><p>Proposition par défaut, à adapter. D = Doer · P = Participant · I = Informed · V = Validator. Le Facilitator anime l'activité et garantit le respect de la méthodologie.</p>`
+  +table(["Activité ou livrable",...RACI_COLS,"Facilitator"],RACI.map((r,i)=>[esc(r[0]),...r.slice(1).map(raciLz),`<span class="lz purple">F</span> ${esc(FACILITATORS[i])}`]),true)
   +`<h2>Decision Log</h2>`+table(["Décision","Date","Phase","Responsable","Contexte","Statut"],[[rich("[Décision]"),rich("[Date]"),"Phase 01",rich("[Responsable]"),rich("[Options étudiées, impacts Design et Tech]"),'<span class="lz yellow">Proposée</span>'],[rich("Exemple : périmètre MVP limité à [Parcours]"),rich("[Date]"),"Phase 03",rich("[Responsable]"),rich("[Justification]"),'<span class="lz yellow">Proposée</span>']])
   +`<h2>Registre des risques et dépendances</h2>`+table(["Risque ou dépendance","Type","Stream","Probabilité","Impact","Responsable","Mitigation","Statut"],[[rich("[Risque]"),"Risque","Transverse","Moyenne","Moyen",rich("[Responsable]"),rich("[Action]"),'<span class="lz red">Ouvert</span>'],[rich("Exemple : disponibilité des API du [Système]"),"Dépendance","C · Tech","Forte","Fort",rich("[Responsable]"),"Planifier un PoC en phase 03",'<span class="lz red">Ouvert</span>']])
   +`<h2>Rituels de gouvernance</h2>`+tasks("gouvernance","rit",["Comité projet toutes les [Fréquence] · sponsor, Product Owner, leads des 4 streams","Revue du registre des risques à chaque comité","Mise à jour du Tableau de bord avant chaque comité","Revue pré-gate 2 jours avant chaque gate"],false);
