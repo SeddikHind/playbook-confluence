@@ -318,7 +318,7 @@ const BODY = {
      ["Jalons et revues","Jira Issues",`<code>project = ${PRJ} AND labels = jalon</code>`]]);
  },
  accueil(){
-  return panel("Page parent du projet","<p>Toutes les autres pages sont ses sous-pages. Pour démarrer un nouveau projet, copiez cette page avec toutes ses sous-pages.</p>")
+  return panel("Nouveau sur le playbook ?",'<p>Suivez le parcours de formation de 25 minutes, adapté à votre rôle : <a href="formation.html">Playbook Academy ↗</a></p>',"note")+panel("Page parent du projet","<p>Toutes les autres pages sont ses sous-pages. Pour démarrer un nouveau projet, copiez cette page avec toutes ses sous-pages.</p>")
   +`<h2>Démarrer un nouveau projet en 10 minutes</h2>`
   +tasks("accueil","start",["Copier la page « [Nom du projet] · Accueil » avec l'option d'inclure les pages enfants","Renommer chaque page : remplacer [Nom du projet] par le nom réel (titres uniques dans l'espace)","Supprimer le préfixe « Copie de » ajouté par Confluence","Dupliquer le board Miro « Digital Transformation Playbook »","Mettre à jour la page Liens Miro avec les liens du board dupliqué","Créer le projet Jira depuis la page Mise en place Jira (6 epics, une tâche par activité) et assigner chaque tâche","Compléter la Fiche projet","Nommer un responsable par stream et le mentionner (@) dans sa page","Planifier le Project Kick-off T01, les 4 jalons client et les 2 revues internes dans le Tableau de bord"],false)
   +`<h2>Arborescence</h2><ul class="list">${PAGES.filter(p=>!p.top).map(p=>`<li><a href="#${p.id}">${esc(p.tree)}</a></li>`).join("")}</ul>`

@@ -1,0 +1,447 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playbook · Formation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfaf7; --surface:#ffffff; --fg:#14142b; --muted:#55566b; --faint:#7a7b8f; --line:#e7e5df; --soft:#f3f1ec;
+  --accent:#4b3fd1; --accent-soft:#ecebfd; --accent-fg:#ffffff;
+  --a:#8f7fee; --b:#fe9f4d; --c:#659df2; --d:#2dc75c; --g:#f2c230;
+  --a-soft:#efecfd; --b-soft:#fff1e4; --c-soft:#e8f0fd; --d-soft:#e3f8ea; --g-soft:#fff6d6;
+  --ok:#1f8a4c; --ok-soft:#e1f5e8; --ko:#c2382b; --ko-soft:#fde7e4;
+  --shadow:0 1px 2px rgba(20,20,43,.06),0 8px 24px rgba(20,20,43,.06);
+  --head:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --sans:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121220; --surface:#1b1b2c; --fg:#ecebf5; --muted:#b4b3c8; --faint:#8f8ea6; --line:#2c2c42; --soft:#202033;
+  --accent:#9d93ff; --accent-soft:#2a2750; --accent-fg:#121220;
+  --a-soft:#2a2550; --b-soft:#3a2614; --c-soft:#182b47; --d-soft:#143322; --g-soft:#3a3010;
+  --ok:#5fd394; --ok-soft:#153325; --ko:#ff8a7d; --ko-soft:#3d1a17; --shadow:0 0 0 1px #2c2c42; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121220; --surface:#1b1b2c; --fg:#ecebf5; --muted:#b4b3c8; --faint:#8f8ea6; --line:#2c2c42; --soft:#202033;
+  --accent:#9d93ff; --accent-soft:#2a2750; --accent-fg:#121220;
+  --a-soft:#2a2550; --b-soft:#3a2614; --c-soft:#182b47; --d-soft:#143322; --g-soft:#3a3010;
+  --ok:#5fd394; --ok-soft:#153325; --ko:#ff8a7d; --ko-soft:#3d1a17; --shadow:0 0 0 1px #2c2c42; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--head);letter-spacing:-.02em;line-height:1.15;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;display:flex;align-items:center;gap:14px;height:60px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.mark{display:flex;gap:3px}
+.mark i{width:8px;height:22px;border-radius:3px}
+.brand{font-family:var(--head);font-weight:700;font-size:17px;white-space:nowrap}
+.brand small{font-family:var(--sans);font-weight:500;color:var(--faint);font-size:13px;margin-left:6px}
+.grow{flex:1}
+.me{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.me b{font-weight:700}
+.ring{--p:0;width:38px;height:38px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none}
+.ring span{width:30px;height:30px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:11px;font-weight:700}
+
+.shell{display:grid;grid-template-columns:270px minmax(0,1fr);max-width:1240px;margin:0 auto}
+.side{position:sticky;top:60px;align-self:start;padding:28px 16px 28px max(20px,env(safe-area-inset-left,0px));height:calc(100vh - 60px);overflow:auto}
+.side ol{list-style:none;margin:0;padding:0;counter-reset:m}
+.side a{display:flex;gap:12px;align-items:center;padding:9px 10px;border-radius:10px;color:var(--fg);text-decoration:none;font-size:14.5px;line-height:1.3}
+.side a:hover{background:var(--soft)}
+.side a[aria-current="page"]{background:var(--accent-soft);font-weight:700}
+.side .n{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none;background:var(--surface)}
+.side .done .n{background:var(--ok);border-color:var(--ok);color:#fff}
+.side .t small{display:block;color:var(--faint);font-weight:400;font-size:12px}
+.side h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:0 10px 10px}
+.side .links{margin-top:24px}
+.side .links a{font-size:13.5px;color:var(--muted)}
+
+main{min-width:0;padding:32px max(20px,env(safe-area-inset-right,0px)) 80px 28px}
+.view{max-width:860px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.view h1{font-size:clamp(30px,4.2vw,46px);font-weight:800;margin-bottom:14px;text-wrap:balance}
+.view h2{font-size:24px;font-weight:700;margin:36px 0 12px;text-wrap:balance}
+.view h3{font-size:18px;font-weight:700;margin:0 0 6px}
+.lead{font-size:19px;color:var(--muted);max-width:62ch;margin:0 0 24px;text-wrap:pretty}
+p{max-width:68ch}
+
+.hero{position:relative;border-radius:24px;padding:36px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden;margin-bottom:28px}
+.hero .bands{position:absolute;right:-90px;top:-40px;display:flex;gap:10px;transform:rotate(-14deg);opacity:.9;pointer-events:none}
+.hero .bands i{width:26px;height:260px;border-radius:13px}
+.hero > *:not(.bands){position:relative}
+.hero h1{max-width:16ch}
+.hero .lead{max-width:46ch}
+.roles{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px;cursor:pointer;font-weight:500}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-fg);border:0;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;text-decoration:none;font-size:15.5px}
+.cta:hover{filter:brightness(1.07)}
+.ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid var(--line);border-radius:12px;padding:10px 16px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--fg);font-size:15px}
+.ghost:hover{border-color:var(--accent)}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card{background:var(--surface);border-radius:18px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.card p{margin:6px 0 0;color:var(--muted);font-size:15px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--soft);color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:3px;flex:none;display:inline-block}
+.bg-a{background:var(--a)}.bg-b{background:var(--b)}.bg-c{background:var(--c)}.bg-d{background:var(--d)}.bg-g{background:var(--g)}
+.sf-a{background:var(--a-soft)}.sf-b{background:var(--b-soft)}.sf-c{background:var(--c-soft)}.sf-d{background:var(--d-soft)}.sf-g{background:var(--g-soft)}
+
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch;margin:18px 0}
+.vs .arrow{display:grid;place-items:center;font-size:24px;color:var(--faint)}
+.vs .card h3{font-size:16px}
+.vs ul{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:15px}
+.vs .bad{background:var(--ko-soft);border-color:transparent}
+.vs .good{background:var(--ok-soft);border-color:transparent}
+
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:20px 0 0;position:relative}
+.step{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 10px;cursor:pointer;text-align:left;min-height:96px;display:flex;flex-direction:column;gap:4px}
+.step b{font-family:var(--head);font-size:22px}
+.step span{font-size:13px;line-height:1.25;font-weight:600}
+.step small{font-size:11.5px;color:var(--faint);line-height:1.2}
+.step.gc{border-bottom:6px solid var(--g)}
+.step.gi{border-bottom:6px solid color-mix(in srgb,var(--g) 40%,transparent)}
+.step[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent) inset}
+.gates{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:6px}
+.gates i{height:6px;border-radius:3px;background:var(--g);opacity:.45}
+.gates i.client{opacity:1}
+.detail{margin-top:18px}
+.detail .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+.gate-box{border-radius:16px;padding:16px 18px;background:var(--g-soft);border:1px solid color-mix(in srgb,var(--g) 50%,transparent)}
+.gate-box ul,.list{margin:8px 0 0;padding-left:20px;font-size:15px;color:var(--muted)}
+.gate-box li,.list li{margin:3px 0}
+.wk{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tc{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:4px 9px;font-size:13px;font-weight:600;text-decoration:none;color:var(--fg);border:1px solid var(--line);background:var(--surface)}
+.tc code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--muted)}
+.tc.mine{border-color:var(--accent);background:var(--accent-soft)}
+.tc:hover{border-color:var(--accent)}
+
+.stream{border-radius:18px;padding:20px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.stream .hd{display:flex;align-items:center;gap:10px}
+.stream .hd b{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-family:var(--head);font-size:18px;color:#fff;flex:none}
+.stream p{margin:0;color:var(--muted);font-size:14.5px}
+.spark{display:flex;gap:4px;align-items:flex-end;height:42px}
+.spark i{flex:1;border-radius:4px 4px 2px 2px;min-height:4px}
+.spark-l{display:flex;gap:4px;font-size:11px;color:var(--faint)}
+.spark-l span{flex:1;text-align:center}
+
+.roles5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+.r5{border-radius:16px;padding:14px;border:1px solid var(--line);background:var(--surface)}
+.r5 .L{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-family:var(--head);font-weight:800;font-size:20px;margin-bottom:8px}
+.r5 h3{font-size:16px}
+.r5 p{font-size:13.5px;color:var(--muted);margin:4px 0 0}
+.Lf{background:#dedaff;color:#3b2fa8}.Lv{background:#adf0c7;color:#13623a}.Ld{background:#c6dcff;color:#1d4fa3}.Lp{background:#fff1a6;color:#6b5300}.Li{background:#e7e7ea;color:#45465a}
+.picker{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0 14px}
+select.pick{font:inherit;font-size:15px;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--surface);color:var(--fg);max-width:100%}
+.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.who .col{border-radius:14px;padding:12px;background:var(--soft)}
+.who .col h4{margin:0 0 8px;display:flex;gap:8px;align-items:center;font-size:14px}
+.who .col h4 .L{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:13px}
+.who .p{display:block;font-size:13.5px;padding:3px 0}
+.who .p.mine{font-weight:700;color:var(--accent)}
+.big{display:flex;gap:16px;align-items:center;padding:16px 18px;border-radius:16px;background:var(--accent-soft);margin-top:14px}
+.big .L{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-family:var(--head);font-weight:800;font-size:26px;flex:none}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 16px}
+.ws{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.w{border-radius:16px;padding:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.w::before{content:"";position:absolute;inset:0 auto 0 0;width:5px}
+.w.a::before{background:var(--a)}.w.b::before{background:var(--b)}.w.c::before{background:var(--c)}.w.d::before{background:var(--d)}
+.w code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--faint)}
+.w h3{font-size:16.5px}
+.w .meta{font-size:13px;color:var(--muted)}
+.w .you{position:absolute;top:12px;right:12px;font-size:11px;font-weight:800;border-radius:6px;padding:2px 7px}
+.w a{margin-top:auto;font-size:13.5px;font-weight:600;text-decoration:none}
+
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
+.tool{border-radius:20px;padding:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.tool .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-family:var(--head);font-size:20px}
+.tool ul{margin:0;padding-left:18px;color:var(--muted);font-size:14.5px}
+.tool a{margin-top:auto}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0;padding:16px;border-radius:16px;background:var(--soft);font-size:14.5px}
+.flow b{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-weight:600}
+.flow span{color:var(--faint)}
+
+.q{border-radius:18px;padding:20px;background:var(--surface);border:1px solid var(--line);margin-bottom:14px}
+.q .sit{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.q h3{font-size:18px;margin:6px 0 12px;font-family:var(--sans);font-weight:700;letter-spacing:0;line-height:1.35}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 14px;cursor:pointer;font-size:15px}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.ko{border-color:var(--ko);background:var(--ko-soft)}
+.opt[disabled]{cursor:default}
+.fb{margin-top:10px;font-size:14.5px;color:var(--muted)}
+.fb b{color:var(--fg)}
+.cert{margin-top:24px;border-radius:24px;padding:32px;background:var(--surface);border:2px solid var(--accent);box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden}
+.cert .bands{display:flex;justify-content:center;gap:6px;margin-bottom:14px}
+.cert .bands i{width:44px;height:8px;border-radius:4px}
+.cert h2{margin:6px 0}
+.cert input{font:inherit;font-size:18px;border:0;border-bottom:2px dashed var(--line);background:transparent;color:var(--fg);text-align:center;padding:6px;width:min(360px,100%);margin:10px 0}
+.cert .small{font-size:13.5px;color:var(--faint)}
+.cert p{margin-left:auto;margin-right:auto}
+
+.nav{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:40px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:10px;font-size:14px;z-index:30}
+.mobnav{display:none}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .side{display:none}
+  .mobnav{display:flex;gap:6px;overflow-x:auto;padding:12px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);scrollbar-width:none}
+  .mobnav a{flex:none;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px;text-decoration:none;color:var(--fg);white-space:nowrap}
+  .mobnav a[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+  .mobnav a.done{border-color:var(--ok)}
+  main{padding:22px max(16px,env(safe-area-inset-right,0px)) 64px max(16px,env(safe-area-inset-left,0px))}
+  .hero{padding:24px}
+  .brand small{display:none}
+  .steps,.gates{grid-template-columns:repeat(3,1fr)}
+  .roles5{grid-template-columns:repeat(2,1fr)}
+  .tools{grid-template-columns:1fr}
+  .vs{grid-template-columns:1fr}
+  .vs .arrow{transform:rotate(90deg)}
+}
+@media (max-width:420px){ .brand{display:none} .roles5{grid-template-columns:1fr} }
+@media print{ .top,.side,.mobnav,.nav,.no-print{display:none!important} .shell{display:block} main{padding:0} .cert{box-shadow:none} }
+@media (prefers-reduced-motion:no-preference){ .view{animation:in .35s ease} @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}} }
+</style>
+</head><body>
+<header class="top">
+  <div class="mark" aria-hidden="true"><i class="bg-a"></i><i class="bg-b"></i><i class="bg-c"></i><i class="bg-d"></i></div>
+  <div class="brand">Playbook Academy<small>From Discovery to Delivery</small></div>
+  <div class="grow"></div>
+  <button class="me" id="meBtn" type="button">Mon rôle : <b id="meName">à choisir</b></button>
+  <div class="ring" id="ring" title="Progression"><span id="ringTxt">0%</span></div>
+</header>
+<nav class="mobnav" id="mobnav" aria-label="Modules"></nav>
+<div class="shell">
+  <nav class="side" aria-label="Modules">
+    <h4>Parcours</h4>
+    <ol id="modnav"></ol>
+    <div class="links">
+      <h4>Les outils</h4>
+      <a id="lnMiro" href="#" target="_blank" rel="noopener">↗ Board Miro</a>
+      <a href="index.html#vue" target="_blank" rel="noopener">↗ Confluence · Vue d'ensemble</a>
+      <a href="jira.html" target="_blank" rel="noopener">↗ Jira · Tableau</a>
+    </div>
+  </nav>
+  <main><article class="view" id="view"></article></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="data.js"></script>
+<script>
+/* ---------- Progress, kept per viewer ---------- */
+const FK="playbook-formation-v1";
+let P={role:null,done:{},quiz:{},name:""};
+try{ P=Object.assign(P,JSON.parse(localStorage.getItem(FK)||"{}")); }catch(e){}
+const saveP=()=>{ try{ localStorage.setItem(FK,JSON.stringify(P)); }catch(e){} };
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toast=m=>{const el=document.getElementById("toast");el.textContent=m;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200);};
+
+const MODS=[
+ {id:"pourquoi",t:"Pourquoi ce playbook",d:"3 min"},
+ {id:"demarche",t:"La démarche en 6 étapes",d:"5 min"},
+ {id:"streams",t:"Les 4 streams",d:"3 min"},
+ {id:"roles",t:"Les rôles en atelier",d:"4 min"},
+ {id:"ateliers",t:"Les 24 ateliers",d:"3 min"},
+ {id:"outils",t:"Miro, Jira, Confluence",d:"3 min"},
+ {id:"situations",t:"Mises en situation",d:"5 min"}
+];
+const ROLE_LIST=STAKE.filter(s=>s[0]!=="US");
+const roleName=c=>c?STAKE.find(s=>s[0]===c)[1].replace(" · Hicham",""):"à choisir";
+const LANES=["a","b","c","d"]; const SID=l=>"stream-"+l;
+const sName=l=>STREAMS[SID(l)].name;
+const roleIn=(k,c=P.role)=>{ if(!c) return null; if(c==="FD") return "F"; const r=AR_SRC[k]; if(!r) return null; for(const x of ["V","D","P","I"]) if(r[x].split(" ").includes(c)) return x; return null; };
+const RL={F:["Facilitator","Lf","Tient le cadre sur tous les ateliers : ouvre, tient le temps, veille à la dynamique, clôture."],V:["Validator","Lv","Valide les propositions, les décisions et les livrables. Une seule personne par décision."],D:["Doer","Ld","Anime le contenu de l'atelier, apporte l'expertise et produit les livrables."],P:["Participant","Lp","Contribue aux discussions, partage ses idées et son expertise."],I:["Informed","Li","Ne vient pas à l'atelier : reçoit le compte-rendu et suit l'avancement."]};
+const ALL_T=Object.keys(T_NAMES);
+const laneOfT=k=>LANES.find(l=>STREAM_T[l].some(x=>x[0]===k));
+const stepOfT=k=>{const l=laneOfT(k);return STREAM_T[l].find(x=>x[0]===k)[1];};
+const tChip=k=>{const r=roleIn(k);return `<a class="tc ${r==="D"||r==="V"?"mine":""}" href="${url(k)}" target="_blank" rel="noopener" title="Ouvrir le template dans Miro"><code>${k}</code>${esc(T_NAMES[k])}${r?` <span class="tag" style="padding:1px 7px">${r}</span>`:""}</a>`;};
+const navBtns=i=>{const prev=MODS[i-1],next=MODS[i+1];
+  return `<div class="nav no-print">${prev?`<a class="ghost" href="#${prev.id}">← ${esc(prev.t)}</a>`:`<a class="ghost" href="#accueil">← Accueil</a>`}
+   ${next?`<button class="cta" type="button" data-finish="${MODS[i].id}" data-next="${next.id}">J'ai compris · ${esc(next.t)} →</button>`:""}</div>`;};
+
+/* ---------- Views ---------- */
+const V={};
+V.accueil=()=>{
+  const mine=P.role?ALL_T.filter(k=>["D","V"].includes(roleIn(k))):[];
+  return `<section class="hero">
+    <div class="bands" aria-hidden="true"><i class="bg-a"></i><i class="bg-b"></i><i class="bg-c"></i><i class="bg-d"></i><i class="bg-g"></i></div>
+    <div class="eyebrow">Digital Transformation Playbook</div>
+    <h1>Du diagnostic au delivery, ensemble.</h1>
+    <p class="lead">Un parcours de 25 minutes pour comprendre la démarche, savoir ce qu'on attend de vous à chaque étape et prendre en main Miro, Jira et Confluence.</p>
+    <h3 style="font-size:16px;margin-top:6px">Quel est votre rôle sur le projet ?</h3>
+    <div class="roles" role="group" aria-label="Votre rôle">${ROLE_LIST.map(s=>`<button class="chip" data-role="${s[0]}" aria-pressed="${P.role===s[0]}">${esc(s[1].replace(" · Hicham",""))}</button>`).join("")}</div>
+    <p style="font-size:14px;color:var(--faint);margin:6px 0 20px">Le parcours s'adapte : vos ateliers et votre rôle dans chacun sont mis en avant.</p>
+    <a class="cta" href="#${(MODS.find(m=>!P.done[m.id])||MODS[0]).id}">${Object.keys(P.done).length?"Reprendre le parcours":"Commencer le parcours"} →</a>
+  </section>
+  ${P.role?`<h2>Ce qui vous attend, ${esc(roleName(P.role))}</h2>
+   ${P.role==="FD"?`<p>Vous êtes présent sur les 24 ateliers. Votre rôle : tenir le cadre et la dynamique, préparer chaque Doer, et faire sortir chaque atelier avec des décisions et des actions.</p>`
+   :mine.length?`<p>Vous animez (D) ou validez (V) ${mine.length} atelier${mine.length>1?"s":""} :</p><div class="wk">${mine.map(tChip).join("")}</div>`
+   :`<p>Vous participez aux ateliers et suivez l'avancement de vos tâches dans Jira. Le module 4 vous montre votre rôle atelier par atelier.</p>`}`:""}
+  <h2>Le parcours</h2>
+  <div class="grid g3">${MODS.map((m,i)=>`<a class="card" href="#${m.id}" style="text-decoration:none;color:inherit"><span class="tag">${P.done[m.id]?"✓ Terminé":"Module "+(i+1)} · ${m.d}</span><h3 style="margin-top:10px">${esc(m.t)}</h3></a>`).join("")}</div>`;
+};
+V.pourquoi=()=>`<div class="eyebrow">Module 1</div><h1>Pourquoi ce playbook ?</h1>
+  <p class="lead">Les projets de transformation échouent rarement par manque de talent. Ils échouent parce que Business, Design, Tech et Data avancent chacun de leur côté et se découvrent trop tard.</p>
+  <div class="vs"><div class="card bad"><h3>Sans cadre commun</h3><ul><li>Le design est validé avant que la Tech ait vérifié la faisabilité</li><li>Les KPIs arrivent après le lancement</li><li>Chacun suit ses tâches dans son outil</li><li>Les décisions se perdent entre deux réunions</li></ul></div>
+  <div class="arrow" aria-hidden="true">→</div>
+  <div class="card good"><h3>Avec le playbook</h3><ul><li>4 streams avancent en parallèle dans chaque étape</li><li>Chaque étape se termine par une décision commune</li><li>Toutes les tâches vivent dans Jira, assignées à une personne</li><li>Les décisions sont tracées dans Confluence</li></ul></div></div>
+  <h2>3 idées à retenir</h2>
+  <div class="grid g3">
+   <div class="card"><span class="tag sf-a">1</span><h3 style="margin-top:10px">En parallèle, pas à la suite</h3><p>Les 4 streams travaillent en même temps et se synchronisent régulièrement.</p></div>
+   <div class="card"><span class="tag sf-g">2</span><h3 style="margin-top:10px">Une décision par étape</h3><p>4 jalons client et 2 revues internes : on ne passe pas à l'étape suivante seul.</p></div>
+   <div class="card"><span class="tag sf-c">3</span><h3 style="margin-top:10px">Une seule source de vérité</h3><p>Ateliers dans Miro, tâches dans Jira, décisions et pilotage dans Confluence.</p></div>
+  </div>${navBtns(0)}`;
+let selStep=null;
+V.demarche=()=>{
+  if(selStep===null) selStep=1;
+  const i=selStep, g=GATES[i];
+  const byLane=LANES.map(l=>[l,STREAM_T[l].filter(x=>x[1].includes(PH[i].n)).map(x=>x[0])]);
+  return `<div class="eyebrow">Module 2</div><h1>La démarche en 6 étapes</h1>
+  <p class="lead">C'est la démarche partagée avec le client. Cliquez sur une étape pour voir ce qui s'y passe, ce qu'on livre et comment elle se termine.</p>
+  <div class="steps" role="group" aria-label="Étapes">${PH.map((p,k)=>`<button class="step ${GATES[k].type==="client"?"gc":"gi"}" data-step="${k}" aria-pressed="${k===i}"><b>${p.n}</b><span>${esc(p.name)}</span><small>${esc(p.sub)}</small></button>`).join("")}</div>
+  <p style="font-size:13px;color:var(--faint);margin:6px 0 0">Bordure jaune vive : l'étape se termine par un jalon client · jaune pâle : par une revue interne</p>
+  <div class="detail card">
+    <span class="tag" style="background:var(--accent-soft);color:var(--accent)">${esc(PH[i].n)} · ${esc(PH[i].sub)}</span>
+    <h2 style="margin:10px 0 6px">${esc(PH[i].name)}</h2>
+    <p style="margin:0">${esc(PH[i].obj)}</p>
+    <div class="row">
+      <div><h3>Ce qu'on livre</h3><ul class="list">${LIVRABLES[i].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="gate-box"><h3>${esc(gateLabel(g,i))}</h3><p style="margin:4px 0 0;font-size:14.5px;color:var(--muted)">${esc(g.d)}</p><ul>${g.c.slice(0,4).map(x=>`<li>${esc(x)}</li>`).join("")}${g.c.length>4?`<li>et ${g.c.length-4} autre${g.c.length-4>1?"s":""} critère${g.c.length-4>1?"s":""}</li>`:""}</ul></div>
+    </div>
+    <h3 style="margin-top:18px">Les ateliers de l'étape</h3>
+    ${byLane.some(x=>x[1].length)?byLane.filter(x=>x[1].length).map(([l,ks])=>`<div style="margin-top:8px"><span class="tag"><span class="dot bg-${l}"></span>${esc(sName(l))}</span><div class="wk">${ks.map(tChip).join("")}</div></div>`).join(""):`<p style="color:var(--muted)">Pas d'atelier de cadrage à cette étape : on est dans les rituels de sprint (planning, daily, review, rétrospective).</p>`}
+  </div>${navBtns(1)}`;
+};
+V.streams=()=>`<div class="eyebrow">Module 3</div><h1>Les 4 streams</h1>
+  <p class="lead">Chaque stream a un responsable et ses propres activités. Ils avancent ensemble, étape par étape, et se passent le relais aux points de synchronisation.</p>
+  <div class="grid g2">${LANES.map(l=>{const s=STREAMS[SID(l)]; const counts=s.phases.map(p=>p.act.length); const mx=Math.max(...counts);
+    return `<div class="stream"><div class="hd"><b class="bg-${l}">${l.toUpperCase()}</b><h3>${esc(s.name.split(" · ")[1])}</h3></div><p>${esc(s.role)}</p>
+     <div><div class="spark" title="Nombre d'activités par étape">${counts.map(c=>`<i class="bg-${l}" style="height:${Math.round(c/mx*100)}%;opacity:.85"></i>`).join("")}</div><div class="spark-l">${PH.map(p=>`<span>${p.n}</span>`).join("")}</div></div>
+     <div class="wk">${STREAM_T[l].map(x=>tChip(x[0])).join("")}</div></div>`;}).join("")}</div>
+  <h2>Les points de synchronisation</h2>
+  <p>Les streams se parlent à des moments précis. Quelques exemples tirés du playbook :</p>
+  <div class="grid g2">
+   <div class="card"><span class="tag"><span class="dot bg-b"></span>B → <span class="dot bg-c"></span>C</span><p>Le full flow diagram du Design est transmis à l'Architecture pour le GAP IT.</p></div>
+   <div class="card"><span class="tag"><span class="dot bg-c"></span>C → <span class="dot bg-b"></span>B</span><p>La faisabilité des prototypes est rendue au Design avant les tests utilisateurs.</p></div>
+   <div class="card"><span class="tag"><span class="dot bg-a"></span>A → <span class="dot bg-d"></span>D</span><p>Les business goals sont traduits en KPIs de valeur et d'adoption.</p></div>
+   <div class="card"><span class="tag"><span class="dot bg-d"></span>D → <span class="dot bg-c"></span>C</span><p>Le plan de mesure est intégré aux user stories des premiers sprints.</p></div>
+  </div>${navBtns(2)}`;
+let selT="T05";
+V.roles=()=>{
+  const r=AR_SRC[selT];
+  const groups=[["F",["Facilitateur Digital Factory"]],...["V","D","P","I"].map(x=>[x,r[x]?r[x].split(" ").filter(Boolean).map(stakeName):[]])];
+  const myName=P.role?roleName(P.role):null; const my=roleIn(selT);
+  return `<div class="eyebrow">Module 4</div><h1>Les rôles en atelier</h1>
+  <p class="lead">Dans chaque atelier, chacun a l'un de ces cinq rôles. Le Facilitator est le même sur tous les ateliers ; c'est le Doer qui anime le contenu.</p>
+  <div class="roles5">${["F","V","D","P","I"].map(k=>`<div class="r5"><div class="L ${RL[k][1]}">${k}</div><h3>${RL[k][0]}</h3><p>${esc(RL[k][2])}</p></div>`).join("")}</div>
+  <h2>Qui fait quoi, atelier par atelier</h2>
+  <div class="picker"><label for="selT" style="font-weight:600">Atelier</label><select class="pick" id="selT">${LANES.map(l=>`<optgroup label="${esc(sName(l))}">${STREAM_T[l].map(([k])=>`<option value="${k}" ${k===selT?"selected":""}>${k} · ${esc(T_NAMES[k])}</option>`).join("")}</optgroup>`).join("")}</select>
+   <a class="ghost" href="${url(selT)}" target="_blank" rel="noopener" style="padding:7px 12px;font-size:14px">Voir le template Miro ↗</a></div>
+  <div class="who">${groups.map(([k,names])=>`<div class="col"><h4><span class="L ${RL[k][1]}">${k}</span>${RL[k][0]}</h4>${names.length?names.map(n=>`<span class="p ${n===myName||(k==="F"&&P.role==="FD")?"mine":""}">${esc(n)}</span>`).join(""):'<span class="p" style="color:var(--faint)">–</span>'}</div>`).join("")}</div>
+  ${P.role?`<div class="big">${my?`<div class="L ${RL[my][1]}">${my}</div><div><b>Votre rôle dans cet atelier : ${RL[my][0]}</b><br><span style="color:var(--muted);font-size:15px">${esc(RL[my][2])}</span></div>`:`<div class="L Li">–</div><div><b>Vous n'êtes pas convié à cet atelier.</b><br><span style="color:var(--muted);font-size:15px">Vous en suivez les résultats dans Confluence si besoin.</span></div>`}</div>`:`<p style="color:var(--faint)">Choisissez votre rôle en haut de page pour voir le vôtre.</p>`}
+  <h2>Les 5 temps d'un atelier</h2>
+  <div class="grid g3">
+   <div class="card"><span class="tag">1 · Préparer</span><p>Le Facilitator cale l'objectif et l'agenda avec le Doer et envoie l'invitation avec les rôles.</p></div>
+   <div class="card"><span class="tag">2 · Animer</span><p>Le Facilitator ouvre et tient le temps, le Doer anime le contenu, les Participants contribuent.</p></div>
+   <div class="card"><span class="tag">3 · Décider</span><p>Le Validator tranche. Chaque action sort avec un Doer et une date.</p></div>
+   <div class="card"><span class="tag">4 · Restituer</span><p>Compte-rendu sous 24 h, décisions reportées dans le Decision Log.</p></div>
+   <div class="card"><span class="tag">5 · Suivre</span><p>Les actions deviennent des tâches Jira, suivies jusqu'au jalon.</p></div>
+  </div>${navBtns(3)}`;
+};
+const WF={lane:"all",step:"all",mine:false};
+V.ateliers=()=>{
+  const list=ALL_T.filter(k=>(WF.lane==="all"||laneOfT(k)===WF.lane)&&(WF.step==="all"||stepOfT(k).includes(WF.step))&&(!WF.mine||roleIn(k))).sort((a,b)=>stepOfT(a).localeCompare(stepOfT(b))||a.localeCompare(b));
+  return `<div class="eyebrow">Module 5</div><h1>Les 24 ateliers</h1>
+  <p class="lead">Chaque atelier a son template Miro, prêt à dupliquer : objectif, déroulé, durée, espace collaboratif, livrables et rôles.</p>
+  <div class="filters" role="group" aria-label="Filtrer par stream"><button class="chip" data-wl="all" aria-pressed="${WF.lane==="all"}">Tous les streams</button>${LANES.map(l=>`<button class="chip" data-wl="${l}" aria-pressed="${WF.lane===l}"><span class="dot bg-${l}"></span> ${esc(sName(l).split(/,| et /)[0])}</button>`).join("")}</div>
+  <div class="filters" role="group" aria-label="Filtrer par étape"><button class="chip" data-ws="all" aria-pressed="${WF.step==="all"}">Toutes les étapes</button>${PH.slice(0,6).map(p=>`<button class="chip" data-ws="${p.n}" aria-pressed="${WF.step===p.n}">${p.n} · ${esc(p.name)}</button>`).join("")}${P.role?`<button class="chip" data-wm="1" aria-pressed="${WF.mine}">Seulement mes ateliers</button>`:""}</div>
+  <div class="ws">${list.map(k=>{const l=laneOfT(k),r=roleIn(k);return `<div class="w ${l}">${r?`<span class="you ${RL[r][1]}">${r}</span>`:""}<code>${k} · étape ${esc(stepOfT(k))}</code><h3>${esc(T_NAMES[k])}</h3><div class="meta">Doer : ${esc(doersOf(k))}</div><a href="${url(k)}" target="_blank" rel="noopener">Ouvrir dans Miro ↗</a></div>`;}).join("")||`<p style="color:var(--muted)">Aucun atelier ne correspond.</p>`}</div>
+  ${navBtns(4)}`;
+};
+V.outils=()=>`<div class="eyebrow">Module 6</div><h1>Miro, Jira, Confluence</h1>
+  <p class="lead">Trois outils, trois usages. Chaque information a une seule maison.</p>
+  <div class="tools">
+   <div class="tool"><div class="ic" style="background:#ffd02f;color:#050038">M</div><h3>Miro · on co-construit</h3><ul><li>Les 24 templates d'ateliers, rangés par stream</li><li>Les espaces de chaque étape et leurs jalons</li><li>La roadmap de la démarche</li></ul><a class="ghost" id="toMiro" href="#" target="_blank" rel="noopener">Ouvrir le board ↗</a></div>
+   <div class="tool"><div class="ic" style="background:#1868db;color:#fff">J</div><h3>Jira · on exécute</h3><ul><li>Une epic par étape, une tâche par activité</li><li>Chaque tâche assignée à une personne</li><li>Statuts : À faire, En cours, Bloqué, Terminé, Non applicable (avec motif)</li><li>Tableau de bord pour le suivi hebdo</li></ul><a class="ghost" href="jira.html" target="_blank" rel="noopener">Ouvrir la simulation ↗</a></div>
+   <div class="tool"><div class="ic" style="background:#0c66e4;color:#fff">C</div><h3>Confluence · on pilote et on garde la mémoire</h3><ul><li>La Vue d'ensemble pour le Sponsor et les comités</li><li>Les jalons, décisions et comptes-rendus</li><li>La méthode et les rôles</li></ul><a class="ghost" href="index.html#vue" target="_blank" rel="noopener">Ouvrir la simulation ↗</a></div>
+  </div>
+  <h2>Le cycle d'une action</h2>
+  <div class="flow"><b>Atelier dans Miro</b><span>→</span><b>Décision au Decision Log</b><span>→</span><b>Tâche Jira assignée</b><span>→</span><b>Statut mis à jour</b><span>→</span><b>Vue d'ensemble à jour</b><span>→</span><b>Décision au jalon</b></div>
+  <h2>Une semaine type</h2>
+  <div class="grid g2">
+   <div class="card"><h3>Responsable de stream</h3><p>Met à jour ses tâches Jira, prépare ses ateliers avec le Facilitateur, signale tout blocage dès qu'il apparaît.</p></div>
+   <div class="card"><h3>Facilitateur Digital Factory</h3><p>Anime le point hebdomadaire depuis le tableau de bord Jira, déclenche les synchronisations entre streams, prépare les jalons.</p></div>
+   <div class="card"><h3>Sponsor</h3><p>Consulte la Vue d'ensemble avant chaque comité, tranche aux jalons et arbitre les blocages remontés.</p></div>
+   <div class="card"><h3>Équipe</h3><p>Participe aux ateliers selon son rôle et reçoit les comptes-rendus dans Confluence.</p></div>
+  </div>${navBtns(5)}`;
+const QS=[
+ {s:"Situation 1",q:"Vous terminez l'étape Diagnostic. Le Design a ses personas, mais la Tech n'a pas fini la Transparence IT. Que se passe-t-il ?",o:["Le Design passe seul à l'étape suivante pour gagner du temps","La revue interne « Diagnostic partagé » se tient avec les 4 streams, et l'écart est traité avant de continuer","On attend le jalon client suivant pour en parler"],a:1,e:"Chaque étape se termine par une décision commune. On ne passe pas à l'étape suivante en ordre dispersé."},
+ {s:"Situation 2",q:"Atelier User Journey Mapping (T05). Qui anime le contenu ?",o:["Le Facilitateur Digital Factory","Le Doer, ici l'UX","Le Sponsor"],a:1,e:"Le Facilitator tient le cadre et la dynamique, le Doer anime le contenu et produit les livrables."},
+ {s:"Situation 3",q:"Le Facilitateur est absent le jour d'un atelier. Que faire ?",o:["Annuler l'atelier","Le Doer anime tout seul, sans cadre","Le Scrum master, son binôme, prend le relais"],a:2,e:"Le Scrum master est le binôme du Facilitateur sur tous les ateliers."},
+ {s:"Situation 4",q:"Une tâche du playbook ne concerne pas votre projet. Que faites-vous dans Jira ?",o:["Je la laisse en « À faire »","Je la supprime","Je la passe en « Non applicable » en précisant le motif"],a:2,e:"La décision reste tracée, et la tâche sort du calcul d'avancement sans paraître en retard."},
+ {s:"Situation 5",q:"En fin d'atelier, le Product Owner et le Functional owner ne sont pas d'accord. Qui tranche ?",o:["Le Validator de l'atelier, une seule personne par décision","On vote à main levée","Le Facilitator"],a:0,e:"Une seule personne Validator par décision. Le Facilitator ne tranche jamais : il garantit la méthode."},
+ {s:"Situation 6",q:"Le Sponsor veut savoir où en est le projet avant le comité. Où le renvoyez-vous ?",o:["Vers les comptes-rendus des ateliers","Vers la Vue d'ensemble Confluence, alimentée par Jira","Vers le board Miro"],a:1,e:"La Vue d'ensemble montre l'avancement par stream et par étape, les blocages et la préparation du prochain jalon."}
+];
+V.situations=()=>{
+  const answered=Object.keys(P.quiz).length, score=QS.filter((q,i)=>P.quiz[i]===q.a).length, all=answered===QS.length;
+  return `<div class="eyebrow">Module 7</div><h1>Mises en situation</h1>
+  <p class="lead">Six situations réelles de projet. Choisissez la bonne réaction : l'explication s'affiche aussitôt.</p>
+  ${QS.map((q,i)=>{const a=P.quiz[i]; const done=a!==undefined;
+    return `<div class="q"><div class="sit">${q.s}</div><h3>${esc(q.q)}</h3><div class="opts">${q.o.map((o,j)=>`<button class="opt ${done&&j===q.a?"ok":""} ${done&&j===a&&a!==q.a?"ko":""}" data-q="${i}" data-o="${j}" ${done?"disabled":""}>${esc(o)}</button>`).join("")}</div>${done?`<div class="fb"><b>${a===q.a?"Bonne réponse.":"Pas tout à fait."}</b> ${esc(q.e)}</div>`:""}</div>`;}).join("")}
+  ${all?(score>=5?`<div class="cert" id="cert"><div class="bands"><i class="bg-a"></i><i class="bg-b"></i><i class="bg-c"></i><i class="bg-d"></i></div>
+     <div class="eyebrow">Playbook Academy</div><h2>Prêt à démarrer</h2>
+     <p style="margin:6px auto 0;color:var(--muted)">a suivi le parcours « From Discovery to Delivery »</p>
+     <input id="certName" placeholder="Votre nom" value="${esc(P.name)}" aria-label="Votre nom">
+     <p style="margin:4px auto">Rôle : <b>${esc(roleName(P.role))}</b> · Score : <b>${score}/${QS.length}</b></p>
+     <p class="small">${new Date().toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}</p>
+     <div class="no-print" style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap"><button class="cta" type="button" id="printBtn">Imprimer ou enregistrer en PDF</button><button class="ghost" type="button" id="retry">Refaire les situations</button></div></div>`
+    :`<div class="card" style="text-align:center"><h3>${score}/${QS.length} bonnes réponses</h3><p style="margin:6px auto 14px">Il en faut 5 pour obtenir votre attestation. Relisez les modules 2 et 4, puis réessayez.</p><button class="cta" type="button" id="retry">Refaire les situations</button></div>`):""}
+  ${navBtns(6)}`;
+};
+
+/* ---------- Shell ---------- */
+const view=document.getElementById("view");
+function cur(){ const h=(location.hash||"#accueil").slice(1); return V[h]?h:"accueil"; }
+function chrome(){
+  const c=cur(); const pct=Math.round(Object.keys(P.done).filter(k=>MODS.some(m=>m.id===k)).length/MODS.length*100);
+  document.getElementById("ring").style.setProperty("--p",pct); document.getElementById("ringTxt").textContent=pct+"%";
+  document.getElementById("meName").textContent=roleName(P.role);
+  document.getElementById("modnav").innerHTML=MODS.map((m,i)=>`<li class="${P.done[m.id]?"done":""}"><a href="#${m.id}" ${c===m.id?'aria-current="page"':""}><span class="n">${P.done[m.id]?"✓":i+1}</span><span class="t">${esc(m.t)}<small>${m.d}</small></span></a></li>`).join("");
+  document.getElementById("mobnav").innerHTML=`<a href="#accueil" ${c==="accueil"?'aria-current="page"':""}>Accueil</a>`+MODS.map((m,i)=>`<a href="#${m.id}" class="${P.done[m.id]?"done":""}" ${c===m.id?'aria-current="page"':""}>${P.done[m.id]?"✓ ":""}${i+1}. ${esc(m.t)}</a>`).join("");
+  const cur_=document.querySelector('.mobnav [aria-current]'); if(cur_) cur_.scrollIntoView({inline:"center",block:"nearest"});
+}
+function render(keep){
+  const y=window.scrollY; view.innerHTML=V[cur()](); chrome();
+  if(keep) window.scrollTo(0,y); else window.scrollTo(0,0);
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,a"); if(!t) return;
+  if(t.dataset.role){ P.role=P.role===t.dataset.role?null:t.dataset.role; saveP(); render(true); return; }
+  if(t.dataset.finish){ P.done[t.dataset.finish]=true; saveP(); location.hash=t.dataset.next; return; }
+  if(t.dataset.step!==undefined){ selStep=+t.dataset.step; render(true); return; }
+  if(t.dataset.wl){ WF.lane=t.dataset.wl; render(true); return; }
+  if(t.dataset.ws){ WF.step=t.dataset.ws; render(true); return; }
+  if(t.dataset.wm){ WF.mine=!WF.mine; render(true); return; }
+  if(t.dataset.q!==undefined){ P.quiz[t.dataset.q]=+t.dataset.o; if(Object.keys(P.quiz).length===QS.length){ P.done.situations=true; } saveP(); render(true); return; }
+  if(t.id==="retry"){ P.quiz={}; delete P.done.situations; saveP(); render(); return; }
+  if(t.id==="printBtn"){ window.print(); return; }
+  if(t.id==="meBtn"){ location.hash="accueil"; setTimeout(()=>{const r=document.querySelector(".roles");if(r)r.scrollIntoView({block:"center"});},50); return; }
+});
+document.addEventListener("change",e=>{ if(e.target.id==="selT"){ selT=e.target.value; render(true); } });
+document.addEventListener("input",e=>{ if(e.target.id==="certName"){ P.name=e.target.value; saveP(); } });
+window.addEventListener("hashchange",()=>render());
+document.getElementById("lnMiro").href=BOARD;
+const tm=()=>{const a=document.getElementById("toMiro"); if(a) a.href=BOARD;};
+new MutationObserver(tm).observe(view,{childList:true});
+render();
+</script>
+</body></html>
