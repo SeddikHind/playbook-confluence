@@ -227,7 +227,7 @@ select.pick{font:inherit;font-size:15px;border:1.5px solid var(--line);border-ra
     <div class="links">
       <h4>Les outils</h4>
       <a id="lnMiro" href="#" target="_blank" rel="noopener">↗ Board Miro</a>
-      <a href="index.html#vue" target="_blank" rel="noopener">↗ Confluence · Vue d'ensemble</a>
+      <a href="index.html#vue" target="_blank" rel="noopener">↗ Confluence · Tableau de pilotage</a>
       <a href="jira.html" target="_blank" rel="noopener">↗ Jira · Tableau</a>
     </div>
   </nav>
@@ -250,7 +250,7 @@ const MODS=[
  {id:"demarche",t:"La démarche en 6 étapes",d:"5 min"},
  {id:"streams",t:"Les 4 streams",d:"3 min"},
  {id:"roles",t:"Les rôles en atelier",d:"4 min"},
- {id:"ateliers",t:"Les 24 ateliers",d:"3 min"},
+ {id:"ateliers",t:"Les 7 ateliers",d:"3 min"},
  {id:"outils",t:"Miro, Jira, Confluence",d:"3 min"},
  {id:"situations",t:"Mises en situation",d:"5 min"}
 ];
@@ -260,10 +260,11 @@ const LANES=["a","b","c","d"]; const SID=l=>"stream-"+l;
 const sName=l=>STREAMS[SID(l)].name;
 const roleIn=(k,c=P.role)=>{ if(!c) return null; if(c==="FD") return "F"; const r=AR_SRC[k]; if(!r) return null; for(const x of ["V","D","P","I"]) if(r[x].split(" ").includes(c)) return x; return null; };
 const RL={F:["Facilitator","Lf","Tient le cadre sur tous les ateliers : ouvre, tient le temps, veille à la dynamique, clôture."],V:["Validator","Lv","Valide les propositions, les décisions et les livrables. Une seule personne par décision."],D:["Doer","Ld","Anime le contenu de l'atelier, apporte l'expertise et produit les livrables."],P:["Participant","Lp","Contribue aux discussions, partage ses idées et son expertise."],I:["Informed","Li","Ne vient pas à l'atelier : reçoit le compte-rendu et suit l'avancement."]};
-const ALL_T=Object.keys(T_NAMES);
-const laneOfT=k=>LANES.find(l=>STREAM_T[l].some(x=>x[0]===k));
-const stepOfT=k=>{const l=laneOfT(k);return STREAM_T[l].find(x=>x[0]===k)[1];};
-const tChip=k=>{const r=roleIn(k);return `<a class="tc ${r==="D"||r==="V"?"mine":""}" href="${url(k)}" target="_blank" rel="noopener" title="Ouvrir le template dans Miro"><code>${k}</code>${esc(T_NAMES[k])}${r?` <span class="tag" style="padding:1px 7px">${r}</span>`:""}</a>`;};
+const ALL_A=ATELIERS.map(a=>a.k);
+const atOf=k=>ATELIERS.find(a=>a.k===k);
+const laneOfT=k=>{const a=atOf(k);return a?a.lanes[0]:FICHES.find(f=>f.k===k).lane;};
+const stepOfT=k=>{const a=atOf(k)||FICHES.find(f=>f.k===k);return PH[a.step].n;};
+const tChip=k=>{const r=roleIn(k);return `<a class="tc ${r==="D"||r==="V"?"mine":""}" href="${url(k)}" target="_blank" rel="noopener" title="${esc(codeLabel(k))} · ouvrir dans Miro"><code>${k}</code>${esc(CODE_NAMES[k])}${r?` <span class="tag" style="padding:1px 7px">${r}</span>`:""}</a>`;};
 const navBtns=i=>{const prev=MODS[i-1],next=MODS[i+1];
   return `<div class="nav no-print">${prev?`<a class="ghost" href="#${prev.id}">← ${esc(prev.t)}</a>`:`<a class="ghost" href="#accueil">← Accueil</a>`}
    ${next?`<button class="cta" type="button" data-finish="${MODS[i].id}" data-next="${next.id}">J'ai compris · ${esc(next.t)} →</button>`:""}</div>`;};
@@ -271,7 +272,7 @@ const navBtns=i=>{const prev=MODS[i-1],next=MODS[i+1];
 /* ---------- Views ---------- */
 const V={};
 V.accueil=()=>{
-  const mine=P.role?ALL_T.filter(k=>["D","V"].includes(roleIn(k))):[];
+  const mine=P.role?ALL_A.filter(k=>["D","V"].includes(roleIn(k))):[];
   return `<section class="hero">
     <div class="bands" aria-hidden="true"><i class="bg-a"></i><i class="bg-b"></i><i class="bg-c"></i><i class="bg-d"></i><i class="bg-g"></i></div>
     <div class="eyebrow">Digital Transformation Playbook</div>
@@ -283,7 +284,7 @@ V.accueil=()=>{
     <a class="cta" href="#${(MODS.find(m=>!P.done[m.id])||MODS[0]).id}">${Object.keys(P.done).length?"Reprendre le parcours":"Commencer le parcours"} →</a>
   </section>
   ${P.role?`<h2>Ce qui vous attend, ${esc(roleName(P.role))}</h2>
-   ${P.role==="FD"?`<p>Vous êtes présent sur les 24 ateliers. Votre rôle : tenir le cadre et la dynamique, préparer chaque Doer, et faire sortir chaque atelier avec des décisions et des actions.</p>`
+   ${P.role==="FD"?`<p>Vous êtes présent sur les 7 ateliers. Votre rôle : tenir le cadre et la dynamique, préparer chaque Doer, et faire sortir chaque atelier avec des décisions et des actions.</p>`
    :mine.length?`<p>Vous animez (D) ou validez (V) ${mine.length} atelier${mine.length>1?"s":""} :</p><div class="wk">${mine.map(tChip).join("")}</div>`
    :`<p>Vous participez aux ateliers et suivez l'avancement de vos tâches dans Jira. Le module 4 vous montre votre rôle atelier par atelier.</p>`}`:""}
   <h2>Le parcours</h2>
@@ -304,21 +305,23 @@ let selStep=null;
 V.demarche=()=>{
   if(selStep===null) selStep=1;
   const i=selStep, g=GATES[i];
-  const byLane=LANES.map(l=>[l,STREAM_T[l].filter(x=>x[1].includes(PH[i].n)).map(x=>x[0])]);
+  const atS=ATELIERS.filter(a=>a.step===i), fiS=FICHES.filter(f=>f.step===i);
   return `<div class="eyebrow">Module 2</div><h1>La démarche en 6 étapes</h1>
   <p class="lead">C'est la démarche partagée avec le client. Cliquez sur une étape pour voir ce qui s'y passe, ce qu'on livre et comment elle se termine.</p>
-  <div class="steps" role="group" aria-label="Étapes">${PH.map((p,k)=>`<button class="step ${GATES[k].type==="client"?"gc":"gi"}" data-step="${k}" aria-pressed="${k===i}"><b>${p.n}</b><span>${esc(p.name)}</span><small>${esc(p.sub)}</small></button>`).join("")}</div>
+  <div class="steps" role="group" aria-label="Étapes">${PH.map((p,k)=>`<button class="step ${GATES[k].type==="client"?"gc":"gi"}" data-step="${k}" aria-pressed="${k===i}"><b>${p.n}</b><span>${esc(p.tree)}</span><small>${esc(p.sub)}</small></button>`).join("")}</div>
   <p style="font-size:13px;color:var(--faint);margin:6px 0 0">Bordure jaune vive : l'étape se termine par un jalon client · jaune pâle : par une revue interne</p>
   <div class="detail card">
     <span class="tag" style="background:var(--accent-soft);color:var(--accent)">${esc(PH[i].n)} · ${esc(PH[i].sub)}</span>
-    <h2 style="margin:10px 0 6px">${esc(PH[i].name)}</h2>
+    <h2 style="margin:10px 0 6px">${esc(PH[i].tree)}</h2>
     <p style="margin:0">${esc(PH[i].obj)}</p>
     <div class="row">
       <div><h3>Ce qu'on livre</h3><ul class="list">${LIVRABLES[i].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
       <div class="gate-box"><h3>${esc(gateLabel(g,i))}</h3><p style="margin:4px 0 0;font-size:14.5px;color:var(--muted)">${esc(g.d)}</p><ul>${g.c.slice(0,4).map(x=>`<li>${esc(x)}</li>`).join("")}${g.c.length>4?`<li>et ${g.c.length-4} autre${g.c.length-4>1?"s":""} critère${g.c.length-4>1?"s":""}</li>`:""}</ul></div>
     </div>
     <h3 style="margin-top:18px">Les ateliers de l'étape</h3>
-    ${byLane.some(x=>x[1].length)?byLane.filter(x=>x[1].length).map(([l,ks])=>`<div style="margin-top:8px"><span class="tag"><span class="dot bg-${l}"></span>${esc(sName(l))}</span><div class="wk">${ks.map(tChip).join("")}</div></div>`).join(""):`<p style="color:var(--muted)">Pas d'atelier de cadrage à cette étape : on est dans les rituels de sprint (planning, daily, review, rétrospective).</p>`}
+    ${atS.length?`<div class="wk">${atS.map(a=>tChip(a.k)).join("")}</div>`:`<p style="color:var(--muted)">Pas d'atelier à cette étape : on est dans les rituels de sprint (planning, daily, review, rétrospective).</p>`}
+    ${fiS.length?`<h3 style="margin-top:14px">Les travaux d'expert qui les préparent</h3><div class="wk">${fiS.map(f=>tChip(f.k)).join("")}</div>`:""}
+    <p style="margin-top:14px;font-size:14.5px">Dans Confluence, les livrables de l'étape sont rangés sous <a href="index.html#${PHASE_PAGE[i]}" target="_blank" rel="noopener">${esc(i?"Phases du projet et livrables › "+PH[i].tree:"Contexte projet et Équipe et gouvernance")} ↗</a></p>
   </div>${navBtns(1)}`;
 };
 V.streams=()=>`<div class="eyebrow">Module 3</div><h1>Les 4 streams</h1>
@@ -326,7 +329,8 @@ V.streams=()=>`<div class="eyebrow">Module 3</div><h1>Les 4 streams</h1>
   <div class="grid g2">${LANES.map(l=>{const s=STREAMS[SID(l)]; const counts=s.phases.map(p=>p.act.length); const mx=Math.max(...counts);
     return `<div class="stream"><div class="hd"><b class="bg-${l}">${l.toUpperCase()}</b><h3>${esc(s.name.split(" · ")[1])}</h3></div><p>${esc(s.role)}</p>
      <div><div class="spark" title="Nombre d'activités par étape">${counts.map(c=>`<i class="bg-${l}" style="height:${Math.round(c/mx*100)}%;opacity:.85"></i>`).join("")}</div><div class="spark-l">${PH.map(p=>`<span>${p.n}</span>`).join("")}</div></div>
-     <div class="wk">${STREAM_T[l].map(x=>tChip(x[0])).join("")}</div></div>`;}).join("")}</div>
+     <div class="wk">${ATELIERS.filter(a=>a.lanes[0]===l).map(a=>tChip(a.k)).join("")}${FICHES.filter(f=>f.lane===l).map(f=>tChip(f.k)).join("")}</div><a href="index.html#${SID(l)}" target="_blank" rel="noopener" style="font-size:14px;font-weight:600">Page du stream dans Confluence ↗</a></div>`;}).join("")}</div>
+  <div class="card" style="margin-top:14px"><h3>Un stream est une vue, pas un dossier</h3><p>Dans Confluence, les livrables sont rangés par étape, comme dans l'arborescence validée avec le client. Chaque page livrable indique son stream porteur et ses contributeurs : votre page stream les rassemble automatiquement, avec vos ateliers et vos tâches Jira.</p></div>
   <h2>Les points de synchronisation</h2>
   <p>Les streams se parlent à des moments précis. Quelques exemples tirés du playbook :</p>
   <div class="grid g2">
@@ -335,7 +339,7 @@ V.streams=()=>`<div class="eyebrow">Module 3</div><h1>Les 4 streams</h1>
    <div class="card"><span class="tag"><span class="dot bg-a"></span>A → <span class="dot bg-d"></span>D</span><p>Les business goals sont traduits en KPIs de valeur et d'adoption.</p></div>
    <div class="card"><span class="tag"><span class="dot bg-d"></span>D → <span class="dot bg-c"></span>C</span><p>Le plan de mesure est intégré aux user stories des premiers sprints.</p></div>
   </div>${navBtns(2)}`;
-let selT="T05";
+let selT="A02";
 V.roles=()=>{
   const r=AR_SRC[selT];
   const groups=[["F",["Facilitateur Digital Factory"]],...["V","D","P","I"].map(x=>[x,r[x]?r[x].split(" ").filter(Boolean).map(stakeName):[]])];
@@ -344,7 +348,7 @@ V.roles=()=>{
   <p class="lead">Dans chaque atelier, chacun a l'un de ces cinq rôles. Le Facilitator est le même sur tous les ateliers ; c'est le Doer qui anime le contenu.</p>
   <div class="roles5">${["F","V","D","P","I"].map(k=>`<div class="r5"><div class="L ${RL[k][1]}">${k}</div><h3>${RL[k][0]}</h3><p>${esc(RL[k][2])}</p></div>`).join("")}</div>
   <h2>Qui fait quoi, atelier par atelier</h2>
-  <div class="picker"><label for="selT" style="font-weight:600">Atelier</label><select class="pick" id="selT">${LANES.map(l=>`<optgroup label="${esc(sName(l))}">${STREAM_T[l].map(([k])=>`<option value="${k}" ${k===selT?"selected":""}>${k} · ${esc(T_NAMES[k])}</option>`).join("")}</optgroup>`).join("")}</select>
+  <div class="picker"><label for="selT" style="font-weight:600">Atelier</label><select class="pick" id="selT">${ATELIERS.map(a=>`<option value="${a.k}" ${a.k===selT?"selected":""}>Atelier ${a.k.slice(1)} · ${esc(A_NAMES[a.k])} (étape ${PH[a.step].n})</option>`).join("")}</select>
    <a class="ghost" href="${url(selT)}" target="_blank" rel="noopener" style="padding:7px 12px;font-size:14px">Voir le template Miro ↗</a></div>
   <div class="who">${groups.map(([k,names])=>`<div class="col"><h4><span class="L ${RL[k][1]}">${k}</span>${RL[k][0]}</h4>${names.length?names.map(n=>`<span class="p ${n===myName||(k==="F"&&P.role==="FD")?"mine":""}">${esc(n)}</span>`).join(""):'<span class="p" style="color:var(--faint)">–</span>'}</div>`).join("")}</div>
   ${P.role?`<div class="big">${my?`<div class="L ${RL[my][1]}">${my}</div><div><b>Votre rôle dans cet atelier : ${RL[my][0]}</b><br><span style="color:var(--muted);font-size:15px">${esc(RL[my][2])}</span></div>`:`<div class="L Li">–</div><div><b>Vous n'êtes pas convié à cet atelier.</b><br><span style="color:var(--muted);font-size:15px">Vous en suivez les résultats dans Confluence si besoin.</span></div>`}</div>`:`<p style="color:var(--faint)">Choisissez votre rôle en haut de page pour voir le vôtre.</p>`}
@@ -359,37 +363,41 @@ V.roles=()=>{
 };
 const WF={lane:"all",step:"all",mine:false};
 V.ateliers=()=>{
-  const list=ALL_T.filter(k=>(WF.lane==="all"||laneOfT(k)===WF.lane)&&(WF.step==="all"||stepOfT(k).includes(WF.step))&&(!WF.mine||roleIn(k))).sort((a,b)=>stepOfT(a).localeCompare(stepOfT(b))||a.localeCompare(b));
-  return `<div class="eyebrow">Module 5</div><h1>Les 24 ateliers</h1>
-  <p class="lead">Chaque atelier a son template Miro, prêt à dupliquer : objectif, déroulé, durée, espace collaboratif, livrables et rôles.</p>
+  const list=ATELIERS.filter(a=>(WF.lane==="all"||a.lanes.includes(WF.lane))&&(WF.step==="all"||PH[a.step].n===WF.step)&&(!WF.mine||roleIn(a.k)));
+  const fl=FICHES.filter(f=>(WF.lane==="all"||f.lane===WF.lane)&&(WF.step==="all"||PH[f.step].n===WF.step));
+  return `<div class="eyebrow">Module 5</div><h1>Les 7 ateliers</h1>
+  <p class="lead">Un atelier réunit plusieurs streams pour décider ensemble. Le reste, ce sont des travaux d'expert faits à une ou deux personnes, avec une fiche méthode, puis restitués dans un atelier.</p>
   <div class="filters" role="group" aria-label="Filtrer par stream"><button class="chip" data-wl="all" aria-pressed="${WF.lane==="all"}">Tous les streams</button>${LANES.map(l=>`<button class="chip" data-wl="${l}" aria-pressed="${WF.lane===l}"><span class="dot bg-${l}"></span> ${esc(sName(l).split(/,| et /)[0])}</button>`).join("")}</div>
-  <div class="filters" role="group" aria-label="Filtrer par étape"><button class="chip" data-ws="all" aria-pressed="${WF.step==="all"}">Toutes les étapes</button>${PH.slice(0,6).map(p=>`<button class="chip" data-ws="${p.n}" aria-pressed="${WF.step===p.n}">${p.n} · ${esc(p.name)}</button>`).join("")}${P.role?`<button class="chip" data-wm="1" aria-pressed="${WF.mine}">Seulement mes ateliers</button>`:""}</div>
-  <div class="ws">${list.map(k=>{const l=laneOfT(k),r=roleIn(k);return `<div class="w ${l}">${r?`<span class="you ${RL[r][1]}">${r}</span>`:""}<code>${k} · étape ${esc(stepOfT(k))}</code><h3>${esc(T_NAMES[k])}</h3><div class="meta">Doer : ${esc(doersOf(k))}</div><a href="${url(k)}" target="_blank" rel="noopener">Ouvrir dans Miro ↗</a></div>`;}).join("")||`<p style="color:var(--muted)">Aucun atelier ne correspond.</p>`}</div>
+  <div class="filters" role="group" aria-label="Filtrer par étape"><button class="chip" data-ws="all" aria-pressed="${WF.step==="all"}">Toutes les étapes</button>${PH.map(p=>`<button class="chip" data-ws="${p.n}" aria-pressed="${WF.step===p.n}">${p.n} · ${esc(p.tree)}</button>`).join("")}${P.role?`<button class="chip" data-wm="1" aria-pressed="${WF.mine}">Seulement mes ateliers</button>`:""}</div>
+  <div class="ws">${list.map(a=>{const r=roleIn(a.k);return `<div class="w ${a.lanes[0]}">${r?`<span class="you ${RL[r][1]}">${r}</span>`:""}<code>Atelier ${a.k.slice(1)} · étape ${esc(PH[a.step].n)}</code><h3>${esc(A_NAMES[a.k])}</h3><div class="meta">${a.lanes.map(l=>`<span class="dot bg-${l}"></span>`).join(" ")} · Doer : ${esc(doersOf(a.k))} · Validator : ${esc(stakeName(AR_SRC[a.k].V))}</div><div class="meta">Ce qui en sort : ${esc(a.out)}</div><a href="${url(a.k)}" target="_blank" rel="noopener">Ouvrir dans Miro ↗</a></div>`;}).join("")||`<p style="color:var(--muted)">Aucun atelier ne correspond.</p>`}</div>
+  <h2>Les fiches méthode · travaux d'expert</h2>
+  <p>Pas de Facilitator ni de convocation : l'expert s'appuie sur la fiche, puis présente le résultat dans l'atelier indiqué.</p>
+  <div class="ws">${fl.map(f=>`<div class="w ${f.lane}"><code>Fiche ${f.k} · étape ${esc(PH[f.step].n)}</code><h3>${esc(T_NAMES[f.k])}</h3><div class="meta">Faite par : ${esc(stakeName(f.owner))} · restituée dans l'atelier ${esc(f.feeds.replace(/A(0\d)/g,"$1"))}</div><a href="${url(f.k)}" target="_blank" rel="noopener">Ouvrir dans Miro ↗</a></div>`).join("")||`<p style="color:var(--muted)">Aucune fiche ne correspond.</p>`}</div>
   ${navBtns(4)}`;
 };
 V.outils=()=>`<div class="eyebrow">Module 6</div><h1>Miro, Jira, Confluence</h1>
   <p class="lead">Trois outils, trois usages. Chaque information a une seule maison.</p>
   <div class="tools">
-   <div class="tool"><div class="ic" style="background:#ffd02f;color:#050038">M</div><h3>Miro · on co-construit</h3><ul><li>Les 24 templates d'ateliers, rangés par stream</li><li>Les espaces de chaque étape et leurs jalons</li><li>La roadmap de la démarche</li></ul><a class="ghost" id="toMiro" href="#" target="_blank" rel="noopener">Ouvrir le board ↗</a></div>
+   <div class="tool"><div class="ic" style="background:#ffd02f;color:#050038">M</div><h3>Miro · on co-construit</h3><ul><li>Les 7 ateliers et les fiches méthode</li><li>Les espaces de chaque étape et leurs jalons</li><li>La roadmap de la démarche</li></ul><a class="ghost" id="toMiro" href="#" target="_blank" rel="noopener">Ouvrir le board ↗</a></div>
    <div class="tool"><div class="ic" style="background:#1868db;color:#fff">J</div><h3>Jira · on exécute</h3><ul><li>Une epic par étape, une tâche par activité</li><li>Chaque tâche assignée à une personne</li><li>Statuts : À faire, En cours, Bloqué, Terminé, Non applicable (avec motif)</li><li>Tableau de bord pour le suivi hebdo</li></ul><a class="ghost" href="jira.html" target="_blank" rel="noopener">Ouvrir la simulation ↗</a></div>
-   <div class="tool"><div class="ic" style="background:#0c66e4;color:#fff">C</div><h3>Confluence · on pilote et on garde la mémoire</h3><ul><li>La Vue d'ensemble pour le Sponsor et les comités</li><li>Les jalons, décisions et comptes-rendus</li><li>La méthode et les rôles</li></ul><a class="ghost" href="index.html#vue" target="_blank" rel="noopener">Ouvrir la simulation ↗</a></div>
+   <div class="tool"><div class="ic" style="background:#0c66e4;color:#fff">C</div><h3>Confluence · on pilote et on garde la mémoire</h3><ul><li>L'arborescence validée avec le client : les livrables rangés par étape</li><li>Une page par stream qui rassemble ses livrables</li><li>Le Tableau de pilotage, les jalons et les décisions</li></ul><a class="ghost" href="index.html#vue" target="_blank" rel="noopener">Ouvrir la simulation ↗</a></div>
   </div>
   <h2>Le cycle d'une action</h2>
-  <div class="flow"><b>Atelier dans Miro</b><span>→</span><b>Décision au Decision Log</b><span>→</span><b>Tâche Jira assignée</b><span>→</span><b>Statut mis à jour</b><span>→</span><b>Vue d'ensemble à jour</b><span>→</span><b>Décision au jalon</b></div>
+  <div class="flow"><b>Atelier dans Miro</b><span>→</span><b>Décision au Decision Log</b><span>→</span><b>Tâche Jira assignée</b><span>→</span><b>Statut mis à jour</b><span>→</span><b>Tableau de pilotage à jour</b><span>→</span><b>Décision au jalon</b></div>
   <h2>Une semaine type</h2>
   <div class="grid g2">
    <div class="card"><h3>Responsable de stream</h3><p>Met à jour ses tâches Jira, prépare ses ateliers avec le Facilitateur, signale tout blocage dès qu'il apparaît.</p></div>
    <div class="card"><h3>Facilitateur Digital Factory</h3><p>Anime le point hebdomadaire depuis le tableau de bord Jira, déclenche les synchronisations entre streams, prépare les jalons.</p></div>
-   <div class="card"><h3>Sponsor</h3><p>Consulte la Vue d'ensemble avant chaque comité, tranche aux jalons et arbitre les blocages remontés.</p></div>
+   <div class="card"><h3>Sponsor</h3><p>Consulte le Tableau de pilotage avant chaque comité, tranche aux jalons et arbitre les blocages remontés.</p></div>
    <div class="card"><h3>Équipe</h3><p>Participe aux ateliers selon son rôle et reçoit les comptes-rendus dans Confluence.</p></div>
   </div>${navBtns(5)}`;
 const QS=[
  {s:"Situation 1",q:"Vous terminez l'étape Diagnostic. Le Design a ses personas, mais la Tech n'a pas fini la Transparence IT. Que se passe-t-il ?",o:["Le Design passe seul à l'étape suivante pour gagner du temps","La revue interne « Diagnostic partagé » se tient avec les 4 streams, et l'écart est traité avant de continuer","On attend le jalon client suivant pour en parler"],a:1,e:"Chaque étape se termine par une décision commune. On ne passe pas à l'étape suivante en ordre dispersé."},
- {s:"Situation 2",q:"Atelier User Journey Mapping (T05). Qui anime le contenu ?",o:["Le Facilitateur Digital Factory","Le Doer, ici l'UX","Le Sponsor"],a:1,e:"Le Facilitator tient le cadre et la dynamique, le Doer anime le contenu et produit les livrables."},
+ {s:"Situation 2",q:"Atelier 02 · Diagnostic partagé. Qui anime le contenu ?",o:["Le Facilitateur Digital Factory","Les Doers, ici l'UX et le PO","Le Sponsor"],a:1,e:"Le Facilitator tient le cadre et la dynamique, le Doer anime le contenu et produit les livrables."},
  {s:"Situation 3",q:"Le Facilitateur est absent le jour d'un atelier. Que faire ?",o:["Annuler l'atelier","Le Doer anime tout seul, sans cadre","Le Scrum master, son binôme, prend le relais"],a:2,e:"Le Scrum master est le binôme du Facilitateur sur tous les ateliers."},
  {s:"Situation 4",q:"Une tâche du playbook ne concerne pas votre projet. Que faites-vous dans Jira ?",o:["Je la laisse en « À faire »","Je la supprime","Je la passe en « Non applicable » en précisant le motif"],a:2,e:"La décision reste tracée, et la tâche sort du calcul d'avancement sans paraître en retard."},
  {s:"Situation 5",q:"En fin d'atelier, le Product Owner et le Functional owner ne sont pas d'accord. Qui tranche ?",o:["Le Validator de l'atelier, une seule personne par décision","On vote à main levée","Le Facilitator"],a:0,e:"Une seule personne Validator par décision. Le Facilitator ne tranche jamais : il garantit la méthode."},
- {s:"Situation 6",q:"Le Sponsor veut savoir où en est le projet avant le comité. Où le renvoyez-vous ?",o:["Vers les comptes-rendus des ateliers","Vers la Vue d'ensemble Confluence, alimentée par Jira","Vers le board Miro"],a:1,e:"La Vue d'ensemble montre l'avancement par stream et par étape, les blocages et la préparation du prochain jalon."}
+ {s:"Situation 6",q:"Le Sponsor veut savoir où en est le projet avant le comité. Où le renvoyez-vous ?",o:["Vers les comptes-rendus des ateliers","Vers le Tableau de pilotage Confluence, alimenté par Jira","Vers le board Miro"],a:1,e:"Le Tableau de pilotage montre l'avancement par stream et par étape, les blocages et la préparation du prochain jalon."}
 ];
 V.situations=()=>{
   const answered=Object.keys(P.quiz).length, score=QS.filter((q,i)=>P.quiz[i]===q.a).length, all=answered===QS.length;

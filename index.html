@@ -58,10 +58,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .side{background:var(--side);border-right:1px solid var(--line);padding:16px 8px 32px;padding-left:max(8px,env(safe-area-inset-left,0px))}
 .side h2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin:8px 12px 8px;font-weight:600}
 .tree{list-style:none;margin:0;padding:0}
-.tree a{display:flex;align-items:center;gap:8px;padding:5px 12px;border-radius:4px;color:var(--fg);font-size:14px;line-height:1.35}
+.tree a{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:4px;color:var(--fg);font-size:14px;line-height:1.35}
 .tree a:hover{background:var(--hover);text-decoration:none}
 .tree a[aria-current="page"]{background:var(--lz-blue);color:var(--lz-blue-fg);font-weight:600}
-.tree .child a{padding-left:30px}
+.tree .tw{width:10px;flex:none;color:var(--faint);font-size:10px}
+.tree .tt{min-width:0}
+.tree .plus{margin-left:auto;font-size:11px;color:var(--faint);font-weight:600}
+.tree a.add .tt{color:var(--muted)}
+.tree .bullet.lane-a{background:#8f7fee}.tree .bullet.lane-b{background:#fe9f4d}.tree .bullet.lane-c{background:#659df2}.tree .bullet.lane-d{background:#2dc75c}
 .tree .bullet{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:none}
 .tree .lane{width:10px;height:10px;border-radius:2px;flex:none}
 .tree .count{margin-left:auto;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
@@ -195,32 +199,12 @@ table.mx a.cell{display:block;text-decoration:none}
 
 <script src="data.js"></script>
 <script>
-/* ---------- Page definitions ---------- */
-const PAGES = [
- {id:"accueil", tree:"Accueil et mode d'emploi", title:"Accueil et mode d'emploi", top:true, miro:["f00","f02"]},
- {id:"vue", tree:"Vue d'ensemble", title:"Vue d'ensemble", miro:["f02","f03","f04","f05","f06","f07"]},
- {id:"fiche", tree:"Fiche projet", title:"Fiche projet", miro:["f01"]},
- {id:"jira", tree:"Mise en place Jira", title:"Mise en place Jira", miro:["f02"]},
- {id:"tableau", tree:"Tableau de bord", title:"Tableau de bord", miro:["f02","f01"]},
- {id:"stream-a", tree:"Stream A · Product et Business", lane:"a"},
- {id:"stream-b", tree:"Stream B · UX Research et Design", lane:"b"},
- {id:"stream-c", tree:"Stream C · Architecture et Technology", lane:"c"},
- {id:"stream-d", tree:"Stream D · Data, Analytics et Performance", lane:"d"},
- {id:"gates", tree:"Jalons et revues", title:"Jalons et revues", lane:"g", miro:["f02","f03","f04","f05","f06","f07"]},
- {id:"sync", tree:"Synchronisation Design et Tech", title:"Synchronisation Design et Tech", miro:["f02"]},
- {id:"gouvernance", tree:"Gouvernance", title:"Gouvernance", miro:["f01"]},
- {id:"roles-atelier", tree:"Rôles en atelier", title:"Rôles en atelier", miro:["la","lb","lc","ld"]},
- {id:"miro", tree:"Liens Miro", title:"Liens Miro du projet", miro:["f00"]},
- {id:"cr-atelier", tree:"Modèle · Compte-rendu d'atelier", title:"Modèle · Compte-rendu d'atelier", miro:["la","lb","lc","ld"]}
-];
-PAGES.forEach(p=>{ if(STREAMS[p.id]){ p.title="Stream "+STREAMS[p.id].name; p.miro=["l"+STREAMS[p.id].lane,"f02","f03","f04","f05","f06","f07"]; }});
-
 /* ---------- Render helpers ---------- */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function rich(text){
-  // placeholders in grey, T-codes as Miro chips
+  // placeholders in grey, atelier (Ax) and fiche (Tx) codes as Miro chips
   let h=esc(text).replace(/\[[^\]]+\]/g,m=>`<span class="ph">${m}</span>`);
-  return h.replace(/\s?\bT(0[1-9]|1[0-9]|2[0-4])\b/g,(m,n)=>{const k="T"+n;return ` <a class="tchip" href="${url(k)}" target="_blank" rel="noopener" title="Ouvrir le template ${esc(T_NAMES[k])} dans Miro">${k}</a>`;});
+  return h.replace(new RegExp("\\s?"+CODE_RE.source,"g"),(m,k)=>` <a class="tchip" href="${url(k)}" target="_blank" rel="noopener" title="${esc(codeLabel(k)+" · "+CODE_NAMES[k])} dans Miro">${k}</a>`);
 }
 let taskCounter=0;
 function tasks(pageId, group, items, withMeta=true){
@@ -232,7 +216,7 @@ function tasks(pageId, group, items, withMeta=true){
 const list=items=>`<ul class="list">${items.map(i=>`<li>${rich(i)}</li>`).join("")}</ul>`;
 const panel=(title,body,cls="")=>`<div class="panel ${cls}">${title?`<div class="panel-title">${title}</div>`:""}${body}</div>`;
 function miroBox(keys){
-  return `<div class="miro"><div class="miro-head"><span class="miro-dot">M</span>Dans Miro</div><div class="miro-links">${keys.map(k=>`<a href="${url(k)}" target="_blank" rel="noopener">${esc(FRAME_NAMES[k])}</a>`).join("")}</div></div>`;
+  return `<div class="miro"><div class="miro-head"><span class="miro-dot">M</span>Dans Miro</div><div class="miro-links">${keys.map(k=>`<a href="${url(k)}" target="_blank" rel="noopener">${esc(FRAME_NAMES[k]||codeLabel(k)+" · "+CODE_NAMES[k])}</a>`).join("")}</div></div>`;
 }
 function fields(rows){ return `<div class="fields">${rows.map(([k,v])=>`<div class="k">${esc(k)}</div><div>${rich(v)}</div>`).join("")}</div>`; }
 const STATUS=[["Non démarré","grey"],["En cours","blue"],["En revue","yellow"],["Validé","green"]];
@@ -252,17 +236,145 @@ const ROLES=[
  ["V","Validator","Valide les propositions, les décisions et les livrables.","green"],
  ["F","Facilitator","Garant du cadre, présent sur tous les ateliers (Facilitateur Digital Factory, binôme : Scrum master) : ouvre et clôture l'atelier, tient le temps, veille à la dynamique et prépare le Doer.","purple"]
 ];
-const phaseTitle=i=>`${PH[i].n} · ${PH[i].name} · ${PH[i].sub}`;
-const phaseHead=i=>`${esc(PH[i].n+' · '+PH[i].name)} <span class="lz purple" style="vertical-align:3px">${esc(PH[i].sub)}</span>`;
+/* ---------- Arborescence validée avec le client, plus 3 ajouts sous « Équipe et gouvernance » ----------
+   kind : root, deliv (page livrable avec propriétés), group (page parente), phase (étape + jalon),
+   stream (vue d'un stream), page (contenu spécifique dans BODY). add:true = ajout proposé. */
+const LN={a:"A · Product et Business",b:"B · UX Research et Design",c:"C · Architecture et Technology",d:"D · Data, Analytics et Performance"};
+const N=(id,parent,t,o={})=>Object.assign({id,parent,t,kind:"page"},o);
+const NODES=[
+ N("accueil",null,"Squad : [Nom de la squad]",{kind:"root",miro:["f00","f02"]}),
+ N("contexte","accueil","Contexte projet",{kind:"deliv",step:0,owner:"a",contrib:[],codes:["T02"],liv:["Note d'opportunité","Product Vision V1"],
+   doc:["Problématique et note d'opportunité","Product Vision V1","Périmètre, indicateurs de succès et jalons cibles","Cartographie des acteurs"]}),
+ N("equipe","accueil","Équipe et gouvernance de projet",{kind:"deliv",step:0,owner:"a",contrib:["F"],codes:["A01"],liv:["Document de Kick-off","Projet Jira"],
+   doc:["Équipe formalisée et ressources sécurisées","Planning des étapes et des parties prenantes","Gouvernance, rôles et rituels","Projet Jira créé avec les jalons"]}),
+ N("pilotage","equipe","Pilotage",{add:true,miro:["f02"]}),
+ N("vue","pilotage","Tableau de pilotage",{add:true,title:"Tableau de pilotage",miro:["f02","f03","f04","f05","f06","f07"]}),
+ N("stream-a","pilotage","Stream A · Product et Business",{kind:"stream",add:true,lane:"a"}),
+ N("stream-b","pilotage","Stream B · UX Research et Design",{kind:"stream",add:true,lane:"b"}),
+ N("stream-c","pilotage","Stream C · Architecture et Technology",{kind:"stream",add:true,lane:"c"}),
+ N("stream-d","pilotage","Stream D · Data, Analytics et Performance",{kind:"stream",add:true,lane:"d"}),
+ N("indicateurs","pilotage","Suivi des indicateurs",{kind:"deliv",add:true,step:4,owner:"d",contrib:["a"],codes:["T23"],liv:["Support : plan de mesure","Support : dashboard de suivi"],
+   doc:["Plan de mesure et plan de marquage","Dashboard de suivi","Contrôle qualité du tracking à chaque sprint","Indicateurs partagés en sprint review"]}),
+ N("jalons","equipe","Jalons et décisions",{add:true,miro:["f02"]}),
+ N("methode","equipe","Méthode et ateliers",{add:true,miro:["la","lb"]}),
+ N("ateliers","methode","Les 7 ateliers et les fiches méthode",{add:true,miro:["la","lb"]}),
+ N("roles-atelier","methode","Rôles en atelier",{add:true,miro:["la"]}),
+ N("cr-atelier","methode","Modèle · Compte-rendu d'atelier",{add:true,miro:["la"]}),
+ N("jira","methode","Mise en place Jira",{add:true,miro:["f02"]}),
+ N("miro","methode","Liens Miro",{add:true,title:"Liens Miro du projet",miro:["f00"]}),
+
+ N("phases","accueil","Phases du projet et livrables",{miro:["f02"]}),
+ N("diagnostic","phases","Diagnostic",{kind:"phase",step:1}),
+ N("benchmarks","diagnostic","Benchmarks",{kind:"deliv",step:1,owner:"b",contrib:["a"],codes:[],liv:["Deck benchmark"],
+   doc:["Tendances analysées et messages clés (1-1)","UX bench national et international (1-3)","Idées et hypothèses à tester"]}),
+ N("diag-parcours","diagnostic","Diagnostic des parcours & usages",{kind:"deliv",step:1,owner:"b",contrib:["a"],codes:["A02","T03","T04"],liv:["Diagnostic parcours & fiches personas","Support : synthèse des irritants"],
+   doc:["Personas et usages métiers","Synthèse des entretiens experts et utilisateurs","Audit UX de l'existant","Cartographie des parcours, usages et dispositifs","Pain points priorisés (top 5)","Processus existants et modèle opérationnel actuel (stream A)"]}),
+ N("diag-it","diagnostic","Diagnostic IT",{kind:"deliv",step:1,owner:"c",contrib:["d"],codes:["T07","T08","T09","T21"],liv:["Transparence IT"],
+   doc:["Architecture actuelle et capability map","APIs et intégrations","Transparence data : sources, qualité, tracking existant (stream D)","Dette technique et contraintes de sécurité","Pain points et forces à capitaliser"]}),
+ N("vue-projet","diagnostic","Vue d'ensemble du projet",{kind:"deliv",step:1,owner:"a",contrib:"all",codes:["A02","T20"],liv:["Diagnostic externe","Product Vision V2"],
+   doc:["Synthèse du diagnostic des 4 streams","Value at Stake initiale","Risques et dépendances identifiés","Product Vision V2","Décision de la revue Diagnostic partagé"]}),
+ N("design-base0","phases","Design Base 0",{kind:"phase",step:2}),
+ N("parcours-cibles","design-base0","Design des parcours cibles",{kind:"deliv",step:2,owner:"b",contrib:["a","c"],codes:["A03","A04","T15"],liv:["Deck vision cible + full flow diagram","Product Vision V3","Support : Experience Blueprint"],
+   doc:["Idées priorisées (atelier 03)","Vision cible et full flow diagram","Prototypes et retours des tests utilisateurs","Experience Blueprint","Product Vision V3"]}),
+ N("impacts","design-base0","Évaluation des impacts",{kind:"deliv",step:2,owner:"a",contrib:["d"],codes:["A03","T20"],liv:["Deck d'évaluation des impacts","Product Vision V4"],
+   doc:["Value at Stake par user story","Impacts processus et coût d'implémentation","Modèle opérationnel potentiel","KPIs de valeur et d'adoption (stream D)","Feuille de route mise à jour","Product Vision V4"]}),
+ N("gap-it","design-base0","GAP IT, architecture et solution cible",{kind:"deliv",step:2,owner:"c",contrib:["d"],codes:["A05"],liv:["Solution technique cible validée"],
+   doc:["Architecture cible IT et Data : sources, APIs, modèles et agents IA","Écarts actuel vs cible et premières estimations","Prérequis et choix de solutions","Feuille de route de migration","Besoins data intégrés (stream D)","Validation en comité architecture et comité SI"]}),
+ N("design-detaille","phases","Design détaillé",{kind:"phase",step:3}),
+ N("mvp","design-detaille","MVP",{kind:"group",step:3,intro:"Tout ce qu'il faut pour démarrer les sprints. Le jalon client Démarrage des sprints se prépare depuis la page Design détaillé."}),
+ N("backlog","mvp","Développement du backlog",{kind:"deliv",step:3,owner:"a",contrib:["c"],codes:["A06"],liv:["Deck MVP"],
+   doc:["Sous-parcours, epics et user stories priorisés","Scope du MVP","User stories des 3 premiers sprints en Definition of Ready","Estimations des US (stream C)","Critères de priorisation des tickets techniques"]}),
+ N("roadmap","mvp","Feuille de route et définition",{kind:"deliv",step:3,owner:"a",contrib:"all",codes:["A06","T23"],liv:["Roadmap complète (3 sprints détaillés)","Support : plan de mesure"],
+   doc:["Feuille de route de développement et de déploiement","Value at Stake mise à jour et Definition of Ready","Plan de change management","KPIs de suivi et plan de mesure (stream D)"]}),
+ N("planif","mvp","Première planification",{kind:"deliv",step:3,owner:"a",contrib:["SM"],codes:["A06"],liv:["Roadmap complète (3 sprints détaillés)"],
+   doc:["Feuille de route détaillée des sprints","Release planning inter-squads","Capacité de l'équipe et calendrier des rituels"]}),
+ N("prep-it","mvp","Préparation au développement IT",{kind:"deliv",step:3,owner:"c",contrib:["d"],codes:["T23"],liv:["Code, environnements, CI initialisés"],
+   doc:["Spikes techniques finalisés","Plan de développement IT et formation technico-fonctionnelle","Intégration continue, environnements, repo, stratégie de test","Plan de marquage intégré aux US (stream D)","Delivery Readiness Review sans critère bloquant"]}),
+ N("proto","mvp","Prototype MVP & hand-off",{kind:"deliv",step:3,owner:"b",contrib:["c"],codes:[],liv:["Prototype & UX Hand-off Deck","Support : Design System actualisé"],
+   doc:["Prototypes et maquettes dev oriented (Figma)","Scénario de référence et résultats attendus","Hand-off document (UX, processus métier, Data et IA)","Composants et Design System (mis à jour pendant les sprints)"]}),
+ N("dev-agile","phases","Dev Agile, test & déploiement",{kind:"phase",step:4}),
+ N("doc-fonc","dev-agile","Documentation fonctionnelle",{kind:"group",step:4,intro:"Ce que les métiers et les utilisateurs doivent savoir pour recetter, adopter et déployer le MVP."}),
+ N("deploiement","doc-fonc","Déploiement & Change",{kind:"deliv",step:4,owner:"a",contrib:["b"],codes:[],liv:["Stratégie de déploiement","Supports de formation"],
+   doc:["Feuille de route de déploiement, pilote et Go / No-Go","Communication, formation et supports clés","Déploiement du modèle opérationnel et accompagnement au changement"]}),
+ N("recette","doc-fonc","Documents de recette et test",{kind:"deliv",step:4,owner:"a",contrib:["b","c"],codes:["T15"],liv:["MVP validé par les métiers"],
+   doc:["Stratégie et cahier de recette","Résultats de la recette métier","Anomalies remontées et corrections","Release notes avant chaque MEPP et MEP"]}),
+ N("doc-ceremonies","dev-agile","Documentation cérémonies",{kind:"group",step:4,intro:"La trace des rituels agiles, tenue par le Scrum master. Chaque page est une sous-page datée créée depuis le modèle."}),
+ N("sprint-planning","doc-ceremonies","Sprint planning",{kind:"deliv",step:4,owner:"SM",contrib:"all",codes:[],liv:[],doc:["Objectif du sprint","User stories engagées","Capacité de l'équipe"]}),
+ N("comites","doc-ceremonies","Comités et points de suivi",{kind:"deliv",step:4,owner:"a",contrib:"all",codes:[],liv:["Roadmap produit à jour"],doc:["Ordre du jour et participants","Avancement et indicateurs","Décisions et arbitrages, à reporter dans Jalons et décisions"]}),
+ N("daily","doc-ceremonies","Daily / task force suivi",{kind:"deliv",step:4,owner:"SM",contrib:"all",codes:[],liv:[],doc:["Points bloquants et actions","Suivi des task forces"]}),
+ N("sprint-retro","doc-ceremonies","Sprint retro",{kind:"deliv",step:4,owner:"SM",contrib:"all",codes:[],liv:[],doc:["Ce qui a bien marché","Ce qui doit changer","Actions d'amélioration avec un responsable"]}),
+ N("sprint-reviews","doc-ceremonies","Sprint Reviews",{kind:"group",step:4,intro:"Une sous-page par sprint, créée depuis le modèle Sprint [n] : slides de la review et vidéo de démo."}),
+ N("sprint-n","sprint-reviews","Sprint [n]",{kind:"deliv",step:4,owner:"a",contrib:"all",codes:["T15"],liv:["Incréments de valeur"],
+   doc:["Slides de la sprint review","Vidéo de démo","Incrément livré et user stories terminées","Indicateurs du sprint (stream D)","Feedbacks des parties prenantes et des utilisateurs"]}),
+ N("doc-tech","dev-agile","Documentation technique",{kind:"group",step:4,intro:"Ce que l'équipe technique et le run doivent savoir pour maintenir la solution."}),
+ N("archi-doc","doc-tech","Document d'architecture",{kind:"deliv",step:4,owner:"c",contrib:["d"],codes:[],liv:["Incréments de valeur"],
+   doc:["Architecture déployée et intégrations","Pipelines Data, modèles et agents IA","Sécurité et performance","Supervision et maintenance"]}),
+ N("transfert","doc-tech","Plan de transfert et pérennisation",{kind:"deliv",step:4,owner:"c",contrib:["a"],codes:[],liv:[],
+   doc:["Dette technique et couverture de tests","Plan de transfert au run (IT owner)","Documentation de maintenance","Plan de pérennisation"]}),
+ N("post-mep","phases","Post MEP",{kind:"phase",step:5}),
+ N("restitution","post-mep","Restitution et retour d'expérience",{kind:"deliv",step:5,owner:"a",contrib:"all",codes:["A07"],liv:["Document de REX","Bilan des KPIs post-lancement","Décision Go/No-Go documentée"],
+   doc:["Restitution du MVP","KPIs comparés à la Value at Stake initiale (stream D)","REX et bonnes pratiques capitalisées","Feedbacks utilisateurs intégrés au backlog","Décision sur la suite : nouvelle release, extension ou arrêt"]})
+];
+const ALIAS={fiche:"contexte",gouvernance:"equipe",tableau:"phases",sync:"phases",gates:"jalons"};
+/* Page Confluence où l'on range le compte-rendu de chaque atelier. */
+const CR_PAGE={A01:"equipe",A02:"vue-projet",A03:"parcours-cibles",A04:"parcours-cibles",A05:"gap-it",A06:"backlog",A07:"restitution"};
+
+const byId=id=>NODES.find(n=>n.id===id);
+const kids=id=>NODES.filter(n=>n.parent===id);
+const desc=id=>kids(id).flatMap(k=>[k,...desc(k.id)]);
+const anc=id=>{const a=[];let n=byId(id);while(n&&n.parent){n=byId(n.parent);a.unshift(n);}return a;};
+const DELIV=NODES.filter(n=>n.kind==="deliv");
+const titleOf=n=>n.title||n.t;
+const LANES4=["a","b","c","d"];
+const contribOf=n=>n.contrib==="all"?LANES4.filter(l=>l!==n.owner):n.contrib;
+const lanesOf=n=>[n.owner,...contribOf(n)].filter(l=>LANES4.includes(l));
+const laneDot=l=>`<span class="lane lane-${l}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px"></span>`;
+const ROLE_LBL={F:"Facilitateur Digital Factory",SM:"Scrum master"};
+const ownerLbl=o=>LANES4.includes(o)?laneDot(o)+esc("Stream "+LN[o]):esc("Transverse · "+ROLE_LBL[o]);
+const ownerShort=o=>LANES4.includes(o)?laneDot(o)+esc(LN[o].split(" · ")[0]):esc(ROLE_LBL[o]);
+const contribLbl=n=>{const c=contribOf(n);return c.length?c.map(x=>LANES4.includes(x)?laneDot(x)+esc("Stream "+x.toUpperCase()):esc(ROLE_LBL[x])).join(" · "):'<span class="ph">–</span>';};
+const livStatus=n=>state["liv__"+n.id]||"Non démarré";
+const stLz=v=>{const c=(STATUS.find(o=>o[0]===v)||STATUS[0])[1];return `<span class="lz ${c}">${esc(v)}</span>`;};
+const pageLink=n=>`<a href="#${n.id}">${esc(titleOf(n))}</a>${n.add?' <span class="lz grey" title="Ajout proposé à l\'arborescence client">ajout</span>':""}`;
+const codeChip=k=>`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener" title="${esc(codeLabel(k)+" · "+CODE_NAMES[k])}">${k}</a>`;
+const stepLbl=i=>`${PH[i].n} · ${PH[i].tree}`;
+function delivTable(list,opts={}){
+  if(!list.length) return `<p class="ph">Aucun livrable.</p>`;
+  return table(["Page",...(opts.step?["Étape"]:[]),...(opts.lane?["Rôle du stream"]:["Stream porteur"]),"Responsable","Statut"],
+    list.map(n=>[pageLink(n)+(anc(n.id).length>2?`<div class="meta" style="white-space:normal">${esc(anc(n.id).slice(2).map(titleOf).join(" › "))}</div>`:""),
+      ...(opts.step?[esc(PH[n.step].n)]:[]),
+      ...(opts.lane?[n.owner===opts.lane?'<span class="lz purple">Porteur</span>':'<span class="lz grey">Contributeur</span>']:[ownerShort(n.owner)]),
+      '<span class="ph">[Responsable]</span>',stLz(livStatus(n))]));
+}
+const reportBox=(cql,txt)=>panel("Dans Confluence",`<p>${txt}</p>`+jqlBox(cql));
+function ateliersTable(list,lane){
+  return table(["Atelier","Étape",...(lane?["Rôle du stream"]:["Streams réunis"]),"Doer (anime)","Validator","Ce qui en sort"],list.map(a=>[
+    codeChip(a.k)+esc(A_NAMES[a.k]),esc(PH[a.step].n),
+    lane?(a.lanes[0]===lane?'<span class="lz purple">Porte l\'atelier</span>':'<span class="lz grey">Participe</span>'):a.lanes.map(laneDot).join(""),
+    esc(doersOf(a.k)),esc(stakeName(AR_SRC[a.k].V)),esc(a.out)]));
+}
+function fichesTable(list){
+  return table(["Fiche méthode","Stream","Faite par","Restituée dans"],list.map(f=>[codeChip(f.k)+esc(T_NAMES[f.k]),laneDot(f.lane)+esc(f.lane.toUpperCase()),esc(stakeName(f.owner)),rich(f.feeds)]));
+}
+const phaseTitle=i=>`${PH[i].n} · ${PH[i].tree} · ${PH[i].sub}`;
+const phaseHead=i=>`${esc(PH[i].n+' · '+PH[i].tree)} <span class="lz purple" style="vertical-align:3px">${esc(PH[i].sub)}</span>`;
 const SYNC=PH.map((p,i)=>Object.values(STREAMS).flatMap(s=>s.phases[i].syn.map(x=>s.name.split(' · ')[0]+' · '+x)));
 const phaseLink=i=>`<a class="phase-link" href="${url(PH[i].f)}" target="_blank" rel="noopener"><span class="miro-dot">M</span>${esc(FRAME_NAMES[PH[i].f])} ↗</a>`;
+const DEC_OPTS=[["À décider","grey"],["Go","green"],["Ajustements","yellow"],["No-Go","red"]];
+function gateBlock(i){
+  const g=GATES[i];
+  return `<h2>${esc(gateLabel(g,i))}</h2><p>${esc(g.d)}</p>`+tasks("gates","g"+i,g.c,false)
+   +fields([["Date","[Date]"],["Décideur","[Responsable]"]])
+   +`<p><strong>Décision :</strong> ${statusSelect(`gates__dec__${i}`,DEC_OPTS)}</p><p><strong>Commentaires et conditions :</strong> <span class="ph">[Décision]</span></p>`;
+}
+const syncBlock=i=>`<h2>Points de synchronisation entre streams</h2><p>Les points où les streams doivent se parler avant le jalon. Un point non tenu se signale dans <a href="#jalons">Jalons et décisions</a>.</p>`+tasks("sync","p"+i,SYNC[i].map(x=>x+" · [Date]"),false);
 
 function assigneeSelect(t){ const v=jAssignee(t); const opts=ASSIGNEES.includes(v)?ASSIGNEES:[v,...ASSIGNEES];
   return `<span class="as-v" hidden>${esc(v)}</span><select class="as" data-a="ji__${t.id}__a" aria-label="Assigné">${opts.map(o=>`<option ${o===v?"selected":""}>${esc(o)}</option>`).join("")}</select>`; }
 function jTable(list,showStream=false){
-  return table(["Clé","Tâche",...(showStream?["Stream"]:[]),"Assigné","Statut"],list.map(t=>[`<span class="jkey">${esc(t.key)}</span>`,rich(t.txt)+(jStatus(t)==="Non applicable"?`<div class="meta" style="white-space:normal">Non applicable${jMotif(t)?" · "+esc(jMotif(t)):""}</div>`:""),...(showStream?[t.sid?`<span class="lane lane-${t.lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(STREAMS[t.sid].name.split(" · ")[0])}`:"Transverse"]:[]),assigneeSelect(t),statusSelect("ji__"+t.id+"__s",JSTATUS)]));
+  return table(["Clé","Tâche",...(showStream?["Stream"]:[]),"Assigné","Statut"],list.map(t=>[`<span class="jkey">${esc(t.key)}</span>`,rich(t.txt)+(jStatus(t)==="Non applicable"?`<div class="meta" style="white-space:normal">Non applicable${jMotif(t)?" · "+esc(jMotif(t)):""}</div>`:""),...(showStream?[t.sid?laneDot(t.lane)+esc(STREAMS[t.sid].name.split(" · ")[0]):"Transverse"]:[]),assigneeSelect(t),statusSelect("ji__"+t.id+"__s",JSTATUS)]));
 }
-const jqlBox=q=>`<div class="jql" title="Requête JQL de la macro Jira">${esc(q)}</div>`;
+const jqlBox=q=>`<div class="jql" title="Requête de la macro">${esc(q)}</div>`;
 function cellLz(c){ if(!c.total) return c.na?'<span class="lz na">N/A</span>':'<span class="ph">–</span>';
   if(c.blocked) return `<span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`;
   if(c.done===c.total) return '<span class="lz green">Terminé</span>';
@@ -273,115 +385,194 @@ function csvExport(){
   const q=v=>`"${String(v).replace(/"/g,'""')}"`;
   const rows=[["Issue ID","Issue Type","Summary","Parent","Component/s","Assignee","Labels","Description"]];
   EPICS.forEach((e,i)=>rows.push([i+1,"Epic",`${e.name} · ${e.sub}`,"","","","etape-"+PH[i].n,PH[i].obj]));
-  JTASKS.forEach((t,k)=>{ const m=t.txt.match(/\bT(0[1-9]|1[0-9]|2[0-4])\b/g)||[];
-    rows.push([100+k,"Task",t.txt.replace(/\s?\bT(0[1-9]|1[0-9]|2[0-4])\b/g,"").trim(),t.epic+1,t.sid?COMP(t.sid):"Transverse",jAssignee(t),[t.gate?"jalon":"",...m.map(x=>"atelier-"+x)].filter(Boolean).join(" "),t.gate?GATES[t.epic].c.join(" ; "):(m.length?"Template Miro : "+m.map(x=>x+" "+T_NAMES[x]).join(", "):"")]); });
+  JTASKS.forEach((t,k)=>{ const m=t.txt.match(CODE_RE)||[];
+    rows.push([100+k,"Task",t.txt.replace(new RegExp("\\s?"+CODE_RE.source,"g"),"").trim(),t.epic+1,t.sid?COMP(t.sid):"Transverse",jAssignee(t),[t.gate?"jalon":"",...m.map(x=>(x[0]==="A"?"atelier-":"fiche-")+x)].filter(Boolean).join(" "),t.gate?GATES[t.epic].c.join(" ; "):(m.length?"Template Miro : "+m.map(x=>x+" "+CODE_NAMES[x]).join(", "):"")]); });
   const csv="﻿"+rows.map(r=>r.map(q).join(",")).join("\r\n");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})); a.download="playbook-jira-import.csv"; document.body.appendChild(a); a.click(); a.remove();
   toast("Fichier CSV téléchargé");
 }
 
-/* ---------- Page bodies ---------- */
-const BODY = {
+/* ---------- Corps des pages génériques ---------- */
+function delivBody(n){
+  const labels=[...lanesOf(n).map(l=>"stream-"+l),...(lanesOf(n).length?[]:["transverse"]),"etape-"+PH[n.step].n,"livrable"];
+  let h=`<h2 style="margin-top:8px">Propriétés de la page</h2><p class="meta" style="white-space:normal">Macro Page Properties : ces lignes remontent dans les pages stream et dans « Phases du projet et livrables ».</p>`
+  +`<div class="fields"><div class="k">Stream porteur</div><div>${ownerLbl(n.owner)}</div>`
+  +`<div class="k">Contributeurs</div><div>${contribLbl(n)}</div>`
+  +`<div class="k">Responsable</div><div><span class="ph">[Responsable]</span></div>`
+  +`<div class="k">Statut</div><div>${statusSelect("liv__"+n.id)}</div>`
+  +`<div class="k">Étape et jalon</div><div>${esc(stepLbl(n.step))} · <a href="#${PHASE_PAGE[n.step]}">${esc(gateLabel(GATES[n.step],n.step))}</a></div>`
+  +`<div class="k">Livrable client</div><div>${n.liv.length?n.liv.map(esc).join(" · "):'<span class="ph">–</span>'}</div>`
+  +`<div class="k">Labels</div><div>${labels.map(l=>`<code class="jkey" style="color:var(--fg)">${l}</code>`).join(" ")}</div></div>`;
+  if(n.codes.length) h+=`<h2>Alimenté par</h2>`+table(["Atelier ou fiche","Doer","Compte-rendu"],n.codes.map(k=>[codeChip(k)+esc(codeLabel(k)+" · "+CODE_NAMES[k]),esc(doersOf(k)),k[0]==="A"?(CR_PAGE[k]===n.id?"Rangé ici, en sous-page":`<a href="#${CR_PAGE[k]}">${esc(titleOf(byId(CR_PAGE[k])))}</a>`):'<span class="ph">Restitué dans l\'atelier</span>']));
+  h+=`<h2>À documenter</h2>`+tasks(n.id,"doc",n.doc,false);
+  const linked=JTASKS.filter(t=>!t.gate&&t.epic===n.step&&(t.txt.match(CODE_RE)||[]).some(k=>n.codes.includes(k)));
+  if(linked.length) h+=`<h2>Tâches Jira liées</h2>`+jqlBox(`project = ${PRJ} AND "Epic Link" = ${EPICS[n.step].key} AND labels in (${n.codes.map(k=>(k[0]==="A"?"atelier-":"fiche-")+k).join(", ")})`)+jTable(linked,true);
+  h+=`<h2>Contenu</h2><p class="ph">[Rédiger ici ou joindre le support : lien SharePoint, PDF, Figma]</p>`;
+  return h+(EXTRA[n.id]?EXTRA[n.id]():"");
+}
+function groupBody(n){
+  return `<p>${esc(n.intro||"")}</p>`+reportBox(`label in (${n.id}) AND type = page`,"Rapport des propriétés des pages enfants : statut et responsable se mettent à jour depuis chaque page.")
+   +delivTable(desc(n.id).filter(x=>x.kind==="deliv"));
+}
+function phaseBody(n){
+  const i=n.step, at=ATELIERS.filter(a=>a.step===i), fi=FICHES.filter(f=>f.step===i), dl=desc(n.id).filter(x=>x.kind==="deliv");
+  const ok=dl.filter(x=>livStatus(x)==="Validé").length, c=jStats(JTASKS.filter(t=>t.epic===i&&!t.gate));
+  let h=`<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
+   +`<div class="kpis"><div class="kpi"><b>${ok}/${dl.length}</b><span>livrables validés</span></div><div class="kpi"><b>${c.pct} %</b><span>des tâches Jira de l'epic ${esc(EPICS[i].key)}</span></div><div class="kpi"><b>${esc(GATES[i].t)}</b><span>${GATES[i].type==="client"?"Jalon client":"Revue interne"} · [Date]</span></div></div>`;
+  h+=`<h2>Livrables de l'étape</h2>`+reportBox(`label = etape-${PH[i].n} AND label = livrable`,"Rapport des propriétés des sous-pages : statut et responsable se mettent à jour depuis chaque page livrable.")+delivTable(dl);
+  if(at.length) h+=`<h2>Ateliers de l'étape</h2><p>Le Facilitateur Digital Factory ouvre et cadre chaque atelier, le Doer anime le contenu. Le compte-rendu se range sous la page livrable indiquée dans <a href="#ateliers">le catalogue</a>.</p>`+ateliersTable(at);
+  if(fi.length) h+=`<h3>Travaux d'expert (fiches méthode)</h3><p>Faits à 1 ou 2 personnes, restitués dans un atelier.</p>`+fichesTable(fi);
+  return h+gateBlock(i)+syncBlock(i)
+   +panel("Dans Jira",`<p><a href="jira.html#board">Ouvrir le tableau Jira ↗</a> · epic <span class="jkey">${esc(EPICS[i].key)}</span> ${esc(EPICS[i].name)}</p>`);
+}
+function streamBody(id){
+  const s=STREAMS[id], L=s.lane, cs=curStep(), mine=JTASKS.filter(t=>t.sid===id);
+  const cur=jStats(mine.filter(t=>t.epic===cs)), tot=jStats(mine);
+  const dl=DELIV.filter(n=>lanesOf(n).includes(L)).sort((a,b)=>a.step-b.step||(a.owner===L?-1:1));
+  let h=panel("Une vue, pas un dossier",`<p>Cette page ne contient aucun livrable : elle rassemble ceux où le stream ${esc(L.toUpperCase())} est porteur ou contributeur dans l'arborescence projet, et ses tâches Jira.</p>`)
+   +fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]]);
+  h+=`<h2>Où j'en suis</h2>`
+   +`<div class="kpis"><div class="kpi"><b>${esc(PH[cs].n)} · ${esc(PH[cs].tree)}</b><span>Étape en cours (réglée dans le <a href="#vue">Tableau de pilotage</a>)</span></div><div class="kpi"><b>${cur.done}/${cur.total}</b><span>tâches de l'étape terminées</span></div><div class="kpi"><b>${dl.filter(n=>n.owner===L&&livStatus(n)==="Validé").length}/${dl.filter(n=>n.owner===L).length}</b><span>livrables portés validés</span></div><div class="kpi"><b>${esc(GATES[cs].t)}</b><span>${GATES[cs].type==="client"?"Prochain jalon client":"Prochaine revue interne"} · [Date]</span></div></div>`
+   +`<div class="mini" title="Avancement Jira par étape">${PH.map((_,i)=>{const c=jStats(mine.filter(t=>t.epic===i));return `<i class="${c.blocked?"bl":""}" title="${esc(stepLbl(i))} : ${c.pct} %"><b style="width:${c.pct}%"></b></i>`;}).join("")}</div>`
+   +`<p class="meta">${tot.done}/${tot.total} tâches Jira terminées sur tout le projet</p>`;
+  h+=`<h2>Mes livrables</h2>`+reportBox(`label = stream-${L} AND label = livrable`,"Macro Page Properties Report sur le label du stream. Le statut se change dans la page du livrable.")+delivTable(dl,{step:1,lane:L});
+  h+=`<h2>Mes ateliers</h2>`+ateliersTable(ATELIERS.filter(a=>a.lanes.includes(L)),L);
+  const fi=FICHES.filter(f=>f.lane===L);
+  if(fi.length) h+=`<h3>Mes travaux d'expert</h3>`+fichesTable(fi);
+  h+=`<h2>Mes tâches Jira, par epic</h2>`
+   +panel("Dans Confluence",`<p><a href="jira.html#board-${L}">Ouvrir le tableau Jira du stream ↗</a></p><p>Chaque tableau ci-dessous est une macro <strong>Jira Issues</strong>. Le statut et l'assigné se modifient dans Jira, la page se met à jour seule.</p>`+jqlBox(`project = ${PRJ} AND component = "${COMP(id)}" ORDER BY "Epic Link", rank`));
+  s.phases.forEach((p,i)=>{
+   const list=mine.filter(t=>t.epic===i); const c=jStats(list);
+   h+=`<details class="epic${i===cs?" cur":""}" data-i="${i}" ${i===cs?"open":""}><summary><span class="jkey">${esc(EPICS[i].key)}</span><span class="t">${esc(stepLbl(i))}</span><span class="lz purple">${esc(PH[i].sub)}</span>${i===cs?'<span class="lz blue">En cours</span>':""}<span class="cnt">${c.done}/${c.total}${c.na?` · ${c.na} N/A`:""}${c.blocked?` · <span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`:""}</span></summary><div class="body">`
+    +`${phaseLink(i)} · <a href="#${PHASE_PAGE[i]}">Page de l'étape</a><p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
+    +jTable(list)
+    +`<h3>Engagements avec les autres streams</h3>`+tasks(id,"p"+i+"s",p.syn,false)
+    +`</div></details>`;
+  });
+  return h;
+}
+
+/* ---------- Contenu ajouté sous les propriétés de certaines pages livrables ---------- */
+const EXTRA={
+ contexte(){
+  return `<h2>Identité du projet</h2>`
+  +fields([["Nom du projet","[Nom du projet]"],["Squad","[Nom de la squad]"],["Objectif business","[Objectif business]"],["Population cible","[Population cible]"],["Date de démarrage","[Date]"],["Mise en production visée","[Date]"]])
+  +`<h2>Contexte et enjeux</h2><p class="ph">[Pourquoi ce projet, pourquoi maintenant, quel problème on résout]</p>`
+  +`<h2>Périmètre</h2><h3>Dans le périmètre</h3>`+list(["[Livrable ou parcours inclus]"])+`<h3>Hors périmètre</h3>`+list(["[Livrable ou parcours exclu]"])
+  +`<h2>Indicateurs de succès</h2>`+table(["KPI","Valeur actuelle","Cible"],[["[KPI 1]","[Valeur]","[Valeur]"],["[KPI 2]","[Valeur]","[Valeur]"]].map(r=>r.map(rich)))
+  +`<h2>Jalons cibles</h2>`+fields(GATES.map((g,i)=>[gateLabel(g,i),"[Date]"]));
+ },
+ equipe(){
+  return `<h2>Équipe par stream</h2>`+fields([["Business sponsor","[Responsable]"],["Facilitateur Digital Factory","[Responsable] · binôme : [Scrum master]"],...LANES4.map(l=>["Stream "+LN[l],"[Responsable] · Contributeurs : [Noms]"])])
+  +`<p>Chaque responsable suit son stream dans sa page de <a href="#pilotage">Pilotage</a>.</p>`
+  +`<h2>Rôles</h2><p>Chaque personne impliquée dans un atelier a l'un de ces cinq rôles. Le détail par atelier est dans <a href="#roles-atelier">Rôles en atelier</a>.</p>`
+  +table(["Rôle","Définition"],ROLES.map(([k,n,d,c])=>[`<span class="lz ${c}">${k}</span> <strong>${n}</strong>`,esc(d)]))
+  +`<h2>Matrice des rôles</h2><p>Proposition par défaut, à adapter. D = Doer · P = Participant · I = Informed · V = Validator.</p>`
+  +table(["Activité ou livrable",...RACI_COLS],RACI.map(r=>[esc(r[0]),...r.slice(1).map(raciLz)]),true)
+  +`<h2>Rituels de gouvernance</h2>`+tasks("gouvernance","rit",["Comité projet toutes les [Fréquence] · sponsor, Product Owner, responsables des 4 streams","Revue des risques à chaque comité","Mise à jour du statut des pages livrables avant chaque comité","Revue pré-jalon 2 jours avant chaque jalon"],false)
+  +gateBlock(0)+syncBlock(0);
+ }
+};
+
+/* ---------- Pages au contenu spécifique ---------- */
+const BODY={
+ accueil(){
+  const branch=(id,txt)=>`<li>${pageLink(byId(id))} · ${esc(txt)}</li>`;
+  return panel("Nouveau sur le playbook ?",'<p>Suivez le parcours de formation de 25 minutes, adapté à votre rôle : <a href="formation.html">Playbook Academy ↗</a></p>',"note")
+  +panel("Page parent de la squad","<p>L'arborescence est celle validée avec le client. Pour démarrer un nouveau projet, copiez cette page avec toutes ses sous-pages.</p>")
+  +`<h2>Démarrer en 10 minutes</h2>`
+  +tasks("accueil","start",["Copier la page « Squad : [Nom de la squad] » avec l'option d'inclure les pages enfants","Renommer les pages (titres uniques dans l'espace) et supprimer le préfixe « Copie de »","Dupliquer le board Miro « Digital Transformation Playbook » et mettre à jour la page Liens Miro","Créer le projet Jira depuis la page Mise en place Jira (une epic par étape, une tâche par activité)","Compléter Contexte projet et Équipe et gouvernance","Nommer un responsable par stream et par page livrable (propriété Responsable)","Planifier l'atelier 01 Kick-off, les 4 jalons client et les 2 revues internes"],false)
+  +`<h2>Comment la page est organisée</h2><ul class="list">`
+  +branch("contexte","le besoin, le périmètre et les indicateurs de succès")
+  +branch("equipe","l'équipe, les rôles, la gouvernance et le jalon Kick-off")
+  +`<li style="list-style:none;margin-left:-4px"><ul class="list">${branch("pilotage","le Tableau de pilotage et une vue par stream")}${branch("jalons","les 6 jalons, le Decision Log, les risques")}${branch("methode","les 7 ateliers, les rôles, les modèles, Jira et Miro")}</ul></li>`
+  +branch("phases","une page par étape avec ses livrables, ses ateliers et son jalon")+`</ul>`
+  +`<h2>Règles du jeu</h2>`+list(["Les livrables sont rangés par étape, comme dans l'arborescence client. Les streams ne sont pas des dossiers : ce sont des vues.","Chaque page livrable a des propriétés : stream porteur, contributeurs, responsable, statut. Ce sont elles qui alimentent les pages stream et le pilotage.","Les 4 streams avancent en parallèle dans chaque étape. Chaque étape se termine par un jalon client ou une revue interne commune.","Les actions se suivent dans Jira : une epic par étape, une tâche par activité, un composant par stream.","Les ateliers se font dans Miro. Le compte-rendu se range sous la page livrable qu'il nourrit.","Les pages marquées « ajout » sont nos propositions : elles complètent l'arborescence client sans la modifier."])
+  +`<h2>Les 6 étapes</h2>`+list(PH.map((p,i)=>`${p.n} · ${p.tree} · ${p.sub}`));
+ },
  vue(){
   const cs=curStep(); const all=JTASKS; const tot=jStats(all.filter(t=>!t.gate)); const cur=jStats(all.filter(t=>t.epic===cs&&!t.gate));
-  let h=`<p>La vue de pilotage pour le Sponsor, le Facilitateur et les responsables de stream. Tout est calculé depuis les tâches Jira : rien ne se saisit ici.</p>`
-  +`<div class="fields"><div class="k">Étape en cours</div><div><select class="st" data-s="cur_step" data-rerender="1" aria-label="Étape en cours">${PH.map((p,i)=>`<option value="${i}" ${i===cs?"selected":""}>${esc(p.n+" · "+p.name)}</option>`).join("")}</select></div></div>`
+  let h=`<p>La vue de pilotage pour le Sponsor, le Facilitateur et les responsables de stream. Tout est calculé depuis Jira et les propriétés des pages livrables : rien ne se saisit ici.</p>`
+  +`<div class="fields"><div class="k">Étape en cours</div><div><select class="st" data-s="cur_step" data-rerender="1" aria-label="Étape en cours">${PH.map((p,i)=>`<option value="${i}" ${i===cs?"selected":""}>${esc(stepLbl(i))}</option>`).join("")}</select></div></div>`
   +`<div class="kpis"><div class="kpi"><b>${cur.pct} %</b><span>de l'étape ${esc(PH[cs].n)} terminée</span></div><div class="kpi"><b>${cur.blocked}</b><span>tâche${cur.blocked>1?"s":""} bloquée${cur.blocked>1?"s":""}</span></div><div class="kpi"><b>${tot.pct} %</b><span>du projet terminé</span></div><div class="kpi"><b>${esc(GATES[cs].t)}</b><span>${GATES[cs].type==="client"?"Prochain jalon client":"Prochaine revue interne"} · [Date]</span></div></div>`
   +`<h2>Avancement par stream et par étape</h2><p>Une colonne par epic, une ligne par composant. Cliquez sur une case pour ouvrir la page du stream.</p>`;
   const head=["Stream",...PH.map(p=>p.n)];
-  const head2=0; const rows=STREAM_IDS.map(sid=>[`<a href="#${sid}"><span class="lane lane-${STREAMS[sid].lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(STREAMS[sid].name.split(/,| et /)[0])}</a>`,...PH.map((_,i)=>`<a class="cell" href="#${sid}">${cellLz(jStats(all.filter(t=>t.sid===sid&&t.epic===i)))}</a>`)]);
-  const gateRow=["<strong>Jalon ou revue</strong>",...PH.map((_,i)=>{const d=state[`gates__dec__${i}`]||"À décider";const c={"Go":"green","Ajustements":"yellow","No-Go":"red"}[d]||"grey";return `<a class="cell" href="#gates" title="${esc(gateLabel(GATES[i],i))}"><span class="lz ${c}">${esc(d==="À décider"?"À venir":d)}</span></a>`;})];
-  h+=`<div class="tbl-wrap"><table class="mx"><thead><tr>${head.map((x,i)=>`<th class="${i-1===cs?"cur":""}" title="${i?esc(PH[i-1].n+" · "+PH[i-1].name):""}">${esc(x)}</th>`).join("")}</tr></thead><tbody>${[...rows,gateRow].map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`
-  +panel("Dans Confluence","<p><a href=\"jira.html#board\">Ouvrir le tableau Jira ↗</a></p><p>Ce tableau correspond à la macro Jira <strong>Two-dimensional filter statistics</strong> : axe X = Epic, axe Y = Component, sur le filtre ci-dessous.</p>"+jqlBox(`project = ${PRJ} AND issuetype = Task ORDER BY "Epic Link"`));
+  const rows=STREAM_IDS.map(sid=>[`<a href="#${sid}">${laneDot(STREAMS[sid].lane)}${esc(STREAMS[sid].name.split(/,| et /)[0])}</a>`,...PH.map((_,i)=>`<a class="cell" href="#${sid}">${cellLz(jStats(all.filter(t=>t.sid===sid&&t.epic===i)))}</a>`)]);
+  const gateRow=["<strong>Jalon ou revue</strong>",...PH.map((_,i)=>{const d=state[`gates__dec__${i}`]||"À décider";const c={"Go":"green","Ajustements":"yellow","No-Go":"red"}[d]||"grey";return `<a class="cell" href="#${PHASE_PAGE[i]}" title="${esc(gateLabel(GATES[i],i))}"><span class="lz ${c}">${esc(d==="À décider"?"À venir":d)}</span></a>`;})];
+  h+=`<div class="tbl-wrap"><table class="mx"><thead><tr>${head.map((x,i)=>`<th class="${i-1===cs?"cur":""}" title="${i?esc(stepLbl(i-1)):""}">${esc(x)}</th>`).join("")}</tr></thead><tbody>${[...rows,gateRow].map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`
+  +panel("Dans Confluence","<p><a href=\"jira.html#board\">Ouvrir le tableau Jira ↗</a></p><p>Ce tableau correspond à la macro Jira <strong>Two-dimensional filter statistics</strong> : axe X = Epic, axe Y = Component.</p>"+jqlBox(`project = ${PRJ} AND issuetype = Task ORDER BY "Epic Link"`));
+  h+=`<h2>Livrables de l'étape ${esc(PH[cs].n)}</h2>`+delivTable(DELIV.filter(n=>n.step===cs));
   const bl=all.filter(t=>jStatus(t)==="Bloqué");
   h+=`<h2>Blocages</h2>`+(bl.length?jTable(bl,true):`<p class="ph">Aucune tâche bloquée.</p>`);
   const g=GATES[cs]; const done=g.c.filter((_,j)=>state[`gates__g${cs}__${j}`]).length;
-  h+=`<h2>Préparation : ${esc(gateLabel(g,cs))}</h2><p>${done}/${g.c.length} critères remplis. Les critères se cochent dans <a href="#gates">Jalons et revues</a>.</p>`
+  h+=`<h2>Préparation : ${esc(gateLabel(g,cs))}</h2><p>${done}/${g.c.length} critères remplis. Les critères se cochent dans la page <a href="#${PHASE_PAGE[cs]}">${esc(titleOf(byId(PHASE_PAGE[cs])))}</a>.</p>`
    +`<ul class="list" style="list-style:none;padding-left:0">${g.c.map((c,j)=>`<li>${state[`gates__g${cs}__${j}`]?"✅":"⬜"} ${esc(c)}</li>`).join("")}</ul>`;
-  const by={}; all.filter(t=>!t.gate&&jStatus(t)!=="Terminé").forEach(t=>{const a=jAssignee(t);by[a]=by[a]||{cur:0,all:0,bl:0};by[a].all++;if(t.epic===cs)by[a].cur++;if(jStatus(t)==="Bloqué")by[a].bl++;});
-  h+=`<h2>Charge par personne</h2><p>Tâches ouvertes par assigné. À remplacer par les vrais noms une fois les tâches assignées dans Jira.</p>`
+  const by={}; all.filter(t=>!t.gate&&jStatus(t)!=="Terminé"&&jStatus(t)!=="Non applicable").forEach(t=>{const a=jAssignee(t);by[a]=by[a]||{cur:0,all:0,bl:0};by[a].all++;if(t.epic===cs)by[a].cur++;if(jStatus(t)==="Bloqué")by[a].bl++;});
+  h+=`<h2>Charge par personne</h2><p>Tâches ouvertes par assigné.</p>`
    +table(["Assigné",`Étape ${PH[cs].n}`,"Tout le projet","Bloquées"],Object.entries(by).sort((a,b)=>b[1].cur-a[1].cur||b[1].all-a[1].all).map(([a,v])=>[esc(a),String(v.cur),String(v.all),v.bl?`<span class="lz red">${v.bl}</span>`:"0"]),true);
   return h;
  },
- jira(){
-  return panel("Simulation Jira",'<p>Pour voir le projet tel qu\'il apparaîtra dans Jira (tableau, backlog, chronologie) : <a href="jira.html#board">ouvrir la simulation Jira ↗</a>. Les statuts et assignés sont partagés avec cette simulation Confluence.</p>')+`<p>Le suivi des actions se fait dans Jira. Confluence garde la méthode, les décisions et les comptes-rendus, et affiche les tâches Jira grâce aux macros.</p>`
-  +`<h2>Structure du projet Jira</h2>`
-  +fields([["Projet",`${PRJ} · [Nom du projet]`],["Epics","Une par étape de la démarche, soit 6 epics"],["Tâches","Une par activité du playbook, rattachée à l'epic de son étape"],["Composants","Un par stream : A, B, C, D, plus Transverse pour les jalons"],["Assigné","La personne concernée. Proposition par défaut : le Doer de l'atelier ou le responsable du stream"],["Labels",'atelier-T01 à atelier-T24 pour relier une tâche à son template Miro, jalon pour les jalons et revues']])
-  +`<h3>Epics</h3>`+table(["Clé","Epic","Se termine par"],EPICS.map((e,i)=>[`<span class="jkey">${esc(e.key)}</span>`,`<span class="jicon epic"></span>${esc(e.name)} <span class="lz purple">${esc(e.sub)}</span>`,esc(gateLabel(GATES[i],i))]))
-  +`<h3>Composants</h3>`+table(["Composant","Responsable","Tâches"],[...STREAM_IDS.map(sid=>[`<span class="lane lane-${STREAMS[sid].lane}" style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>${esc(COMP(sid))}`,'<span class="ph">[Responsable]</span>',String(JTASKS.filter(t=>t.sid===sid).length)]),["Transverse",'<span class="ph">[Facilitateur Digital Factory]</span>',String(JTASKS.filter(t=>t.gate).length)]])
-  +`<h3>Workflow</h3><p>${JSTATUS.map(([n,c])=>`<span class="lz ${c}">${esc(n)}</span>`).join(" → ")}. Une tâche « Bloqué » remonte automatiquement dans la Vue d'ensemble. « Non applicable » signifie que l'équipe a décidé de ne pas faire cette tâche sur ce projet : la décision et son motif restent tracés, et la tâche sort du calcul d'avancement.</p>`
-  +`<h2>Créer le projet en 15 minutes</h2>`+tasks("jira","setup",["Créer le projet Jira (modèle Scrum ou Kanban) avec la clé du projet","Créer les 5 composants : les 4 streams et Transverse","Télécharger le CSV ci-dessous et l'importer (Paramètres système › Import externe › CSV)","Pendant l'import, faire correspondre la colonne Assignee aux vrais comptes Jira","Vérifier que chaque tâche est assignée à la bonne personne","Dans chaque page stream de Confluence, remplacer [PRJ] par la clé du projet dans la macro Jira"],false)
-  +`<p><button class="btn" type="button" id="csvBtn">Télécharger le CSV d'import Jira</button> <span class="meta">${EPICS.length} epics · ${JTASKS.length} tâches, avec les assignés actuels</span></p>`
-  +`<h2>Macros Jira dans Confluence</h2>`+table(["Page","Macro","Filtre JQL"],[
-     ["Vue d'ensemble","Two-dimensional filter statistics (Epic × Component)",`<code>project = ${PRJ} AND issuetype = Task</code>`],
-     ...STREAM_IDS.map(sid=>[`<a href="#${sid}">Stream ${esc(STREAMS[sid].name.split(" · ")[0])}</a>`,"Jira Issues (tableau)",`<code>project = ${PRJ} AND component = "${esc(COMP(sid))}"</code>`]),
-     ["Jalons et revues","Jira Issues",`<code>project = ${PRJ} AND labels = jalon</code>`]]);
- },
- accueil(){
-  return panel("Nouveau sur le playbook ?",'<p>Suivez le parcours de formation de 25 minutes, adapté à votre rôle : <a href="formation.html">Playbook Academy ↗</a></p>',"note")+panel("Page parent du projet","<p>Toutes les autres pages sont ses sous-pages. Pour démarrer un nouveau projet, copiez cette page avec toutes ses sous-pages.</p>")
-  +`<h2>Démarrer un nouveau projet en 10 minutes</h2>`
-  +tasks("accueil","start",["Copier la page « [Nom du projet] · Accueil » avec l'option d'inclure les pages enfants","Renommer chaque page : remplacer [Nom du projet] par le nom réel (titres uniques dans l'espace)","Supprimer le préfixe « Copie de » ajouté par Confluence","Dupliquer le board Miro « Digital Transformation Playbook »","Mettre à jour la page Liens Miro avec les liens du board dupliqué","Créer le projet Jira depuis la page Mise en place Jira (6 epics, une tâche par activité) et assigner chaque tâche","Compléter la Fiche projet","Nommer un responsable par stream et le mentionner (@) dans sa page","Planifier le Project Kick-off T01, les 4 jalons client et les 2 revues internes dans le Tableau de bord"],false)
-  +`<h2>Arborescence</h2><ul class="list">${PAGES.filter(p=>!p.top).map(p=>`<li><a href="#${p.id}">${esc(p.tree)}</a></li>`).join("")}</ul>`
-  +`<h2>Règles du jeu</h2>`+list(["Les 4 streams avancent en parallèle dans chaque étape de la démarche. Ce ne sont pas des étapes successives.","Chaque étape se termine par un jalon client ou une revue interne commune : Business, Design, Architecture et Data décident ensemble.","Les actions se suivent dans Jira : une epic par étape, une tâche par activité, un composant par stream, chaque tâche assignée à une personne.","Chaque responsable suit son stream dans sa page, tout le monde suit le projet dans la Vue d'ensemble.","Les ateliers se font dans Miro. Confluence garde la trace : décisions, actions, livrables.","Chaque case cochée a un responsable (@) et une date."])
-  +`<h2>Les 6 étapes</h2><p>Démarche méthodologique partagée avec le client. Notre phase de travail est indiquée pour chaque étape.</p>`+list(PH.map(p=>`${p.n} · ${p.name} · ${p.sub}`));
- },
- fiche(){
-  return `<p>À compléter au kick-off, puis à tenir à jour.</p><h2>Identité du projet</h2>`
-  +fields([["Nom du projet","[Nom du projet]"],["Objectif business","[Objectif business]"],["Population cible","[Population cible]"],["Business sponsor","[Responsable]"],["Product Owner","[Responsable]"],["UX Lead","[Responsable]"],["Architecture Lead","[Responsable]"],["Tech Lead","[Responsable]"],["Data Lead","[Responsable]"],["Project Manager","[Responsable]"],["Date de démarrage","[Date]"],["Mise en production visée","[Date]"]])
-  +`<h2>Contexte et enjeux</h2><p class="ph">[Pourquoi ce projet, pourquoi maintenant, quel problème on résout]</p>`
-  +`<h2>Périmètre</h2><h3>Dans le périmètre</h3>`+list(["[Livrable ou parcours inclus]"])+`<h3>Hors périmètre</h3>`+list(["[Livrable ou parcours exclu]"])
-  +`<h2>Indicateurs de succès</h2>`+table(["KPI","Valeur actuelle","Cible"],[["[KPI 1]",'<span class="ph">[Valeur]</span>','<span class="ph">[Valeur]</span>'],["[KPI 2]",'<span class="ph">[Valeur]</span>','<span class="ph">[Valeur]</span>']].map(r=>[rich(r[0]),r[1],r[2]]))
-  +`<h2>Équipe par stream</h2>`+fields([["A · Product et Business","[Responsable] · Contributeurs : [Noms]"],["B · UX Research et Design","[Responsable] · Contributeurs : [Noms]"],["C · Architecture et Technology","[Responsable] · Contributeurs : [Noms]"],["D · Data, Analytics et Performance","[Responsable] · Contributeurs : [Noms]"]])
-  +`<h2>Jalons cibles</h2>`+fields(GATES.map((g,i)=>[gateLabel(g,i),"[Date]"]));
- },
- tableau(){
-  let h=panel("","<p>Seule source de vérité pour l'avancement. Mettre à jour après chaque atelier, chaque jalon et chaque revue.</p>")
-  +`<h2>Avancement par étape</h2><p>Le pourcentage vient des tâches Jira. Le détail par stream est dans la <a href="#vue">Vue d'ensemble</a>.</p>`+table(["Étape","Tâches Jira terminées","Statut","Jalon ou revue prévu le"],PH.map((p,i)=>{const c=jStats(JTASKS.filter(t=>t.epic===i&&!t.gate));return [`${esc(phaseTitle(i))} <a class="tchip" href="${url(p.f)}" target="_blank" rel="noopener">Miro</a>`,`${c.done}/${c.total} · ${c.pct} %`,statusSelect(`tableau__phase__${i}`),'<span class="ph">[Date]</span>'];}));
-  LIVRABLES.forEach((ls,i)=>{
-   h+=`<h2>Livrables · ${esc(phaseTitle(i))}</h2>`+table(["Livrable","Statut","Responsable","Échéance"],ls.map((l,j)=>[esc(l),statusSelect(`tableau__liv__${i}__${j}`),'<span class="ph">[Responsable]</span>','<span class="ph">[Date]</span>']));
-  });
-  return h+`<h2>Points d'attention de la semaine</h2>`+list(["[Point bloquant, risque ou décision attendue]"]);
- },
- gates(){
-  let h=panel("Décisions communes","<p>Quatre jalons client (Kick-off, Démarrage des sprints, Mise en service, Restitution) et deux revues internes (fin du Diagnostic, fin du Design base zéro). Ils ne se valident jamais dans la page d'un seul stream. Participants obligatoires : Business sponsor, Product Owner, UX Lead, Architecture Lead, Tech Lead, Data Lead.</p>");
-  GATES.forEach((g,i)=>{
-   h+=`<h2>${esc(gateLabel(g,i))}</h2><p>Fin de l'étape ${phaseHead(i)} ${phaseLink(i)}</p><p>${esc(g.d)}</p>`+tasks("gates","g"+i,g.c,false)
-   +fields([["Date","[Date]"],["Décideur","[Responsable]"]])
-   +`<p><strong>Décision :</strong> ${statusSelect(`gates__dec__${i}`,[["À décider","grey"],["Go","green"],["Ajustements","yellow"],["No-Go","red"]])}</p>`
-   +`<p><strong>Commentaires et conditions :</strong> <span class="ph">[Décision]</span></p>`;
-  });
+ phases(){
+  let h=`<p>Les livrables du projet, rangés par étape comme dans l'arborescence validée avec le client. Le statut se met à jour dans chaque page livrable.</p>`
+  +`<h2>Avancement par étape</h2>`+table(["Étape","Livrables validés","Tâches Jira","Jalon ou revue"],PH.map((p,i)=>{
+     const dl=DELIV.filter(n=>n.step===i), c=jStats(JTASKS.filter(t=>t.epic===i&&!t.gate)), d=state[`gates__dec__${i}`]||"À décider";
+     return [`<a href="#${PHASE_PAGE[i]}">${esc(stepLbl(i))}</a>`,`${dl.filter(n=>livStatus(n)==="Validé").length}/${dl.length}`,`${c.done}/${c.total} · ${c.pct} %`,`${esc(GATES[i].t)} · ${stLzDec(d)}`];}));
+  PH.forEach((p,i)=>{ h+=`<h2>${phaseHead(i)}</h2>`+delivTable(DELIV.filter(n=>n.step===i)); });
   return h;
  },
- sync(){
-  let h=`<p>Les points où les streams doivent se parler avant d'avancer. Un point non tenu se signale dans le registre des risques.</p>`;
-  SYNC.forEach((s,i)=>{ h+=`<h2>${phaseHead(i)}</h2>`+tasks("sync","p"+i,s.map(x=>x+" · [Date]"),false); });
-  return h+`<h2>Rituels recommandés</h2>`+list(["Point de synchronisation Design et Tech hebdomadaire de 30 minutes pendant les étapes 01 à 03","Revue commune avant chaque jalon ou revue, 2 jours avant la date de décision","En étape 04, Design QA intégrée à la définition du « done » de chaque sprint"]);
+ pilotage(){
+  return `<p>Ajout proposé à l'arborescence client : les pages qui permettent à chacun de suivre son stream sans dupliquer les livrables.</p>`
+  +table(["Page","Pour qui","Ce qu'on y trouve"],[
+    [pageLink(byId("vue")),"Sponsor, Facilitateur, comité","Avancement par stream et par étape, blocages, préparation du prochain jalon"],
+    ...STREAM_IDS.map(sid=>[pageLink(byId(sid)),"Responsable du stream "+STREAMS[sid].lane.toUpperCase(),"Mes livrables, mes ateliers, mes tâches Jira par epic"]),
+    [pageLink(byId("indicateurs")),"Stream D, PO","Plan de mesure et dashboard pendant les sprints"]]);
  },
- gouvernance(){
-  return `<h2>Rôles</h2><p>Chaque personne impliquée dans une activité a l'un de ces cinq rôles. Leur usage concret avant, pendant et après un atelier est décrit dans <a href="#roles-atelier">Rôles en atelier</a>.</p>`
-  +table(["Rôle","Définition"],ROLES.map(([k,n,d,c])=>[`<span class="lz ${c}">${k}</span> <strong>${n}</strong>`,esc(d)]))
-  +`<h2>Matrice des rôles</h2><p>Proposition par défaut, à adapter. D = Doer · P = Participant · I = Informed · V = Validator. Le Facilitator est le Facilitateur Digital Factory sur toutes les activités, en binôme avec le Scrum master.</p>`
-  +table(["Activité ou livrable",...RACI_COLS],RACI.map(r=>[esc(r[0]),...r.slice(1).map(raciLz)]),true)
-  +`<h2>Decision Log</h2>`+table(["Décision","Date","Étape","Responsable","Contexte","Statut"],[[rich("[Décision]"),rich("[Date]"),"01 · Diagnostic",rich("[Responsable]"),rich("[Options étudiées, impacts Design et Tech]"),'<span class="lz yellow">Proposée</span>'],[rich("Exemple : périmètre MVP limité à [Parcours]"),rich("[Date]"),"03 · Design détaillé du MVP",rich("[Responsable]"),rich("[Justification]"),'<span class="lz yellow">Proposée</span>']])
-  +`<h2>Registre des risques et dépendances</h2>`+table(["Risque ou dépendance","Type","Stream","Probabilité","Impact","Responsable","Mitigation","Statut"],[[rich("[Risque]"),"Risque","Transverse","Moyenne","Moyen",rich("[Responsable]"),rich("[Action]"),'<span class="lz red">Ouvert</span>'],[rich("Exemple : disponibilité des API du [Système]"),"Dépendance","C · Tech","Forte","Fort",rich("[Responsable]"),"Planifier un PoC en phase 03",'<span class="lz red">Ouvert</span>']])
-  +`<h2>Rituels de gouvernance</h2>`+tasks("gouvernance","rit",["Comité projet toutes les [Fréquence] · sponsor, Product Owner, leads des 4 streams","Revue du registre des risques à chaque comité","Mise à jour du Tableau de bord avant chaque comité","Revue pré-gate 2 jours avant chaque gate"],false);
+ jalons(){
+  return panel("Décisions communes","<p>Quatre jalons client (Kick-off, Démarrage des sprints, Mise en service, Restitution) et deux revues internes (fin du Diagnostic, fin du Design Base 0). Les critères se cochent et la décision se prend dans la page de l'étape. Participants : Business sponsor, Product Owner, UX Lead, Architecture Lead, Tech Lead, Data Lead.</p>")
+  +`<h2>Les 6 jalons</h2>`+table(["Jalon ou revue","Étape","Critères","Décision","Date"],GATES.map((g,i)=>{const d=state[`gates__dec__${i}`]||"À décider";return [esc(gateLabel(g,i)),`<a href="#${PHASE_PAGE[i]}">${esc(titleOf(byId(PHASE_PAGE[i])))}</a>`,`${g.c.filter((_,j)=>state[`gates__g${i}__${j}`]).length}/${g.c.length}`,stLzDec(d),'<span class="ph">[Date]</span>'];}))
+  +`<h2>Decision Log</h2>`+table(["Décision","Date","Étape","Responsable","Contexte","Statut"],[[rich("[Décision]"),rich("[Date]"),"01 · Diagnostic",rich("[Responsable]"),rich("[Options étudiées, impacts Design et Tech]"),'<span class="lz yellow">Proposée</span>'],[rich("Exemple : périmètre MVP limité à [Parcours]"),rich("[Date]"),"03 · Design détaillé",rich("[Responsable]"),rich("[Justification]"),'<span class="lz yellow">Proposée</span>']])
+  +`<h2>Risques et dépendances</h2>`+table(["Risque ou dépendance","Type","Stream","Probabilité","Impact","Responsable","Mitigation","Statut"],[[rich("[Risque]"),"Risque","Transverse","Moyenne","Moyen",rich("[Responsable]"),rich("[Action]"),'<span class="lz red">Ouvert</span>'],[rich("Exemple : disponibilité des API du [Système]"),"Dépendance","C · Tech","Forte","Fort",rich("[Responsable]"),"Planifier un PoC en Design détaillé",'<span class="lz red">Ouvert</span>']]);
+ },
+ methode(){
+  return `<p>Ajout proposé à l'arborescence client : la méthode commune à toute la squad.</p>`
+  +table(["Page","Ce qu'on y trouve"],[["ateliers","Les 7 ateliers, ce qu'ils produisent et où ranger leur compte-rendu, et les fiches méthode"],["roles-atelier","Qui fait quoi avant, pendant et après un atelier"],["cr-atelier","Le modèle de compte-rendu à dupliquer"],["jira","Comment créer le projet Jira et l'importer"],["miro","Les liens vers le board Miro du projet"]].map(([id,t])=>[pageLink(byId(id)),esc(t)]));
+ },
+ ateliers(){
+  return panel("7 ateliers, pas plus","<p>Un atelier réunit plusieurs streams pour décider ensemble. Les analyses faites à une ou deux personnes sont des <strong>fiches méthode</strong> : elles se restituent dans un atelier.</p>")
+  +`<h2>Les 7 ateliers</h2>`+ateliersTable(ATELIERS)
+  +`<h3>Où ranger le compte-rendu</h3>`+table(["Atelier","Page Confluence"],ATELIERS.map(a=>[codeChip(a.k)+esc(A_NAMES[a.k]),`<a href="#${CR_PAGE[a.k]}">${esc(titleOf(byId(CR_PAGE[a.k])))}</a> <span class="meta">› ${esc(anc(CR_PAGE[a.k]).slice(1).map(titleOf).join(" › "))}</span>`]))
+  +`<h2>Fiches méthode · travaux d'expert</h2>`+fichesTable(FICHES);
+ },
+ jira(){
+  return panel("Simulation Jira",'<p>Pour voir le projet tel qu\'il apparaîtra dans Jira : <a href="jira.html#board">ouvrir la simulation Jira ↗</a>. Les statuts et assignés sont partagés avec cette simulation Confluence.</p>')+`<p>Le suivi des actions se fait dans Jira. Confluence garde les livrables, les décisions et les comptes-rendus, et affiche les tâches Jira grâce aux macros.</p>`
+  +`<h2>Structure du projet Jira</h2>`
+  +fields([["Projet",`${PRJ} · [Nom du projet]`],["Epics","Une par étape, avec les noms de l'arborescence client, soit 6 epics"],["Tâches","Une par activité du playbook, rattachée à l'epic de son étape"],["Composants","Un par stream : A, B, C, D, plus Transverse pour les jalons"],["Assigné","La personne concernée. Proposition par défaut : le Doer de l'atelier ou le responsable du stream"],["Labels","atelier-A01 à atelier-A07, fiche-T02 à fiche-T23 pour relier une tâche à son template Miro, jalon pour les jalons et revues"]])
+  +`<h3>Epics</h3>`+table(["Clé","Epic","Page Confluence","Se termine par"],EPICS.map((e,i)=>[`<span class="jkey">${esc(e.key)}</span>`,`<span class="jicon epic"></span>${esc(e.name)} <span class="lz purple">${esc(e.sub)}</span>`,`<a href="#${PHASE_PAGE[i]}">${esc(titleOf(byId(PHASE_PAGE[i])))}</a>`,esc(gateLabel(GATES[i],i))]))
+  +`<h3>Composants</h3>`+table(["Composant","Responsable","Tâches"],[...STREAM_IDS.map(sid=>[laneDot(STREAMS[sid].lane)+esc(COMP(sid)),'<span class="ph">[Responsable]</span>',String(JTASKS.filter(t=>t.sid===sid).length)]),["Transverse",'<span class="ph">[Facilitateur Digital Factory]</span>',String(JTASKS.filter(t=>t.gate).length)]])
+  +`<h3>Workflow</h3><p>${JSTATUS.map(([n,c])=>`<span class="lz ${c}">${esc(n)}</span>`).join(" → ")}. Une tâche « Bloqué » remonte dans le Tableau de pilotage. « Non applicable » signifie que l'équipe a décidé de ne pas faire cette tâche : la décision et son motif restent tracés, et la tâche sort du calcul d'avancement.</p>`
+  +`<h2>Créer le projet en 15 minutes</h2>`+tasks("jira","setup",["Créer le projet Jira (modèle Scrum ou Kanban) avec la clé du projet","Créer les 5 composants : les 4 streams et Transverse","Télécharger le CSV ci-dessous et l'importer (Paramètres système › Import externe › CSV)","Pendant l'import, faire correspondre la colonne Assignee aux vrais comptes Jira","Vérifier que chaque tâche est assignée à la bonne personne","Dans chaque page stream de Confluence, remplacer [PRJ] par la clé du projet dans la macro Jira"],false)
+  +`<p><button class="btn" type="button" id="csvBtn">Télécharger le CSV d'import Jira</button> <span class="meta">${EPICS.length} epics · ${JTASKS.length} tâches, avec les assignés actuels</span></p>`
+  +`<h2>Macros dans Confluence</h2>`+table(["Page","Macro","Filtre"],[
+     ["Tableau de pilotage","Two-dimensional filter statistics (Epic × Component)",`<code>project = ${PRJ} AND issuetype = Task</code>`],
+     ...STREAM_IDS.map(sid=>[`<a href="#${sid}">Stream ${esc(STREAMS[sid].lane.toUpperCase())}</a>`,"Jira Issues + Page Properties Report",`<code>component = "${esc(COMP(sid))}"</code> · <code>label = stream-${STREAMS[sid].lane}</code>`]),
+     ["Pages d'étape","Page Properties Report + Jira Issues",`<code>label = etape-0x</code> · <code>labels = jalon</code>`]]);
  },
  miro(){
   const frames=Object.keys(FRAME_NAMES).map(k=>[esc(FRAME_NAMES[k]),`<a href="${url(k)}" target="_blank" rel="noopener">Ouvrir ↗</a>`,'<span class="ph">[Lien du board dupliqué]</span>']);
-  const tpl=Object.keys(T_NAMES).map(k=>[`<span class="tchip" style="margin:0">${k}</span> ${esc(T_NAMES[k])}`,`<a href="${url(k)}" target="_blank" rel="noopener">Ouvrir ↗</a>`,'<span class="ph">[Lien du board dupliqué]</span>']);
-  return panel("Une seule page à mettre à jour","<p>Quand vous dupliquez le board Miro, chaque frame reçoit un nouvel identifiant : les liens du master ne pointent plus vers votre copie. Mettez à jour cette page une fois au démarrage, et les autres pages y renvoient.</p>","note")
+  const tpl=Object.keys(CODE_NAMES).map(k=>[`<span class="tchip" style="margin:0">${k}</span> ${esc(codeLabel(k)+" · "+CODE_NAMES[k])}`,`<a href="${url(k)}" target="_blank" rel="noopener">Ouvrir ↗</a>`,'<span class="ph">[Lien du board dupliqué]</span>']);
+  return panel("Une seule page à mettre à jour","<p>Quand vous dupliquez le board Miro, chaque frame reçoit un nouvel identifiant. Mettez à jour cette page une fois au démarrage, les autres pages y renvoient.</p>","note")
   +`<div class="fields"><div class="k">Board Miro du projet</div><div>${rich("[Lien vers le board Miro]")}</div><div class="k">Board master (référence)</div><div><a href="${BOARD}" target="_blank" rel="noopener">Digital Transformation Playbook ↗</a></div></div>`
   +`<h2>Sections du board</h2>`+table(["Section","Master","Projet"],frames)
-  +`<h2>Templates d'ateliers</h2>`+table(["Template","Master","Projet"],tpl)
+  +`<h2>Ateliers et fiches méthode</h2>`+table(["Template","Master","Projet"],tpl)
   +`<h2>Comment récupérer un lien de frame dans Miro</h2>`+list(["Clic droit sur le frame dans Miro, puis « Copier le lien »","Coller le lien dans la colonne Projet du tableau ci-dessus"]);
  },
  "roles-atelier"(){
   const lz=(k)=>{const r=ROLES.find(x=>x[0]===k);return `<span class="lz ${r[3]}">${k}</span> <strong>${r[1]}</strong>`;};
   const STEPS=[
    {t:"Étape 1 · Préparer", w:"5 à 2 jours avant l'atelier", items:{
-     F:["Caler avec le Doer l'objectif, le résultat attendu et l'agenda","Dupliquer le template Miro (T01 à T24) et vérifier les rôles de l'atelier","Préparer le Doer : déroulé, timing, questions clés","Envoyer l'invitation avec l'agenda, les rôles et les inputs à lire"],
+     F:["Caler avec le Doer l'objectif, le résultat attendu et l'agenda","Dupliquer le template Miro de l'atelier (A01 à A07) et vérifier les rôles","Préparer le Doer : déroulé, timing, questions clés","Envoyer l'invitation avec l'agenda, les rôles et les inputs à lire"],
      V:["Valider l'objectif, le résultat attendu et la liste des invités"],
-     D:["Préparer le contenu : inputs, données, existant, maquettes, analyses","Pré-remplir les zones du template quand c'est utile"],
+     D:["Préparer le contenu : inputs, fiches méthode réalisées, données, maquettes","Pré-remplir les zones du template quand c'est utile"],
      P:["Lire les inputs avant l'atelier"],
      I:["Recevoir l'agenda pour information (pas d'invitation à l'atelier)"]}},
    {t:"Étape 2 · Animer", w:"Pendant l'atelier", items:{
@@ -395,99 +586,73 @@ const BODY = {
      D:["Prendre les actions avec une date d'échéance"],
      P:["Signaler un désaccord ou un risque avant la clôture"]}},
    {t:"Étape 4 · Restituer", w:"Dans les 24 heures", items:{
-     D:["Rédiger le compte-rendu à partir du modèle","Mettre à jour le statut des livrables dans le Tableau de bord"],
-     F:["S'assurer que le compte-rendu est publié sous « Comptes-rendus d'ateliers »","Reporter les décisions dans le Decision Log"],
+     D:["Rédiger le compte-rendu à partir du modèle","Mettre à jour le statut de la page livrable concernée"],
+     F:["S'assurer que le compte-rendu est rangé sous la bonne page livrable","Reporter les décisions dans le Decision Log"],
      V:["Relire le compte-rendu et confirmer les décisions"],
      I:["Recevoir le compte-rendu"]}},
    {t:"Étape 5 · Suivre", w:"Jusqu'à l'atelier suivant ou au jalon", items:{
      D:["Réaliser les actions et produire les livrables"],
      V:["Valider les livrables quand ils sont prêts"],
      F:["Vérifier l'avancement des actions","Déclencher les points de synchronisation avec les autres streams","Préparer l'atelier suivant avec son Doer"],
-     I:["Suivre l'avancement dans le Tableau de bord"]}}
+     I:["Suivre l'avancement dans le Tableau de pilotage"]}}
   ];
   let h=panel("En une phrase","<p>Le Facilitator tient le cadre et la dynamique sur tous les ateliers, le Doer anime le contenu et produit, les Participants enrichissent, le Validator tranche, les Informed sont tenus au courant.</p>");
   const roleLz=v=>{ if(v==="-") return '<span class="ph">–</span>'; const c={"F":"purple","V":"green","D":"blue","P":"yellow","I":"grey"}[v]; return `<span class="lz ${c}">${v}</span>`; };
-  h+=`<h2>Parties prenantes de la Digital Factory</h2>`
-   +table(["Partie prenante","Rôle dans le projet"],STAKE.map(s=>[`<strong>${esc(s[1])}</strong>`,esc(s[2])]));
-  h+=`<h2>Rôle de chaque partie prenante, atelier par atelier</h2>`
-   +`<p>Repris du bloc « Rôles de l'atelier » de chaque template Miro, à ajuster au projet. F = Facilitator · V = Validator · D = Doer · P = Participant · I = Informed · – = non concerné. Cliquez sur un code d'atelier pour ouvrir son template dans Miro.</p>`;
+  h+=`<h2>Parties prenantes de la Digital Factory</h2>`+table(["Partie prenante","Rôle dans le projet"],STAKE.map(s=>[`<strong>${esc(s[1])}</strong>`,esc(s[2])]));
+  h+=`<h2>Rôle de chaque partie prenante, atelier par atelier</h2><p>Repris du bloc « Rôles de l'atelier » de chaque template Miro, à ajuster au projet. F = Facilitator · V = Validator · D = Doer · P = Participant · I = Informed · – = non concerné.</p>`;
   const head=["Atelier",...STAKE.map(s=>s[1].replace(" · Hicham",""))];
-  const row=r=>{ const k=r[0]; const name=k==="Gates"?"Jalons client et revues internes":T_NAMES[k];
-      const c=k==="Gates"?`<a href="#gates"><strong>${esc(name)}</strong></a>`:`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(name)}`;
-      return [c,...r.slice(1).map(roleLz)]; };
-  Object.entries(STREAM_T).forEach(([l,ts])=>{
-    const sid="stream-"+l;
-    h+=`<h3><span class="lane lane-${l}"></span> Stream ${esc(STREAMS[sid].name)}</h3>`
-     +table(head,ts.map(([k])=>row(ATELIER_ROLES.find(r=>r[0]===k))),true);
-  });
-  h+=`<h3>Jalons et revues</h3>`+table(head,[row(ATELIER_ROLES.find(r=>r[0]==="Gates"))],true);
-  h+=`<h2>Ce que fait chaque rôle à chaque étape</h2>`+table(["Rôle","Préparer","Animer","Décider","Restituer","Suivre"],
-    ["F","V","D","P","I"].map(k=>[lz(k),...STEPS.map(s=>s.items[k]?esc(s.items[k][0]):'<span class="ph">·</span>')]));
-  STEPS.forEach((s,i)=>{
-    h+=`<h2>${esc(s.t)}</h2><p><strong>Quand :</strong> ${esc(s.w)}</p>`;
-    ["F","V","D","P","I"].forEach(k=>{ if(s.items[k]){ h+=`<h3>${lz(k)}</h3>`+tasks("roles-atelier",`s${i}${k}`,s.items[k],false); }});
-  });
+  h+=table(head,ATELIER_ROLES.map(r=>{const k=r[0];return [k==="Gates"?`<a href="#jalons"><strong>Jalons et revues</strong></a>`:codeChip(k)+esc(A_NAMES[k]),...r.slice(1).map(roleLz)];}),true);
+  h+=`<p class="meta" style="white-space:normal">Les fiches méthode n'ont pas de Facilitator : elles sont faites par un expert, puis restituées dans un atelier.</p>`;
+  h+=`<h2>Ce que fait chaque rôle à chaque étape</h2>`+table(["Rôle","Préparer","Animer","Décider","Restituer","Suivre"],["F","V","D","P","I"].map(k=>[lz(k),...STEPS.map(s=>s.items[k]?esc(s.items[k][0]):'<span class="ph">·</span>')]));
+  STEPS.forEach((s,i)=>{ h+=`<h2>${esc(s.t)}</h2><p><strong>Quand :</strong> ${esc(s.w)}</p>`;
+    ["F","V","D","P","I"].forEach(k=>{ if(s.items[k]) h+=`<h3>${lz(k)}</h3>`+tasks("roles-atelier",`s${i}${k}`,s.items[k],false); }); });
   return h+`<h2>Règles d'or</h2>`+list(["Une seule personne Validator par décision.","Le Facilitator est le même sur tous les ateliers. En son absence, le Scrum master prend le relais.","Le Facilitator ne tranche pas et n'anime pas le contenu : il garantit le cadre, le Doer anime.","Au-delà de 8 Participants actifs, faire des sous-groupes.","Les Informed ne sont pas invités à l'atelier : ils reçoivent le compte-rendu.","Chaque action sort de l'atelier avec un Doer et une date."]);
  },
  "cr-atelier"(){
-  return panel("Modèle","<p>À dupliquer comme sous-page de « Comptes-rendus d'ateliers » après chaque atelier. Titre conseillé : [Nom du projet] · CR · [Nom de l'atelier] · [Date].</p>")
-  +`<h2>Informations</h2>`+fields([["Atelier","[T01 à T24 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Étape","[00 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
-  +`<h2>Rôles de l'atelier</h2><p>Voir <a href="#roles-atelier">Rôles en atelier</a> pour ce que chaque rôle fait à chaque étape.</p>`
+  return panel("Modèle","<p>À dupliquer en sous-page de la page livrable que l'atelier nourrit (voir <a href=\"#ateliers\">le catalogue</a>). Titre conseillé : CR · [Nom de l'atelier] · [Date].</p>")
+  +`<h2>Informations</h2>`+fields([["Atelier","[A01 à A07 · Nom de l'atelier]"],["Frame Miro","[Lien]"],["Étape","[00 à 05]"],["Stream porteur","[A, B, C ou D]"],["Date et durée","[Date] · [Durée]"]])
+  +`<h2>Rôles de l'atelier</h2><p>Voir <a href="#roles-atelier">Rôles en atelier</a>.</p>`
   +fields([["F · Facilitator","[Facilitateur Digital Factory] · binôme : [Scrum master]"],["V · Validator","[Responsable] (une seule personne par décision)"],["D · Doers","[Noms] · animent le contenu et produisent les livrables"],["P · Participants","[Noms et rôles]"],["I · Informed","[Noms] · reçoivent ce compte-rendu"]])
   +`<h2>Objectif de l'atelier</h2><p class="ph">[Ce que l'atelier devait produire]</p>`
   +`<h2>Ce qui en ressort</h2>`+list(["[Résultat clé 1]","[Résultat clé 2]","[Résultat clé 3]"])
-  +`<h2>Décisions prises</h2>`+list(["[Décision] · à reporter dans le Decision Log"])
+  +`<h2>Décisions prises</h2>`+list(["[Décision] · à reporter dans Jalons et décisions"])
   +`<h2>Actions</h2>`+tasks("cr","act",["[Action]","[Action]"])
-  +`<h2>Livrables impactés</h2>`+list(["[Livrable] · nouveau statut à reporter dans le Tableau de bord"])
+  +`<h2>Livrables impactés</h2>`+list(["[Page livrable] · nouveau statut à mettre à jour dans ses propriétés"])
   +`<h2>Critères de validation de l'atelier</h2>`+tasks("cr","crit",["Les critères du template Miro sont atteints","Les décisions sont tracées","Les actions ont un responsable et une date"],false);
  }
 };
-function streamBody(id){
-  const s=STREAMS[id]; const cs=curStep(); const mine=JTASKS.filter(t=>t.sid===id);
-  const cur=jStats(mine.filter(t=>t.epic===cs)); const tot=jStats(mine);
-  let h=fields([["Responsable","[Responsable]"],["Contributeurs","[Noms]"],["Rôle du stream",s.role]]);
-  h+=`<h2>Où j'en suis</h2>`
-   +`<div class="kpis"><div class="kpi"><b>${esc(PH[cs].n)} · ${esc(PH[cs].name)}</b><span>Étape en cours (réglée dans la <a href="#vue">Vue d'ensemble</a>)</span></div><div class="kpi"><b>${cur.done}/${cur.total}</b><span>tâches de l'étape terminées</span></div><div class="kpi"><b>${cur.blocked}</b><span>tâche${cur.blocked>1?"s":""} bloquée${cur.blocked>1?"s":""}</span></div><div class="kpi"><b>${esc(GATES[cs].t)}</b><span>${GATES[cs].type==="client"?"Prochain jalon client":"Prochaine revue interne"} · [Date]</span></div></div>`
-   +`<div class="mini" title="Avancement par étape">${PH.map((_,i)=>{const c=jStats(mine.filter(t=>t.epic===i));return `<i class="${c.blocked?"bl":""}" title="${esc(PH[i].n+" · "+PH[i].name)} : ${c.pct} %"><b style="width:${c.pct}%"></b></i>`;}).join("")}</div>`
-   +`<p class="meta">${tot.done}/${tot.total} tâches terminées sur tout le projet</p>`;
-  const ts=STREAM_T[s.lane]||[];
-  h+=`<h2>Ateliers du stream</h2><p>Dans l'ordre des étapes, comme la bande du stream dans Miro. Le Facilitator est le Facilitateur Digital Factory sur chaque atelier.</p>`
-   +table(["Atelier","Étape","Doer (anime le contenu)"],ts.map(([k,st])=>[`<a class="tchip" style="margin:0 6px 0 0" href="${url(k)}" target="_blank" rel="noopener">${k}</a>${esc(T_NAMES[k])}`,esc(st),esc(doersOf(k))]));
-  h+=`<h2>Mes tâches Jira, par epic</h2>`
-   +panel("Dans Confluence",`<p><a href="jira.html#board-${s.lane}">Ouvrir le tableau Jira du stream ↗</a></p>`+"<p>Chaque tableau ci-dessous est une macro <strong>Jira Issues</strong>. Le statut et l'assigné se modifient dans Jira, la page se met à jour seule.</p>"+jqlBox(`project = ${PRJ} AND component = "${COMP(id)}" ORDER BY "Epic Link", rank`));
-  s.phases.forEach((p,i)=>{
-   const list=mine.filter(t=>t.epic===i); const c=jStats(list);
-   h+=`<details class="epic${i===cs?" cur":""}" data-i="${i}" ${i===cs?"open":""}><summary><span class="jkey">${esc(EPICS[i].key)}</span><span class="t">${esc(PH[i].n+" · "+PH[i].name)}</span><span class="lz purple">${esc(PH[i].sub)}</span>${i===cs?'<span class="lz blue">En cours</span>':""}<span class="cnt">${c.done}/${c.total}${c.na?` · ${c.na} N/A`:""}${c.blocked?` · <span class="lz red">${c.blocked} bloquée${c.blocked>1?"s":""}</span>`:""}</span></summary><div class="body">`
-    +`${phaseLink(i)}<p><strong>Objectif de l'étape :</strong> ${esc(PH[i].obj)}</p>`
-    +jTable(list)
-    +`<h3>Ce que je dois livrer</h3>`+tasks(id,"p"+i+"c",p.con,false)
-    +`<h3>Engagements avec les autres streams</h3>`+tasks(id,"p"+i+"s",p.syn,false)
-    +`</div></details>`;
-  });
-  return h;
-}
+function stLzDec(d){const c={"Go":"green","Ajustements":"yellow","No-Go":"red"}[d]||"grey";return `<span class="lz ${c}">${esc(d==="À décider"?"À venir":d)}</span>`;}
 
 /* ---------- Shell ---------- */
 const treeEl=document.getElementById("tree"), pageEl=document.getElementById("page");
-function pageProgress(id){
-  const keys=Object.keys(state).filter(k=>k.startsWith(id+"__")&&state[k]===true).length;
-  return keys;
-}
 function renderTree(cur){
-  const top=PAGES.find(p=>p.top);
-  treeEl.innerHTML=`<li><a href="#${top.id}" ${cur===top.id?'aria-current="page"':""}><span class="bullet"></span>[Nom du projet] · Accueil</a></li>`
-   +PAGES.filter(p=>!p.top).map(p=>`<li class="child"><a href="#${p.id}" ${cur===p.id?'aria-current="page"':""}>${p.lane?`<span class="lane lane-${p.lane}"></span>`:'<span class="bullet"></span>'}<span>${esc(p.tree)}</span></a></li>`).join("");
+  const open=new Set([...anc(cur).map(n=>n.id),cur]);
+  const walk=(n,d)=>{ const ch=kids(n.id); const isOpen=open.has(n.id)||n.kind==="root";
+    const dot=n.lane?`<span class="lane lane-${n.lane}"></span>`:(n.kind==="deliv"&&LANES4.includes(n.owner)?`<span class="bullet lane-${n.owner}"></span>`:'<span class="bullet"></span>');
+    const tw=ch.length?`<span class="tw" aria-hidden="true">${isOpen?"▾":"▸"}</span>`:'<span class="tw" aria-hidden="true"></span>';
+    return `<li><a href="#${n.id}" style="padding-left:${6+d*14}px" ${cur===n.id?'aria-current="page"':""} ${n.add?'class="add" title="Ajout proposé"':""}>${tw}${dot}<span class="tt">${esc(n.t)}</span>${n.add?'<span class="plus">+</span>':""}</a></li>`
+      +(isOpen?ch.map(c=>walk(c,d+1)).join(""):""); };
+  treeEl.innerHTML=walk(byId("accueil"),0);
+}
+function miroKeys(n){
+  if(n.miro) return n.miro;
+  if(n.kind==="stream") return ["la","lb",...PH.slice(1).map(p=>p.f)];
+  const f=n.step!=null?[PH[n.step].f]:["f02"];
+  if(n.kind==="phase") return [...f,...ATELIERS.filter(a=>a.step===n.step).map(a=>a.k)];
+  if(n.kind==="deliv") return [...f,...n.codes];
+  return f;
 }
 function render(keep){
   const y=window.scrollY; const opened=[...pageEl.querySelectorAll("details.epic[open]")].map(d=>d.dataset.i);
-  let id=(location.hash||"").slice(1); if(!PAGES.find(p=>p.id===id)) id="accueil";
-  const p=PAGES.find(x=>x.id===id); taskCounter=0;
-  const body=STREAMS[id]?streamBody(id):BODY[id]();
-  pageEl.innerHTML=`<div class="crumbs"><a href="#accueil">Digital Transformation Playbook</a>${p.top?"":` / <a href="#accueil">[Nom du projet] · Accueil</a>`}</div>
-   <h1 class="title">[Nom du projet] · ${esc(p.title)}</h1>
-   <div class="byline"><span>Modèle de page · Playbook v1</span><span class="progress" id="prog"></span>
+  let id=(location.hash||"").slice(1); id=ALIAS[id]||id; if(!byId(id)) id="accueil";
+  const n=byId(id); taskCounter=0;
+  const body=BODY[id]?BODY[id]():n.kind==="deliv"?delivBody(n):n.kind==="phase"?phaseBody(n):n.kind==="group"?groupBody(n):n.kind==="stream"?streamBody(id):"";
+  const crumbs=[`<a href="#accueil">Digital Transformation Playbook</a>`,...anc(id).map(a=>`<a href="#${a.id}">${esc(a.t)}</a>`)].join(" / ");
+  pageEl.innerHTML=`<div class="crumbs">${crumbs}</div>
+   <h1 class="title">${esc(titleOf(n))}</h1>
+   <div class="byline"><span>${n.add?'<span class="lz grey">Ajout proposé</span> à l\'arborescence client':"Arborescence validée client"}</span><span class="progress" id="prog"></span>
      <span class="tools"><button class="btn" id="copyBtn" type="button">Copier pour Confluence</button></span></div>
-   ${miroBox(p.miro)}
+   ${miroBox(miroKeys(n))}
    <div class="content" id="content">${body}</div>`;
   renderTree(id); updateProgress();
   document.getElementById("copyBtn").onclick=copyPage;

@@ -179,7 +179,7 @@ select.f{border:1px solid var(--line);border-radius:4px;background:var(--bg);col
     </ul>
     <h3>Raccourcis</h3>
     <ul class="nav">
-      <li><a href="index.html#vue"><span class="ic">↗</span>Confluence · Vue d'ensemble</a></li>
+      <li><a href="index.html#vue"><span class="ic">↗</span>Confluence · Tableau de pilotage</a></li>
       <li><a href="index.html#jira"><span class="ic">↗</span>Confluence · Mise en place Jira</a></li>
       <li><a href="formation.html"><span class="ic">↗</span>Formation · Playbook Academy</a></li>
       <li><a id="miroLink" href="#" target="_blank" rel="noopener"><span class="ic">↗</span>Board Miro</a></li>
@@ -193,16 +193,16 @@ select.f{border:1px solid var(--line);border-radius:4px;background:var(--bg);col
 <script src="data.js"></script>
 <script>
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const TRE=/\s?\bT(0[1-9]|1[0-9]|2[0-4])\b/g;
+const TRE=new RegExp("\\s?"+CODE_RE.source,"g");
 const clean=t=>t.replace(TRE,"").trim();
-const tcodes=t=>(t.match(/\bT(0[1-9]|1[0-9]|2[0-4])\b/g)||[]);
+const tcodes=t=>(t.match(CODE_RE)||[]);
 const STATUS_COL={"À faire":"grey","En cours":"blue","Bloqué":"red","Terminé":"green","Non applicable":"na"};
 const AV_COLORS=["#6554c0","#00875a","#de350b","#0052cc","#ff8b00","#00a3bf","#5e4db2","#b04632","#216e4e","#8f7fee","#e2b203","#44546f","#2dc75c","#c9372c"];
 function code(name){ const s=STAKE.find(x=>x[1].replace(" · Hicham","")===name); return s?s[0]:name.replace(/[^A-Za-zÀ-ÿ ]/g,"").split(" ").filter(Boolean).map(w=>w[0]).join("").slice(0,2).toUpperCase(); }
 function av(name,attrs=""){ const c=code(name); const i=Math.max(0,STAKE.findIndex(x=>x[0]===c)); return `<span class="av" style="background:${AV_COLORS[i%AV_COLORS.length]}" title="${esc(name)}" ${attrs}>${esc(c)}</span>`; }
 const comp=t=>t.sid?STREAMS[t.sid].name:"Transverse";
 const compShort=t=>t.sid?STREAMS[t.sid].name.split(/,| et /)[0]:"Transverse";
-const epicLabel=i=>`${PH[i].n} · ${PH[i].name}`;
+const epicLabel=i=>`${PH[i].n} · ${PH[i].tree}`;
 function setStatus(t,v){ state["ji__"+t.id+"__s"]=v; save(); }
 function setAssignee(t,v){ state["ji__"+t.id+"__a"]=v; save(); }
 function toast(m){const el=document.getElementById("toast");el.textContent=m;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000);}
@@ -271,7 +271,7 @@ function drawer(id){
   if(!id){ host.innerHTML=""; return; }
   const t=JTASKS.find(x=>x.id===id); if(!t) return;
   const tc=tcodes(t.txt); const v=jAssignee(t); const opts=ASSIGNEES.includes(v)?ASSIGNEES:[v,...ASSIGNEES];
-  const conf=t.sid?`index.html#${t.sid}`:"index.html#gates";
+  const conf=t.sid?`index.html#${t.sid}`:`index.html#${PHASE_PAGE[t.epic]}`;
   host.innerHTML=`<div class="scrim" data-close="1"></div><aside class="panel" role="dialog" aria-modal="true" aria-label="${esc(t.key)}">
     <header><span class="ti ${t.gate?"gate":""}"></span><span class="k">${esc(EPICS[t.epic].key)} / ${esc(t.key)}</span><button type="button" data-close="1" aria-label="Fermer">×</button></header>
     <div class="in"><h2>${esc(clean(t.txt))}</h2>
@@ -281,12 +281,12 @@ function drawer(id){
       <span class="l">Assigné</span><div style="display:flex;gap:8px;align-items:center">${av(v)}<select id="dA">${opts.map(o=>`<option ${o===v?"selected":""}>${esc(o)}</option>`).join("")}</select></div>
       <span class="l">Epic</span><span><span class="lz purple">${esc(epicLabel(t.epic))}</span></span>
       <span class="l">Composant</span><span style="display:inline-flex;gap:6px;align-items:center"><span class="dot d-${t.lane}"></span>${esc(comp(t))}</span>
-      <span class="l">Labels</span><span>${[t.gate?"jalon":"",...tc.map(x=>"atelier-"+x)].filter(Boolean).map(x=>`<span class="lz grey" style="text-transform:none">${esc(x)}</span>`).join(" ")||'<span style="color:var(--faint)">Aucun</span>'}</span>
+      <span class="l">Labels</span><span>${[t.gate?"jalon":"",...tc.map(x=>(x[0]==="A"?"atelier-":"fiche-")+x)].filter(Boolean).map(x=>`<span class="lz grey" style="text-transform:none">${esc(x)}</span>`).join(" ")||'<span style="color:var(--faint)">Aucun</span>'}</span>
      </div>
      <h3>Description</h3>
      ${t.gate?`<p>${esc(GATES[t.epic].d)}</p><ul>${GATES[t.epic].c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`
-       :`<p>Activité de l'étape ${esc(epicLabel(t.epic))}, stream ${esc(comp(t))}.</p>${tc.length?`<p>Se réalise avec le template Miro ${tc.map(x=>`<b>${x} · ${esc(T_NAMES[x])}</b>`).join(", ")}.</p>`:""}`}
-     <h3>Liens</h3><div class="links">${tc.map(x=>`<a href="${url(x)}" target="_blank" rel="noopener">Miro · ${x} ${esc(T_NAMES[x])} ↗</a>`).join("")}<a href="${conf}">Confluence · ${t.sid?"Stream "+esc(compShort(t)):"Jalons et revues"} ↗</a><a href="${url(PH[t.epic].f)}" target="_blank" rel="noopener">Miro · étape ${esc(PH[t.epic].n)} ↗</a></div>
+       :`<p>Activité de l'étape ${esc(epicLabel(t.epic))}, stream ${esc(comp(t))}.</p>${tc.length?`<p>Se réalise avec ${tc.map(x=>`<b>${esc(codeLabel(x))} · ${esc(CODE_NAMES[x])}</b>`).join(", ")}.</p>`:""}`}
+     <h3>Liens</h3><div class="links">${tc.map(x=>`<a href="${url(x)}" target="_blank" rel="noopener">Miro · ${x} ${esc(CODE_NAMES[x])} ↗</a>`).join("")}<a href="${conf}">Confluence · ${t.sid?"Stream "+esc(compShort(t)):"Étape "+esc(PH[t.epic].tree)} ↗</a>${t.sid?`<a href="index.html#${PHASE_PAGE[t.epic]}">Confluence · page de l'étape ${esc(PH[t.epic].n)} ↗</a>`:""}<a href="${url(PH[t.epic].f)}" target="_blank" rel="noopener">Miro · étape ${esc(PH[t.epic].n)} ↗</a></div>
     </div></aside>`;
   document.getElementById("dS").onchange=e=>{ setStatus(t,e.target.value); render(true); drawer(id); toast(`${t.key} : ${e.target.value}`); if(e.target.value==="Non applicable") document.getElementById("dM").focus(); };
   const dM=document.getElementById("dM"); if(dM) dM.oninput=e=>{ state["ji__"+t.id+"__m"]=e.target.value; save(); };
