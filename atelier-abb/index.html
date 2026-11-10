@@ -545,6 +545,30 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 .mx:not(.big) .mg { aspect-ratio: 1.6; }
 .mx:not(.big) .mq b { font-size: clamp(14px, 1.3vw, 18px); }
 
+/* ---------- jeu de la matrice ---------- */
+.mxg { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 28px; align-items: start; }
+.mxl { display: flex; flex-direction: column; gap: 14px; }
+.mxcard { padding: 20px 22px; min-height: 150px; display: flex; flex-direction: column; gap: 8px; transform: rotate(-1deg); background: #fff; }
+.mxcard .k { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.mxcard .c { font-family: var(--f-display); font-size: clamp(22px, 2.4vw, 32px); letter-spacing: -.02em; line-height: 1.12; }
+.mxcard .why { font-family: var(--f-hand); font-size: clamp(22px, 2vw, 28px); color: var(--pen-blue); line-height: 1.05; }
+.mxcard.pop { animation: pop .35s; }
+.mxteams { display: grid; gap: 6px; }
+.mxt { display: grid; grid-template-columns: 22px minmax(70px, auto) repeat(4, minmax(0, 1fr)); gap: 6px; align-items: center; }
+.mxt .dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink); }
+.mxt .nm { font-weight: 800; font-size: 14px; }
+.mxt button { font: inherit; font-size: 12px; font-weight: 700; border: 2px solid var(--ink); border-radius: 8px; padding: 6px 4px; cursor: pointer; background: var(--card); color: var(--ink); }
+.mxt button[aria-pressed="true"] { box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px, -1px); outline: 3px solid var(--ink); }
+.mxt button.qw { background: #c9f0bd; } .mxt button.gr { background: #ffe98a; } .mxt button.pp { background: #bfe3ff; } .mxt button.ou { background: #ffc4b8; }
+.mxt .ok { font-size: 18px; }
+.mxt.right { background: #e9f8e4; border-radius: 8px; } .mxt.wrong { opacity: .5; }
+.mq { position: relative; }
+.mq.win { outline: 5px solid var(--ink); outline-offset: -5px; }
+.mxp { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.mxp span { font-size: 11px; font-weight: 700; background: #fff; border: 1.5px solid var(--ink); border-radius: 6px; padding: 2px 6px; color: var(--ink) !important; animation: pop .35s; }
+.mxend { font-family: var(--f-display); font-size: clamp(22px, 2.4vw, 32px); }
+@media (max-width: 900px) { .mxg { grid-template-columns: minmax(0, 1fr); } }
+
 @media (max-width: 900px) {
   body { overflow: auto; }
   .slide { justify-content: flex-start; }
@@ -998,16 +1022,42 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
+    <section class="slide" data-name="Jeu de la matrice">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="row rv" style="justify-content:space-between;align-items:flex-end">
+        <div><div class="eyebrow">Jeu · Par équipe</div><h2 class="h-l">Le jeu de la matrice</h2></div>
+        <div class="row"><span class="pill hl">Bonne case : +5</span><span class="pill">Meilleur argument : +3</span></div>
+      </div>
+      <div class="mxg rv" style="--i:2">
+        <div class="mxl">
+          <div class="mxcard sheet shadow" id="mxCard"></div>
+          <div class="mxteams" id="mxTeams"></div>
+          <div class="row">
+            <button class="btn primary" type="button" id="mxReveal">Révéler</button>
+            <button class="btn" type="button" id="mxNext">Carte suivante →</button>
+            <button class="btn ghost" type="button" id="mxReset" style="margin-left:auto">Rejouer</button>
+          </div>
+          <div class="picker" data-award="3" data-reason="Meilleur argument"><span class="lbl">Meilleur argument · +3</span></div>
+        </div>
+        <div class="mx big"><span class="ay">Impact ↑</span><div class="mg" id="mxGrid">
+          <div class="mq gr" data-q="gr"><b>Grands projets</b><span>on planifie</span><div class="mxp"></div></div>
+          <div class="mq qw" data-q="qw"><b>Gains rapides</b><span>on fonce</span><div class="mxp"></div></div>
+          <div class="mq ou" data-q="ou"><b>À oublier</b><span>on laisse de côté</span><div class="mxp"></div></div>
+          <div class="mq pp" data-q="pp"><b>Petits plus</b><span>si on a le temps</span><div class="mxp"></div></div>
+        </div><span class="ax">Effort →</span></div>
+      </div>
+    </section>
+
     <section class="slide" data-name="Matrice impact effort">
       <div class="dtmini rv" data-dt="1"></div>
       <div class="split" style="align-items:center">
         <div style="display:flex;flex-direction:column;gap:18px">
-          <div class="eyebrow rv">Prioriser · l'outil</div>
+          <div class="eyebrow rv">Ce que vous venez de faire</div>
           <h2 class="h-l rv" style="--i:1">La matrice impact / effort</h2>
           <p class="lead rv" style="--i:2">On ne peut pas tout faire. On place chaque idée selon deux questions :</p>
           <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>Impact :</b> à quel point l'idée règle le problème du persona ?</div>
           <div class="sheet rv" style="--i:4;padding:14px 18px;border-left:8px solid var(--ink)"><b>Effort :</b> combien de temps, d'argent et d'équipes faut-il pour la réaliser ?</div>
-          <p class="hand rv" style="--i:5">On commence par les gains rapides.</p>
+          <p class="hand rv" style="--i:5">Ce que vous avez fait avec la sieste, faites-le maintenant avec vos idées.</p>
         </div>
         <div class="rv" style="--i:2"><div class="mx big"><span class="ay">Impact ↑</span><div class="mg"><div class="mq gr"><b>Grands projets</b><span>Fort impact, gros effort : on planifie.</span></div><div class="mq qw"><b>Gains rapides</b><span>Fort impact, peu d'effort : on fonce.</span></div><div class="mq ou"><b>À oublier</b><span>Peu d'impact, gros effort : on laisse de côté.</span></div><div class="mq pp"><b>Petits plus</b><span>Peu d'impact, peu d'effort : si on a le temps.</span></div></div><span class="ax">Effort →</span></div></div>
       </div>
@@ -1025,6 +1075,8 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
             <li><span><b>Entourez</b> les gains rapides</span></li>
             <li><span><b>Choisissez</b> l'idée que votre groupe dessinera demain</span></li>
           </ol>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--ink)"><b>Deux gains rapides ?</b> On garde celui qui aide le persona dès demain matin.</div>
+          <div class="picker rv" style="--i:4" data-award="10" data-reason="Gain rapide le plus malin"><span class="lbl">Gain rapide le plus malin · +10</span></div>
           <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>En cas de désaccord,</b> on place le post-it entre deux cases et on en parle. C'est là que les meilleures discussions arrivent.</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:18px;align-items:center">
@@ -1444,8 +1496,8 @@ const AGENDA = [
   ["Jour 1","Modules 03 et 04"],
   ["0:00","La formation","15 min","La formation"],["0:15","03 · Construire le persona","45 min","Persona"],
   ["1:00","Pause","10 min",null],["1:10","04 · Des problèmes aux questions","35 min","Des problèmes aux questions"],
-  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · Matrice impact / effort","25 min","Matrice impact effort"],
-  ["2:25","Clôture du jour 1","15 min","Fin du jour 1"],
+  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · Jeu de la matrice","15 min","Jeu de la matrice"],["2:15","04 · Prioriser ses idées","20 min","Matrice impact effort"],
+  ["2:35","Clôture du jour 1","10 min","Fin du jour 1"],
   ["Jour 2","Module 05"],
   ["0:00","Rappel et brise-glace","20 min","Rappel"],["0:20","Pourquoi le papier","20 min","Fidélité"],
   ["0:40","Traduis ton écran et quiz","25 min","Traduis ton écran"],["1:05","Pause","10 min",null],
@@ -1570,7 +1622,7 @@ function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&
 function renderScore() {
   $("#score").innerHTML = state.teams.map((t, i) =>
     `<span class="chip" title="${esc(t.name)}"><span class="dot" style="background:${TCOL[i]}">${letter(i)}</span>${t.pts}</span>`).join("");
-  renderPickers(); renderPodium(false); renderRotation(); renderHmw();
+  renderPickers(); renderPodium(false); renderRotation(); renderHmw(); if (typeof renderMx === "function" && $("#mxCard")) try { renderMx(); } catch (e) {}
 }
 function renderPanel() {
   $("#teamRows").innerHTML = state.teams.map((t, i) => `
@@ -1921,6 +1973,64 @@ $("#pst3").addEventListener("click", e => {
   box.classList.toggle("focus", !was); if (!was) b.classList.add("on");
   sfx.pop();
 });
+
+/* ---------- jeu de la matrice ---------- */
+function mxCards() { return [
+  ["Faire une sieste de 20 minutes après le déjeuner", "qw", "Énergie retrouvée pour l'après-midi, pour zéro effort."],
+  ["Apprendre le chinois en une semaine", "ou", "Effort énorme, et à la fin vous saurez dire « bonjour »."],
+  ["Organiser le mariage du cousin pour 800 invités", "gr", "Énorme impact sur la famille, et des mois de préparation."],
+  ["Changer son mot de passe « Azerty123 »", "qw", "Deux minutes, et votre compte est enfin protégé."],
+  ["Construire une piscine sur le toit de l'agence", "ou", "Très cher, et les clients viennent pour un crédit, pas pour nager."],
+  ["Ranger son tiroir à stylos", "pp", "Satisfaisant, mais personne ne verra la différence."],
+  ["Passer toutes les agences au paiement mobile", "gr", "Ça change la vie des clients, mais c'est un chantier de plusieurs années."],
+  ["Accueillir chaque client par son prénom", "qw", "Il se sent reconnu tout de suite, et ça ne coûte rien."],
+  ["Mettre une affiche « Wifi gratuit » sans avoir le wifi", "ou", "Zéro effort, mais des clients furieux. Quand l'impact est négatif, on oublie."],
+  ["Changer le fond d'écran de son ordinateur", "pp", "Ça fait plaisir, ça ne change rien."]]; }
+const MXQ = { qw: "Gains rapides", gr: "Grands projets", pp: "Petits plus", ou: "À oublier" };
+function mxState() { if (!state.mx || typeof state.mx !== "object") state.mx = { i: 0, ans: {}, rev: false, placed: [] }; return state.mx; }
+function renderMx() {
+  const card = $("#mxCard"); if (!card) return;
+  const m = mxState(), C = mxCards(), done = m.i >= C.length;
+  if (done) {
+    card.innerHTML = `<span class="k">Fin du jeu</span><span class="mxend">Ce que vous venez de faire avec la sieste, on va le faire avec vos idées.</span>`;
+  } else {
+    const [t, q, why] = C[m.i];
+    card.innerHTML = `<span class="k">Carte ${m.i + 1} / ${C.length}</span><span class="c">${esc(t)}</span>${m.rev ? `<span class="why">${MXQ[q]} : ${esc(why)}</span>` : ""}`;
+  }
+  const good = done ? null : C[m.i][1];
+  $("#mxTeams").innerHTML = done ? "" : state.teams.map((tm, i) => {
+    const a = m.ans[i], cls = m.rev && a ? (a === good ? " right" : " wrong") : "";
+    return `<div class="mxt${cls}"><span class="dot" style="background:${TCOL[i]}"></span><span class="nm">${esc(tm.name)}${m.rev && a === good ? ' <span class="ok">✓</span>' : ""}</span>${
+      Object.keys(MXQ).map(k => `<button type="button" class="${k}" data-mxt="${i}" data-mxq="${k}" aria-pressed="${a === k}"${m.rev ? " disabled" : ""}>${MXQ[k]}</button>`).join("")}</div>`;
+  }).join("");
+  $$("#mxGrid .mq").forEach(el => {
+    el.classList.toggle("win", !done && m.rev && el.dataset.q === good);
+    $(".mxp", el).innerHTML = m.placed.filter(k => C[k][1] === el.dataset.q).map(k => `<span>${esc(C[k][0])}</span>`).join("");
+  });
+  $("#mxReveal").disabled = done || m.rev;
+  $("#mxNext").textContent = m.i >= C.length - 1 && m.rev ? "Terminer" : "Carte suivante →";
+  $("#mxNext").disabled = done || !m.rev;
+}
+$("#mxTeams").addEventListener("click", e => {
+  const b = e.target.closest("[data-mxt]"); if (!b) return;
+  const m = mxState(); if (m.rev) return;
+  m.ans[+b.dataset.mxt] = b.dataset.mxq; save(); renderMx(); sfx.pop();
+});
+$("#mxReveal").onclick = () => {
+  const m = mxState(), C = mxCards(); if (m.rev || m.i >= C.length) return;
+  m.rev = true; if (!m.placed.includes(m.i)) m.placed.push(m.i);
+  const good = C[m.i][1]; let any = false;
+  state.teams.forEach((t, i) => { if (m.ans[i] === good) { award(i, 5, "Bonne case"); any = true; } });
+  if (!any) sfx.wrong(); save(); renderMx();
+  const c = $("#mxCard"); c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop");
+};
+$("#mxNext").onclick = () => {
+  const m = mxState(), C = mxCards(); if (!m.rev) return;
+  m.i++; m.ans = {}; m.rev = false; save(); renderMx();
+  if (m.i >= C.length) fanfare(); else sfx.pop();
+};
+$("#mxReset").onclick = () => { state.mx = { i: 0, ans: {}, rev: false, placed: [] }; save(); renderMx(); };
+renderMx();
 
 /* ---------- navigation ---------- */
 const slides = $$(".slide");
