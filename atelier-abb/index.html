@@ -593,6 +593,51 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 .mx2.small .qs { gap: 14px 24px; padding: 6px 10px; } .mx2.small .notes { gap: 5px; } .mx2.small .mq .sub { display: none; }
 .mx2.small .notes .pi:nth-child(n+4) { display: none; }
 
+/* ---------- parcours utilisateur ---------- */
+.jm { display: flex; flex-direction: column; gap: 8px; }
+.jh { display: grid; grid-template-columns: 150px repeat(5, minmax(0, 1fr)); gap: 6px; }
+.jl { background: var(--hl); border-radius: 10px; display: grid; place-items: center; text-align: center; font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; padding: 8px; clip-path: polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%); }
+.js { display: flex; gap: 8px; align-items: center; background: #fff8e1; border: 1.5px solid #f0d27a; border-radius: 10px; padding: 8px 10px; clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%); padding-right: 18px; }
+.js b { display: block; font-size: 13px; text-transform: uppercase; letter-spacing: .02em; }
+.js small { display: block; font-size: 11px; color: var(--ink-2); line-height: 1.25; }
+.ic { width: 34px; height: 34px; flex: none; border-radius: 50%; border: 2px solid var(--ink); background: #fff; display: grid; place-items: center; color: var(--ink); }
+.ic svg { width: 18px; height: 18px; }
+.jg { border: 1.5px solid #e5e2d8; border-radius: 12px; overflow: hidden; background: #fff; }
+.jr { display: grid; grid-template-columns: 150px repeat(5, minmax(0, 1fr)); min-height: 62px; border-top: 1px solid #ecebe5; }
+.jr:first-child { border-top: 0; }
+.jrl { background: var(--ink); color: var(--paper); display: flex; align-items: center; gap: 8px; padding: 6px 10px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; line-height: 1.15; }
+.jrl .ic { width: 30px; height: 30px; border: 0; }
+.jc { margin: 7px 10px; border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; justify-content: center; border-left: 1px solid transparent; }
+.jc i { display: block; height: 2px; background: #3b3b44; margin-left: 12px; position: relative; }
+.jc i::before { content: ""; position: absolute; left: -12px; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.jr.fait .jc { background: #fff3d1; color: #9a7600; }
+.jr.pense .jc { background: #fff; border: 1.5px solid #f0d27a; color: #9a7600; }
+.jr.irr .jc { background: #ffe4e1; color: #c0392b; }
+.jr.opp .jc { background: #e6f6e3; color: #2e8b3e; }
+.jemo { grid-column: 2 / -1; position: relative; min-height: 70px; }
+.jemo .curve { position: absolute; inset: 10px 0; width: 100%; height: calc(100% - 20px); }
+.jemo .curve polyline { fill: none; stroke: #17171c; stroke-width: 1.2; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.jemo .fc { position: absolute; width: 30px; height: 30px; transform: translate(-50%, -50%); margin-top: 10px; }
+.jemo .fc svg { width: 100%; height: 100%; }
+.jm.ex .jemo .fc { top: auto; }
+.jemo .hint { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--f-hand); font-size: 24px; color: var(--mute); }
+.jm.blank .jr { min-height: 74px; }
+.jm.blank .jc { border: 2px dashed #c9c6bb; background: transparent; }
+.jm.blank .jr.fait .jc { border-color: #e2b93b; } .jm.blank .jr.irr .jc { border-color: #ef8f86; } .jm.blank .jr.opp .jc { border-color: #79c27a; }
+.jm.blank .js { padding-top: 10px; padding-bottom: 10px; }
+.jret { display: flex; gap: 18px; align-items: center; background: #fff8e1; border: 1.5px solid #f0d27a; border-radius: 12px; padding: 12px 18px; margin-top: 4px; }
+.jret b { font-family: var(--f-display); font-size: 22px; text-transform: uppercase; }
+.jret span { color: var(--ink-2); line-height: 1.4; }
+.jrules { display: flex; flex-wrap: wrap; gap: 10px; }
+.jrules span { background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 15px; }
+.jrules b { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--hl); border: 1.5px solid var(--ink); margin-right: 6px; font-size: 12px; }
+.jtimer { flex-direction: row; gap: 12px; }
+.jtimer .ring { width: 104px; }
+.jtimer .ring .read span { font-size: 28px; }
+.jtimer .ring .read small { display: none; }
+.jtimer .row { flex-wrap: nowrap; }
+@media (max-width: 900px) { .jh, .jr { grid-template-columns: 110px repeat(5, minmax(90px, 1fr)); } .jm { overflow-x: auto; } }
+
 @media (max-width: 900px) {
   body { overflow: auto; }
   .slide { justify-content: flex-start; }
@@ -1044,6 +1089,28 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
         </div>
         <div class="timer rv" style="--i:2" data-timer="900" data-label="minutes"></div>
       </div>
+    </section>
+
+    <section class="slide" data-name="Parcours utilisateur">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="eyebrow rv">L'outil · le parcours utilisateur</div>
+      <h2 class="h-l rv" style="--i:1">Voir l'expérience de bout en bout</h2>
+      <div class="rv" style="--i:2"><div class="jm ex"><div class="jh"><span class="jl">Les étapes<br>du parcours</span><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></g></svg></span><span><b>1. Découverte</b><small>Il prend connaissance du besoin ou de la situation.</small></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></g></svg></span><span><b>2. Recherche</b><small>Il cherche des informations ou des solutions.</small></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="m8 9 1.5 1.5L12 8M14 9h3M8 15l1.5 1.5L12 14M14 15h3"/></g></svg></span><span><b>3. Décision</b><small>Il compare les options et choisit.</small></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></g></svg></span><span><b>4. Action</b><small>Il utilise la solution ou réalise la tâche.</small></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V14M10 20V10M15 20V12M20 20V5"/></g></svg></span><span><b>5. Suivi</b><small>Il évalue le résultat et ajuste si besoin.</small></span></div></div><div class="jg"><div class="jr fait"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM8.5 11h7M8.5 15h7"/></g></svg></span>Ce qu'il fait</span><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div></div><div class="jr pense"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-4 4z"/><path d="M8 10.5h.01M12 10.5h.01M16 10.5h.01"/></g></svg></span>Ce qu'il pense</span><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div></div><div class="jr ressent"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></g></svg></span>Ce qu'il ressent</span><div class="jemo"><svg class="curve" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="10,35 30,80 50,45 70,15 90,40"/></svg><span class="fc" style="left:10%;top:35%"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffd23f" stroke="#17171c" stroke-width="1.6"/><circle cx="9" cy="10" r="1.2" fill="#17171c"/><circle cx="15" cy="10" r="1.2" fill="#17171c"/><g fill="none" stroke="#17171c" stroke-width="1.6" stroke-linecap="round"><path d="M8 15h8"/></g></svg></span><span class="fc" style="left:30%;top:80%"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ff8a65" stroke="#17171c" stroke-width="1.6"/><circle cx="9" cy="10" r="1.2" fill="#17171c"/><circle cx="15" cy="10" r="1.2" fill="#17171c"/><g fill="none" stroke="#17171c" stroke-width="1.6" stroke-linecap="round"><path d="M8 16.5q4-3.5 8 0"/></g></svg></span><span class="fc" style="left:50%;top:45%"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffd23f" stroke="#17171c" stroke-width="1.6"/><circle cx="9" cy="10" r="1.2" fill="#17171c"/><circle cx="15" cy="10" r="1.2" fill="#17171c"/><g fill="none" stroke="#17171c" stroke-width="1.6" stroke-linecap="round"><path d="M8 15h8"/></g></svg></span><span class="fc" style="left:70%;top:15%"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#7bd36a" stroke="#17171c" stroke-width="1.6"/><circle cx="9" cy="10" r="1.2" fill="#17171c"/><circle cx="15" cy="10" r="1.2" fill="#17171c"/><g fill="none" stroke="#17171c" stroke-width="1.6" stroke-linecap="round"><path d="M8 14q4 3.5 8 0"/></g></svg></span><span class="fc" style="left:90%;top:40%"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffd23f" stroke="#17171c" stroke-width="1.6"/><circle cx="9" cy="10" r="1.2" fill="#17171c"/><circle cx="15" cy="10" r="1.2" fill="#17171c"/><g fill="none" stroke="#17171c" stroke-width="1.6" stroke-linecap="round"><path d="M8 15h8"/></g></svg></span></div></div><div class="jr irr"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></g></svg></span>Irritants</span><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div></div><div class="jr opp"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></g></svg></span>Opportunités</span><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div><div class="jc"><i></i><i></i><i></i></div></div></div></div></div>
+      <div class="jret rv" style="--i:3"><b>À retenir</b><span>Le parcours montre les moments critiques : là où il souffre, là où on peut l'aider.</span></div>
+    </section>
+
+    <section class="slide" data-name="Parcours exercice">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="row rv" style="justify-content:space-between;align-items:flex-end;gap:20px">
+        <div><div class="eyebrow">Exercice · En groupe, avec des post-its</div><h2 class="h-l">Le parcours de votre persona</h2></div>
+        <div class="timer jtimer rv" data-timer="1500" data-label="minutes"></div>
+      </div>
+      <div class="jrules rv" style="--i:2">
+        <span><b>1</b> Une ligne à la fois, de gauche à droite</span>
+        <span><b>2</b> Un post-it par case, une idée par post-it</span>
+        <span><b>3</b> Dans « Opportunités », collez vos idées vertes là où elles aident</span>
+      </div>
+      <div class="rv" style="--i:3"><div class="jm blank"><div class="jh"><span class="jl">Les étapes<br>du parcours</span><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></g></svg></span><span><b>1. Découverte</b></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></g></svg></span><span><b>2. Recherche</b></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="m8 9 1.5 1.5L12 8M14 9h3M8 15l1.5 1.5L12 14M14 15h3"/></g></svg></span><span><b>3. Décision</b></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></g></svg></span><span><b>4. Action</b></span></div><div class="js"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V14M10 20V10M15 20V12M20 20V5"/></g></svg></span><span><b>5. Suivi</b></span></div></div><div class="jg"><div class="jr fait"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM8.5 11h7M8.5 15h7"/></g></svg></span>Ce qu'il fait</span><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div></div><div class="jr pense"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-4 4z"/><path d="M8 10.5h.01M12 10.5h.01M16 10.5h.01"/></g></svg></span>Ce qu'il pense</span><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div></div><div class="jr ressent"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></g></svg></span>Ce qu'il ressent</span><div class="jemo"><span class="hint">Dessinez un visage par étape, puis reliez-les</span></div></div><div class="jr irr"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></g></svg></span>Irritants</span><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div></div><div class="jr opp"><span class="jrl"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></g></svg></span>Opportunités</span><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div><div class="jc"></div></div></div></div></div>
     </section>
 
     <section class="slide" data-name="Matrice impact effort">
@@ -1515,7 +1582,7 @@ const AGENDA = [
   ["Jour 1","Modules 03 et 04"],
   ["0:00","La formation","15 min","La formation"],["0:15","03 · Construire le persona","45 min","Persona"],
   ["1:00","Pause","10 min",null],["1:10","04 · Des problèmes aux questions","35 min","Des problèmes aux questions"],
-  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · La matrice et son jeu","20 min","Matrice impact effort"],["2:20","04 · Prioriser ses idées","15 min","Matrice exercice"],
+  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · Le parcours utilisateur","30 min","Parcours utilisateur"],["2:30","04 · La matrice et son jeu","20 min","Matrice impact effort"],["2:20","04 · Prioriser ses idées","15 min","Matrice exercice"],
   ["2:35","Clôture du jour 1","10 min","Fin du jour 1"],
   ["Jour 2","Module 05"],
   ["0:00","Rappel et brise-glace","20 min","Rappel"],["0:20","Pourquoi le papier","20 min","Fidélité"],
