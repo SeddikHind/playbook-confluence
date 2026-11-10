@@ -569,6 +569,30 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 .mxend { font-family: var(--f-display); font-size: clamp(22px, 2.4vw, 32px); }
 @media (max-width: 900px) { .mxg { grid-template-columns: minmax(0, 1fr); } }
 
+/* ---------- matrice, forme axes ---------- */
+.mx2 { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; background: #fff; border-radius: 14px; padding: 12px 14px; border: 2px solid var(--ink); }
+.mx2 .lab { font-weight: 800; font-size: 14px; text-align: center; line-height: 1.15; }
+.mx2 .top, .mx2 .bot { grid-column: 2; }
+.mx2 .lft { grid-column: 1; grid-row: 2; } .mx2 .rgt { grid-column: 3; grid-row: 2; }
+.mx2 .area { grid-column: 2; grid-row: 2; position: relative; }
+.mx2 .axes { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mx2 .axes line { stroke: #4b4b55; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.mx2 .arr { position: absolute; font-size: 11px; color: #4b4b55; line-height: 1; }
+.mx2 .al { left: -4px; top: calc(50% - 6px); } .mx2 .ar { right: -4px; top: calc(50% - 6px); }
+.mx2 .at { top: -6px; left: calc(50% - 5px); } .mx2 .ab { bottom: -6px; left: calc(50% - 5px); }
+.mx2 .qs { position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 26px 40px; padding: 10px 14px; }
+.mx2 .mq { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px; border: 0; background: transparent; border-radius: 10px; }
+.mx2 .mq h4 { font-family: var(--f-body); font-size: clamp(14px, 1.3vw, 18px); font-weight: 700; color: var(--ink); }
+.mx2 .mq .sub { font-size: 12px; color: var(--mute); margin-top: -4px; }
+.mx2 .notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin-top: 4px; }
+.mx2 .pi { aspect-ratio: 1; border-radius: 2px; box-shadow: 0 5px 4px -3px rgba(0,0,0,.25); font-size: 10.5px; font-weight: 700; line-height: 1.15; padding: 5px; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--ink); overflow: hidden; }
+.mx2 .notes.y .pi { background: #edd352; } .mx2 .notes.b .pi { background: #a3abf5; } .mx2 .notes.o .pi { background: #efa65d; }
+.mx2 .pi:not(.filled) { opacity: .9; }
+.mx2 .pi.filled { animation: pop .35s; outline: 2px solid var(--ink); }
+.mx2 .mq.win { background: #f3f3ef; outline: 3px solid var(--ink); }
+.mx2.small .qs { gap: 14px 24px; padding: 6px 10px; } .mx2.small .notes { gap: 5px; } .mx2.small .mq .sub { display: none; }
+.mx2.small .notes .pi:nth-child(n+4) { display: none; }
+
 @media (max-width: 900px) {
   body { overflow: auto; }
   .slide { justify-content: flex-start; }
@@ -1033,7 +1057,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
           <div class="sheet rv" style="--i:4;padding:14px 18px;border-left:8px solid var(--ink)"><b>Effort :</b> combien de temps, d'argent et d'équipes faut-il pour la réaliser ?</div>
           <p class="hand rv" style="--i:5">On s'entraîne d'abord avec un jeu.</p>
         </div>
-        <div class="rv" style="--i:2"><div class="mx big"><span class="ay">Impact ↑</span><div class="mg"><div class="mq gr"><b>Grands projets</b><span>Fort impact, gros effort : on planifie.</span></div><div class="mq qw"><b>Gains rapides</b><span>Fort impact, peu d'effort : on fonce.</span></div><div class="mq ou"><b>À oublier</b><span>Peu d'impact, gros effort : on laisse de côté.</span></div><div class="mq pp"><b>Petits plus</b><span>Peu d'impact, peu d'effort : si on a le temps.</span></div></div><span class="ax">Effort →</span></div></div>
+        <div class="rv" style="--i:2"><div class="mx2 big"><span class="lab top">Fort impact</span><span class="lab lft">Peu<br>d'effort</span><div class="area"><svg class="axes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="50" x2="99" y2="50"/><line x1="50" y1="1" x2="50" y2="99"/></svg><span class="arr al">◀</span><span class="arr ar">▶</span><span class="arr at">▲</span><span class="arr ab">▼</span><div class="qs"><div class="mq qw" data-q="qw"><h4>Gains rapides</h4><span class="sub">on fonce</span><div class="mxp notes y"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq gr" data-q="gr"><h4>Grands projets</h4><span class="sub">on planifie</span><div class="mxp notes y"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq pp" data-q="pp"><h4>Petits plus</h4><span class="sub">si on a le temps</span><div class="mxp notes b"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq ou" data-q="ou"><h4>À oublier</h4><span class="sub">on laisse de côté</span><div class="mxp notes o"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div></div></div><span class="lab rgt">Gros<br>effort</span><span class="lab bot">Faible impact</span></div></div>
       </div>
     </section>
 
@@ -1054,12 +1078,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
           </div>
           <div class="picker" data-award="3" data-reason="Meilleur argument"><span class="lbl">Meilleur argument · +3</span></div>
         </div>
-        <div class="mx big"><span class="ay">Impact ↑</span><div class="mg" id="mxGrid">
-          <div class="mq gr" data-q="gr"><b>Grands projets</b><span>on planifie</span><div class="mxp"></div></div>
-          <div class="mq qw" data-q="qw"><b>Gains rapides</b><span>on fonce</span><div class="mxp"></div></div>
-          <div class="mq ou" data-q="ou"><b>À oublier</b><span>on laisse de côté</span><div class="mxp"></div></div>
-          <div class="mq pp" data-q="pp"><b>Petits plus</b><span>si on a le temps</span><div class="mxp"></div></div>
-        </div><span class="ax">Effort →</span></div>
+        <div class="mx2 big"><span class="lab top">Fort impact</span><span class="lab lft">Peu<br>d'effort</span><div class="area"><svg class="axes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="50" x2="99" y2="50"/><line x1="50" y1="1" x2="50" y2="99"/></svg><span class="arr al">◀</span><span class="arr ar">▶</span><span class="arr at">▲</span><span class="arr ab">▼</span><div class="qs" id="mxGrid"><div class="mq qw" data-q="qw"><h4>Gains rapides</h4><span class="sub">on fonce</span><div class="mxp notes y"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq gr" data-q="gr"><h4>Grands projets</h4><span class="sub">on planifie</span><div class="mxp notes y"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq pp" data-q="pp"><h4>Petits plus</h4><span class="sub">si on a le temps</span><div class="mxp notes b"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq ou" data-q="ou"><h4>À oublier</h4><span class="sub">on laisse de côté</span><div class="mxp notes o"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div></div></div><span class="lab rgt">Gros<br>effort</span><span class="lab bot">Faible impact</span></div>
       </div>
     </section>
 
@@ -1080,7 +1099,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
           <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>En cas de désaccord,</b> on place le post-it entre deux cases et on en parle. C'est là que les meilleures discussions arrivent.</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:18px;align-items:center">
-          <div class="rv" style="--i:2;width:100%"><div class="mx"><span class="ay">Impact ↑</span><div class="mg"><div class="mq gr"><b>Grands projets</b></div><div class="mq qw"><b>Gains rapides</b></div><div class="mq ou"><b>À oublier</b></div><div class="mq pp"><b>Petits plus</b></div></div><span class="ax">Effort →</span></div></div>
+          <div class="rv" style="--i:2;width:100%"><div class="mx2 small"><span class="lab top">Fort impact</span><span class="lab lft">Peu<br>d'effort</span><div class="area"><svg class="axes" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="1" y1="50" x2="99" y2="50"/><line x1="50" y1="1" x2="50" y2="99"/></svg><span class="arr al">◀</span><span class="arr ar">▶</span><span class="arr at">▲</span><span class="arr ab">▼</span><div class="qs"><div class="mq qw" data-q="qw"><h4>Gains rapides</h4><span class="sub">on fonce</span><div class="mxp notes y"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq gr" data-q="gr"><h4>Grands projets</h4><span class="sub">on planifie</span><div class="mxp notes y"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq pp" data-q="pp"><h4>Petits plus</h4><span class="sub">si on a le temps</span><div class="mxp notes b"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div><div class="mq ou" data-q="ou"><h4>À oublier</h4><span class="sub">on laisse de côté</span><div class="mxp notes o"><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span><span class="pi"></span></div></div></div></div><span class="lab rgt">Gros<br>effort</span><span class="lab bot">Faible impact</span></div></div>
           <div class="timer rv" style="--i:3" data-timer="1200" data-label="minutes" data-small="1"></div>
         </div>
       </div>
@@ -2005,7 +2024,9 @@ function renderMx() {
   }).join("");
   $$("#mxGrid .mq").forEach(el => {
     el.classList.toggle("win", !done && m.rev && el.dataset.q === good);
-    $(".mxp", el).innerHTML = m.placed.filter(k => C[k][1] === el.dataset.q).map(k => `<span>${esc(C[k][0])}</span>`).join("");
+    const got = m.placed.filter(k => C[k][1] === el.dataset.q).map(k => `<span class="pi filled">${esc(C[k][0])}</span>`);
+    while (got.length < 6) got.push('<span class="pi"></span>');
+    $(".mxp", el).innerHTML = got.join("");
   });
   $("#mxReveal").disabled = done || m.rev;
   $("#mxNext").textContent = m.i >= C.length - 1 && m.rev ? "Terminer" : "Carte suivante →";
