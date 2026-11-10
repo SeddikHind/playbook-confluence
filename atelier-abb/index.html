@@ -528,7 +528,8 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 .fcol { border: 2px solid var(--ink); border-radius: 16px; background: var(--card); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
 .fcol h4 { font-family: var(--f-display); font-size: clamp(20px, 2vw, 26px); letter-spacing: -.02em; }
 .slot { flex: 1; min-height: 70px; border: 2.5px dashed var(--ink); border-radius: 4px; opacity: .55; }
-.slot.y { background: #ffe98a; } .slot.o { background: #ffc4b8; } .slot.b { background: #bfe3ff; }
+.slot.y { background: #ffe98a; }
+.pst.g { background: #c9f0bd; transform: rotate(.8deg); } .slot.o { background: #ffc4b8; } .slot.b { background: #bfe3ff; }
 .slot:nth-of-type(odd) { transform: rotate(-1.5deg); } .slot:nth-of-type(even) { transform: rotate(1.2deg); }
 @media (max-width: 900px) { .fiche { grid-template-columns: minmax(0, 1fr); } }
 
@@ -966,18 +967,22 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 
     <section class="slide" data-name="Idéation">
       <div class="dtmini rv" data-dt="1"></div>
-      <div class="split">
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div class="eyebrow rv">Exercice 3 · Chacun pour soi, puis en groupe</div>
-          <h2 class="h-l rv" style="--i:1">8 idées en 8 minutes</h2>
-          <ol class="steps rv" style="--i:2">
-            <li><span><b>Relisez</b> la question de votre groupe</span></li>
-            <li><span><b>En silence</b>, chacun écrit 8 idées, une par post-it, en quelques mots</span></li>
-            <li><span><b>Affichez</b> tout au mur et regroupez les idées proches</span></li>
+      <div class="split" style="grid-template-columns:minmax(0,1.6fr) minmax(0,.8fr)">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="eyebrow rv">Exercice 4 · En groupe, avec des post-its</div>
+          <h2 class="h-l rv" style="--i:1">Une question, une idée</h2>
+          <div class="hmwx rv" style="--i:2">
+            <div class="pst y"><span class="t" style="margin:0">Question</span><b>Comment pourrions-nous permettre au DA de savoir à tout moment où en est chaque réclamation ?</b></div>
+            <span class="ar" aria-hidden="true">→</span>
+            <div class="pst g"><span class="t" style="margin:0">Idée</span><b>Un écran qui liste ses réclamations, avec une couleur par statut : reçue, en cours, réglée.</b></div>
+          </div>
+          <ol class="steps rv" style="--i:3">
+            <li><span><b>Prenez</b> vos questions déjà reformulées</span></li>
+            <li><span><b>Répondez</b> à chacune par une idée, sur un post-it vert collé à côté</span></li>
           </ol>
-          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>Les règles :</b> la quantité d'abord, aucune idée n'est bête, on ne critique pas, on rebondit avec « Oui, et… ».</div>
+          <div class="sheet rv" style="--i:4;padding:14px 18px;border-left:8px solid var(--hl)"><b>Pas besoin que ce soit parfait.</b> Une idée simple, en une phrase.</div>
         </div>
-        <div class="timer rv" style="--i:2" data-timer="480" data-label="minutes"></div>
+        <div class="timer rv" style="--i:2" data-timer="900" data-label="minutes"></div>
       </div>
     </section>
 
@@ -1391,8 +1396,8 @@ const AGENDA = [
   ["Jour 1","Modules 03 et 04"],
   ["0:00","La formation","15 min","La formation"],["0:15","03 · Construire le persona","45 min","Persona"],
   ["1:00","Pause","10 min",null],["1:10","04 · Des problèmes aux questions","35 min","Des problèmes aux questions"],
-  ["1:45","04 · Idéation","30 min","Idéation"],["2:15","04 · Choisir son idée","15 min","Choisir son idée"],
-  ["2:30","Clôture du jour 1","15 min","Fin du jour 1"],
+  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · Choisir son idée","15 min","Choisir son idée"],
+  ["2:15","Clôture du jour 1","15 min","Fin du jour 1"],
   ["Jour 2","Module 05"],
   ["0:00","Rappel et brise-glace","20 min","Rappel"],["0:20","Pourquoi le papier","20 min","Fidélité"],
   ["0:40","Traduis ton écran et quiz","25 min","Traduis ton écran"],["1:05","Pause","10 min",null],
