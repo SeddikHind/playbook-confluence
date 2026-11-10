@@ -533,6 +533,18 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 .slot:nth-of-type(odd) { transform: rotate(-1.5deg); } .slot:nth-of-type(even) { transform: rotate(1.2deg); }
 @media (max-width: 900px) { .fiche { grid-template-columns: minmax(0, 1fr); } }
 
+/* ---------- matrice impact / effort ---------- */
+.mx { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 8px; }
+.mx .ay { writing-mode: vertical-rl; transform: rotate(180deg); font-weight: 800; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; align-self: center; }
+.mx .ax { grid-column: 2; justify-self: end; font-weight: 800; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; }
+.mg { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border: 3px solid var(--ink); border-radius: 14px; overflow: hidden; aspect-ratio: 1.25; box-shadow: 6px 6px 0 var(--ink); }
+.mq { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; border: 1.5px dashed var(--ink); }
+.mq b { font-family: var(--f-display); font-size: clamp(18px, 1.8vw, 26px); letter-spacing: -.02em; }
+.mq span { color: var(--ink-2); line-height: 1.4; font-size: clamp(13px, 1.2vw, 16px); }
+.mq.qw { background: #c9f0bd; } .mq.gr { background: #ffe98a; } .mq.pp { background: #bfe3ff; } .mq.ou { background: #ffc4b8; }
+.mx:not(.big) .mg { aspect-ratio: 1.6; }
+.mx:not(.big) .mq b { font-size: clamp(14px, 1.3vw, 18px); }
+
 @media (max-width: 900px) {
   body { overflow: auto; }
   .slide { justify-content: flex-start; }
@@ -986,7 +998,43 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Choisir son idée">
+    <section class="slide" data-name="Matrice impact effort">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="split" style="align-items:center">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="eyebrow rv">Prioriser · l'outil</div>
+          <h2 class="h-l rv" style="--i:1">La matrice impact / effort</h2>
+          <p class="lead rv" style="--i:2">On ne peut pas tout faire. On place chaque idée selon deux questions :</p>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>Impact :</b> à quel point l'idée règle le problème du persona ?</div>
+          <div class="sheet rv" style="--i:4;padding:14px 18px;border-left:8px solid var(--ink)"><b>Effort :</b> combien de temps, d'argent et d'équipes faut-il pour la réaliser ?</div>
+          <p class="hand rv" style="--i:5">On commence par les gains rapides.</p>
+        </div>
+        <div class="rv" style="--i:2"><div class="mx big"><span class="ay">Impact ↑</span><div class="mg"><div class="mq gr"><b>Grands projets</b><span>Fort impact, gros effort : on planifie.</span></div><div class="mq qw"><b>Gains rapides</b><span>Fort impact, peu d'effort : on fonce.</span></div><div class="mq ou"><b>À oublier</b><span>Peu d'impact, gros effort : on laisse de côté.</span></div><div class="mq pp"><b>Petits plus</b><span>Peu d'impact, peu d'effort : si on a le temps.</span></div></div><span class="ax">Effort →</span></div></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Matrice exercice">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="split" style="grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr)">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Exercice 5 · Tous ensemble</div>
+          <h2 class="h-l rv" style="--i:1">Placez vos idées sur la matrice</h2>
+          <ol class="steps rv" style="--i:2">
+            <li><span><b>Présentez</b> chaque idée en une phrase</span></li>
+            <li><span><b>Placez</b> le post-it vert sur la matrice au mur, après un court échange : impact ? effort ?</span></li>
+            <li><span><b>Entourez</b> les gains rapides</span></li>
+            <li><span><b>Choisissez</b> l'idée que votre groupe dessinera demain</span></li>
+          </ol>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>En cas de désaccord,</b> on place le post-it entre deux cases et on en parle. C'est là que les meilleures discussions arrivent.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;align-items:center">
+          <div class="rv" style="--i:2;width:100%"><div class="mx"><span class="ay">Impact ↑</span><div class="mg"><div class="mq gr"><b>Grands projets</b></div><div class="mq qw"><b>Gains rapides</b></div><div class="mq ou"><b>À oublier</b></div><div class="mq pp"><b>Petits plus</b></div></div><span class="ax">Effort →</span></div></div>
+          <div class="timer rv" style="--i:3" data-timer="1200" data-label="minutes" data-small="1"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide-off" data-name="Choisir son idée">
       <div class="dtmini rv" data-dt="1"></div>
       <div class="split" style="align-items:start">
         <div style="display:flex;flex-direction:column;gap:16px">
@@ -1396,8 +1444,8 @@ const AGENDA = [
   ["Jour 1","Modules 03 et 04"],
   ["0:00","La formation","15 min","La formation"],["0:15","03 · Construire le persona","45 min","Persona"],
   ["1:00","Pause","10 min",null],["1:10","04 · Des problèmes aux questions","35 min","Des problèmes aux questions"],
-  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · Choisir son idée","15 min","Choisir son idée"],
-  ["2:15","Clôture du jour 1","15 min","Fin du jour 1"],
+  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · Matrice impact / effort","25 min","Matrice impact effort"],
+  ["2:25","Clôture du jour 1","15 min","Fin du jour 1"],
   ["Jour 2","Module 05"],
   ["0:00","Rappel et brise-glace","20 min","Rappel"],["0:20","Pourquoi le papier","20 min","Fidélité"],
   ["0:40","Traduis ton écran et quiz","25 min","Traduis ton écran"],["1:05","Pause","10 min",null],
