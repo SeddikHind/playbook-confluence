@@ -516,6 +516,22 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 .star { color: #e0a800; margin-right: 6px; font-weight: 800; }
 @media (max-width: 900px) { .hmwx { grid-template-columns: minmax(0, 1fr); } .hmwx .ar { transform: rotate(90deg); justify-self: center; } }
 
+/* ---------- fiche persona à remplir ---------- */
+.slide-off { display: none !important; }
+.fiche { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+.fid { padding: 20px; display: flex; flex-direction: column; gap: 14px; transform: rotate(-1deg); }
+.fid .ava { width: 92px; height: 92px; border-radius: 50%; border: 2.5px dashed var(--ink); background: var(--paper); align-self: center; }
+.fid .ln { display: flex; flex-direction: column; gap: 4px; }
+.fid .ln b { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.fid .ln i { display: block; height: 26px; border-bottom: 2px dashed var(--mute); }
+.fid .ln.q span { font-family: var(--f-hand); font-size: 30px; color: var(--mute); }
+.fcol { border: 2px solid var(--ink); border-radius: 16px; background: var(--card); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.fcol h4 { font-family: var(--f-display); font-size: clamp(20px, 2vw, 26px); letter-spacing: -.02em; }
+.slot { flex: 1; min-height: 70px; border: 2.5px dashed var(--ink); border-radius: 4px; opacity: .55; }
+.slot.y { background: #ffe98a; } .slot.o { background: #ffd0a6; } .slot.b { background: #bfe3ff; }
+.slot:nth-of-type(odd) { transform: rotate(-1.5deg); } .slot:nth-of-type(even) { transform: rotate(1.2deg); }
+@media (max-width: 900px) { .fiche { grid-template-columns: minmax(0, 1fr); } }
+
 @media (max-width: 900px) {
   body { overflow: auto; }
   .slide { justify-content: flex-start; }
@@ -586,7 +602,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       <h2 class="h-l rv" style="--i:1">À la fin de cette journée, vous saurez</h2>
       <div class="grid3">
         <div class="sheet shadow obj rv" style="--i:2"><div class="n">1</div><h3 class="h-m">Penser utilisateur</h3><p>Comprendre la démarche design thinking et pourquoi elle commence par les gens, pas par l'écran.</p></div>
-        <div class="sheet shadow obj rv" style="--i:3"><div class="n">2</div><h3 class="h-m">Construire un persona</h3><p>Passer de fragments de terrain à un portrait fiable, où chaque information a sa source.</p></div>
+        <div class="sheet shadow obj rv" style="--i:3"><div class="n">2</div><h3 class="h-m">Construire un persona</h3><p>Décrire ses missions, ses objectifs, ses problèmes et ses outils, avec des post-its.</p></div>
         <div class="sheet shadow obj rv" style="--i:4"><div class="n">3</div><h3 class="h-m">Poser le bon problème</h3><p>Transformer les irritants en questions « Comment pourrions-nous… », puis trouver et choisir des idées.</p></div>
       </div>
       <p class="hand rv" style="--i:5">Les points comptent sur les deux jours. Le podium est à la fin du jour 2.</p>
@@ -598,7 +614,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       <div class="agenda" id="agenda"></div>
     </section>
 
-    <section class="slide" data-name="Empathie express">
+    <section class="slide-off" data-name="Empathie express">
       <div class="split">
         <div style="display:flex;flex-direction:column;gap:18px">
           <div class="eyebrow rv">Brise-glace · en binôme</div>
@@ -612,7 +628,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Design thinking">
+    <section class="slide-off" data-name="Design thinking">
       <div class="eyebrow rv">Le design thinking, simplement</div>
       <h2 class="h-l rv" style="--i:1;max-width:20ch">Comprendre les gens <mark>avant</mark> de concevoir pour eux</h2>
       <div class="dt3 rv" style="--i:2">
@@ -670,7 +686,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide dark-slide" data-name="Module 03">
+    <section class="slide-off dark-slide" data-name="Module 03">
       <div class="modopen">
         <div style="display:flex;flex-direction:column;gap:14px">
           <div class="eyebrow rv" style="color:#cfcfd6">Module</div>
@@ -692,7 +708,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Fait ou interprétation">
+    <section class="slide-off" data-name="Fait ou interprétation">
       <div class="dtmini rv" data-dt="0"></div>
       <div class="eyebrow rv">Empathie · le réflexe à prendre</div>
       <h2 class="h-l rv" style="--i:1">Fait observé ou interprétation ?</h2>
@@ -712,7 +728,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Fragments de terrain">
+    <section class="slide-off" data-name="Fragments de terrain">
       <div class="dtmini rv" data-dt="0"></div>
       <div class="row rv" style="justify-content:space-between;align-items:flex-end">
         <div><div class="eyebrow">Empathie · ce que le terrain nous dit</div><h2 class="h-l">Les fragments de terrain</h2></div>
@@ -722,7 +738,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       <div class="frags rv" style="--i:2" id="frags"></div>
     </section>
 
-    <section class="slide" data-name="Carte d'empathie">
+    <section class="slide-off" data-name="Carte d'empathie">
       <div class="dtmini rv" data-dt="0"></div>
       <div class="split" style="align-items:start">
         <div style="display:flex;flex-direction:column;gap:16px">
@@ -748,7 +764,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Anatomie d'un persona">
+    <section class="slide-off" data-name="Anatomie d'un persona">
       <div class="dtmini rv" data-dt="0"></div>
       <div class="eyebrow rv">Définir · l'outil</div>
       <h2 class="h-l rv" style="--i:1">L'anatomie d'un persona</h2>
@@ -775,18 +791,39 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       <div class="split" style="grid-template-columns:minmax(0,1.6fr) minmax(0,.8fr)">
         <div style="display:flex;flex-direction:column;gap:16px">
           <div class="eyebrow rv">Exercice 2 · En groupe, avec des post-its</div>
-          <h2 class="h-l rv" style="--i:1">Construisez Nadia en 3 étapes</h2>
+          <h2 class="h-l rv" style="--i:1">Construisez votre persona en 3 étapes</h2>
           <div class="pst3 rv" style="--i:2" id="pst3">
             <button type="button" class="pst y" data-pst="0"><span class="n">1</span><b>Ses objectifs et ses missions</b><ul><li>Que doit-elle accomplir ?</li><li>Qu'attend-on d'elle ?</li><li>Qu'est-ce qui compte pour elle ?</li></ul><span class="t">≈ 10 min</span></button>
             <button type="button" class="pst r" data-pst="1"><span class="n">2</span><b>Ses problèmes</b><ul><li>Qu'est-ce qui la freine ?</li><li>Où perd-elle du temps ?</li><li>Qu'est-ce qui l'inquiète ?</li></ul><span class="t">≈ 10 min</span></button>
             <button type="button" class="pst b" data-pst="2"><span class="n">3</span><b>Ses outils</b><ul><li>Qu'utilise-t-elle chaque jour ?</li><li>Applications, papier, téléphone ?</li><li>Qu'en pense-t-elle ?</li></ul><span class="t">≈ 10 min</span></button>
           </div>
-          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>La règle :</b> une idée par post-it, avec le numéro de son fragment (F4, F11…). Pas de fragment ? Le post-it va dans « À vérifier ».</div>
-          <div class="picker rv" style="--i:4" data-award="10" data-reason="Persona le mieux sourcé"><span class="lbl">Persona le mieux sourcé · +10</span></div>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>La règle :</b> une idée par post-it. Ce dont vous n'êtes pas sûrs va dans « À vérifier ».</div>
+          <div class="picker rv" style="--i:4" data-award="10" data-reason="Persona le plus complet"><span class="lbl">Persona le plus complet · +10</span></div>
         </div>
         <div class="timer rv" style="--i:2" data-timer="1800" data-label="minutes"></div>
       </div>
     </section>
+
+    <section class="slide" data-name="Fiche persona">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="row rv" style="justify-content:space-between;align-items:flex-end">
+        <div><div class="eyebrow">À remplir avec vos post-its</div><h2 class="h-l">La fiche persona</h2></div>
+        <span class="hand">une idée par post-it</span>
+      </div>
+      <div class="fiche rv" style="--i:2">
+        <div class="sheet shadow fid">
+          <span class="ava" aria-hidden="true"></span>
+          <span class="ln"><b>Prénom, âge</b><i></i></span>
+          <span class="ln"><b>Poste</b><i></i></span>
+          <span class="ln"><b>Agence</b><i></i></span>
+          <span class="ln q"><b>Sa phrase</b><span>« … »</span></span>
+        </div>
+        <div class="fcol"><h4>Missions</h4><span class="slot y"></span><span class="slot y"></span><span class="slot y"></span></div>
+        <div class="fcol"><h4>Objectifs</h4><span class="slot o"></span><span class="slot o"></span><span class="slot o"></span></div>
+        <div class="fcol"><h4>Outils</h4><span class="slot b"></span><span class="slot b"></span><span class="slot b"></span></div>
+      </div>
+    </section>
+
 
     <section class="slide" data-name="Des problèmes aux questions">
       <div class="dtmini rv" data-dt="1"></div>
@@ -831,7 +868,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
     </section>
 
 
-    <section class="slide" data-name="Notre Nadia">
+    <section class="slide-off" data-name="Notre Nadia">
       <div class="dtmini rv" data-dt="0"></div>
       <div class="eyebrow rv">Comparez avec votre version</div>
       <div class="persona">
@@ -854,7 +891,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
     </section>
 
     <!-- 11 parcours -->
-    <section class="slide" data-name="Parcours">
+    <section class="slide-off" data-name="Parcours">
       <div class="dtmini rv" data-dt="0"></div>
       <div class="eyebrow rv">Définir · Nadia, conseillère en agence</div>
       <h2 class="h-l rv" style="--i:1">Le parcours de la conseillère</h2>
@@ -864,7 +901,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
     </section>
 
     <!-- 12 irritants → questions -->
-    <section class="slide dark-slide" data-name="Module 04">
+    <section class="slide-off dark-slide" data-name="Module 04">
       <div class="modopen">
         <div style="display:flex;flex-direction:column;gap:14px">
           <div class="eyebrow rv" style="color:#cfcfd6">Module</div>
@@ -886,7 +923,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Irritants">
+    <section class="slide-off" data-name="Irritants">
       <div class="dtmini rv" data-dt="1"></div>
       <div class="row rv" style="justify-content:space-between">
         <div><div class="eyebrow">Du problème à l'opportunité</div><h2 class="h-l">Des irritants aux questions</h2></div>
@@ -896,7 +933,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       <p class="hand rv" style="--i:2">Retournez chaque irritant : derrière, une question « Comment pourrions-nous… ».</p>
     </section>
 
-    <section class="slide" data-name="Le défi">
+    <section class="slide-off" data-name="Le défi">
       <div class="dtmini rv" data-dt="1"></div>
       <span class="pill hl rv" style="align-self:flex-start">Le défi</span>
       <h2 class="h-l rv" style="--i:1;max-width:22ch">Imaginez une <mark>Vue 360 augmentée par l'IA</mark> et un <mark>assistant commercial IA</mark> qui accompagnent Nadia du matin jusqu'au suivi de ses dossiers.</h2>
@@ -906,7 +943,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Choisir son défi">
+    <section class="slide-off" data-name="Choisir son défi">
       <div class="dtmini rv" data-dt="1"></div>
       <div class="split" style="align-items:start">
         <div style="display:flex;flex-direction:column;gap:16px">
@@ -951,15 +988,15 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
           <div class="eyebrow rv">Idéation · on converge</div>
           <h2 class="h-l rv" style="--i:1">Chaque groupe choisit son idée</h2>
           <ol class="steps rv" style="--i:2">
-            <li><span><b>Votez</b> : 3 gommettes chacun, pour l'idée la plus utile à Nadia</span></li>
+            <li><span><b>Votez</b> : 3 gommettes chacun, pour l'idée la plus utile à votre persona</span></li>
             <li><span><b>Retenez</b> l'idée la plus votée, ou combinez les deux premières</span></li>
-            <li><span><b>Résumez-la</b> en une phrase : « Notre idée aide Nadia à… grâce à… »</span></li>
+            <li><span><b>Résumez-la</b> en une phrase : « Notre idée aide [persona] à… grâce à… »</span></li>
           </ol>
           <div class="timer rv" style="--i:3" data-timer="600" data-label="minutes" data-small="1"></div>
           <div class="picker rv" style="--i:4" data-award="10" data-reason="Idée la plus audacieuse"><span class="lbl">Idée la plus audacieuse · +10</span></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <div class="eyebrow rv" style="--i:2">L'idée de chaque groupe</div>
+          <div class="eyebrow rv" style="--i:2">La question et l'idée de chaque groupe</div>
           <div class="hmwp rv" style="--i:3" id="ideaPick"></div>
         </div>
       </div>
@@ -977,7 +1014,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
             <div class="note-y"><span>Une question</span><p>qui me reste</p></div>
           </div>
         </div>
-        <div class="sheet rv" style="--i:4;padding:18px 20px;border-left:8px solid var(--hl);align-self:center"><b>À rapporter demain :</b> votre carte d'empathie, votre persona, votre question et votre idée.</div>
+        <div class="sheet rv" style="--i:4;padding:18px 20px;border-left:8px solid var(--hl);align-self:center"><b>À rapporter demain :</b> votre fiche persona, votre question et votre idée.</div>
       </div>
     </section>
 
@@ -1352,12 +1389,10 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
 const STAGES = [{"n": 1, "name": "Démarrer sa journée", "fait": ["Ouvre plusieurs outils", "Consulte ses RDV et ses objectifs", "Cherche quels clients appeler"], "pense": ["« Par où je commence ce matin ? »"], "ressent": "Débordée", "emo": 0, "pain": ["Infos éparpillées dans plusieurs outils", "Chiffres suivis à la main", "Pas de priorités claires"], "hmw": ["Comment pourrions-nous aider Nadia à savoir qui contacter en priorité, et pourquoi ?", "Comment pourrions-nous lui montrer où elle en est de ses objectifs sans calcul manuel ?"], "task": "Vous arrivez en agence. Trouvez le client à appeler en priorité aujourd'hui, et dites pourquoi."}, {"n": 2, "name": "Se former à une offre", "fait": ["Reçoit une note produit", "La lit entre deux clients", "Cherche à qui la proposer"], "pense": ["« Je n'ai pas le temps de lire une note de 20 pages. »"], "ressent": "Curieuse", "emo": 1.5, "pain": ["Notes produit longues", "Formation en dehors du poste", "Clients éligibles introuvables"], "hmw": ["Comment pourrions-nous aider Nadia à maîtriser une offre en quelques minutes ?", "Comment pourrions-nous lui faire trouver les clients à qui la proposer dans la base ?"], "task": "Une nouvelle offre est sortie. Apprenez l'essentiel et trouvez 3 clients à qui la proposer."}, {"n": 3, "name": "Identifier et qualifier", "fait": ["Recherche un client", "Crée une fiche prospect", "Pose ses questions de découverte"], "pense": ["« Est-ce que ce client existe déjà ? »"], "ressent": "Incertaine", "emo": 0.8, "pain": ["Doublons et fiches incomplètes", "Ressaisie des informations", "Qualification au feeling"], "hmw": ["Comment pourrions-nous éviter les doublons et les fiches incomplètes dès la saisie ?", "Comment pourrions-nous guider Nadia pour poser les bonnes questions au bon moment ?"], "task": "Un prospect entre en agence. Vérifiez qu'il n'existe pas déjà, puis découvrez ses besoins."}, {"n": 4, "name": "Comprendre le client", "fait": ["Consulte ses comptes et son historique", "Vérifie ses documents", "Cherche quoi lui proposer"], "pense": ["« Est-ce que ces infos sont encore à jour ? »"], "ressent": "Rassurée quand elle trouve", "emo": 1.6, "pain": ["Données obsolètes (CIN expirée, adresse)", "Historique dispersé", "Pas de lecture des besoins"], "hmw": ["Comment pourrions-nous donner à Nadia une vision complète et fiable du client en un coup d'œil ?", "Comment pourrions-nous transformer les données du client en besoins et en offres pertinentes ?"], "task": "Vous recevez Khalid dans 5 minutes. Vérifiez que ses infos sont à jour et trouvez quoi lui proposer."}, {"n": 5, "name": "Convaincre et conclure", "fait": ["Choisit une offre", "Prépare ses arguments", "Répond aux objections"], "pense": ["« Et s'il me dit que c'est trop cher ? »"], "ressent": "Tendue face aux objections", "emo": 1.2, "pain": ["Argumentaire improvisé", "Objections mal préparées", "Pas de chiffres pour appuyer"], "hmw": ["Comment pourrions-nous aider Nadia à construire un argumentaire adapté à ce client ?", "Comment pourrions-nous la préparer aux objections, chiffres du client à l'appui ?"], "task": "Khalid trouve l'offre trop chère. Préparez votre réponse."}, {"n": 6, "name": "Suivre la demande", "fait": ["Transmet une demande de crédit", "Relance le back-office", "Répond au client qui s'inquiète"], "pense": ["« Où en est le dossier de Khalid ? »"], "ressent": "Impuissante", "emo": 0.2, "pain": ["Pas de suivi en temps réel", "Relances par téléphone et par mail", "Client mal informé"], "hmw": ["Comment pourrions-nous permettre à Nadia de suivre une demande de crédit en temps réel ?", "Comment pourrions-nous tenir le client informé sans qu'il ait à relancer ?"], "task": "Khalid appelle : il veut savoir où en est sa demande de crédit. Répondez-lui."}];
 const AGENDA = [
   ["Jour 1","Modules 03 et 04"],
-  ["0:00","Empathie express","10 min","Empathie express"],["0:10","Le design thinking et la formation","15 min","Design thinking"],
-  ["0:25","03 · Fait ou interprétation","10 min","Module 03"],["0:35","03 · Carte d'empathie","25 min","Fragments de terrain"],
-  ["1:00","Pause","10 min",null],["1:10","03 · Construire le persona","35 min","Anatomie d'un persona"],
-  ["1:45","03 · Le parcours de Nadia","15 min","Parcours"],["2:00","04 · Questions et défi","15 min","Module 04"],
-  ["2:15","04 · Choisir sa question","10 min","Choisir son défi"],["2:25","04 · Idéation","25 min","Idéation"],
-  ["2:50","Clôture du jour 1","10 min","Fin du jour 1"],
+  ["0:00","La formation","15 min","La formation"],["0:15","03 · Construire le persona","45 min","Persona"],
+  ["1:00","Pause","10 min",null],["1:10","04 · Des problèmes aux questions","35 min","Des problèmes aux questions"],
+  ["1:45","04 · Idéation","30 min","Idéation"],["2:15","04 · Choisir son idée","15 min","Choisir son idée"],
+  ["2:30","Clôture du jour 1","15 min","Fin du jour 1"],
   ["Jour 2","Module 05"],
   ["0:00","Rappel et brise-glace","20 min","Rappel"],["0:20","Pourquoi le papier","20 min","Fidélité"],
   ["0:40","Traduis ton écran et quiz","25 min","Traduis ton écran"],["1:05","Pause","10 min",null],
@@ -1803,6 +1838,7 @@ $("#frags").innerHTML = FRAG.map(([k, t], i) => `<div class="fr ${k}"><span clas
 /* ---------- choix de la question et de l'idée ---------- */
 if (!state.hmw || typeof state.hmw !== "object") state.hmw = {};
 if (!state.idea || typeof state.idea !== "object") state.idea = {};
+if (!state.hmwq || typeof state.hmwq !== "object") state.hmwq = {};
 const HMW_ALL = STAGES.flatMap(s => s.hmw.map((q, k) => ({ id: s.n + "-" + k, q })));
 const hmwText = id => { const h = HMW_ALL.find(x => x.id === id); return h ? h.q : ""; };
 function renderHmw() {
@@ -1812,18 +1848,17 @@ function renderHmw() {
       <select data-hmw="${i}" aria-label="Question de ${esc(t.name)}"><option value="">Choisir la question retenue…</option>${STAGES.map(s =>
         `<optgroup label="${s.n} · ${esc(s.name)}">${s.hmw.map((q, k) => `<option value="${s.n}-${k}"${state.hmw[i] === s.n + "-" + k ? " selected" : ""}>${esc(q)}</option>`).join("")}</optgroup>`).join("")}</select></div>`).join("");
   ip.innerHTML = state.teams.map((t, i) => {
-    const q = hmwText(state.hmw[i]);
     return `<div class="hmwr"><span class="dot" style="background:${TCOL[i]}"></span><span class="nm">${esc(t.name)}</span>
-      ${q ? `<span class="qq" style="font-size:19px">${esc(q)}</span>` : ""}
-      <input data-idea="${i}" value="${esc(state.idea[i] || "")}" placeholder="Notre idée aide Nadia à… grâce à…" aria-label="Idée de ${esc(t.name)}"></div>`;
+      <input data-hq="${i}" value="${esc(state.hmwq[i] || hmwText(state.hmw[i]))}" placeholder="Notre question : Comment pourrions-nous…" aria-label="Question de ${esc(t.name)}">
+      <input data-idea="${i}" value="${esc(state.idea[i] || "")}" placeholder="Notre idée : elle aide… à… grâce à…" aria-label="Idée de ${esc(t.name)}"></div>`;
   }).join("");
   rec.innerHTML = state.teams.map((t, i) => {
-    const q = hmwText(state.hmw[i]), d = state.idea[i];
+    const q = state.hmwq[i] || hmwText(state.hmw[i]), d = state.idea[i];
     return `<div class="hmwr"><span class="dot" style="background:${TCOL[i]}"></span><span class="nm">${esc(t.name)}</span><span class="qq${q ? "" : " empty"}">${q ? esc(q) : "Votre question d'hier"}</span><span class="qi${d ? "" : " empty"}">${d ? "💡 " + esc(d) : "Votre idée d'hier"}</span></div>`;
   }).join("");
 }
 $("#hmwPick").addEventListener("change", e => { const s = e.target.closest("[data-hmw]"); if (s) { state.hmw[+s.dataset.hmw] = s.value; save(); renderHmw(); sfx.pop(); } });
-$("#ideaPick").addEventListener("change", e => { const s = e.target.closest("[data-idea]"); if (s) { state.idea[+s.dataset.idea] = s.value.trim(); save(); renderHmw(); sfx.pop(); } });
+$("#ideaPick").addEventListener("change", e => { const s = e.target.closest("[data-idea]"), h = e.target.closest("[data-hq]"); if (s) state.idea[+s.dataset.idea] = s.value.trim(); else if (h) state.hmwq[+h.dataset.hq] = h.value.trim(); else return; save(); renderHmw(); sfx.pop(); });
 
 /* ---------- persona : étape en cours ---------- */
 $("#pst3").addEventListener("click", e => {
