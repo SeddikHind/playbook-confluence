@@ -1,0 +1,1821 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Atelier ABB · 2 jours</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap">
+<style>
+/* Layout: a sketch-pad stage, one slide per screen, keyboard driven; scoreboard docked bottom-right like a sticky note. Single "graph paper" look, deliberately not theme-switched. */
+:root {
+  --paper: #f8f7f2;
+  --grid: #dfe6ef;
+  --ink: #17171c;
+  --ink-2: #4b4b55;
+  --mute: #8a8a94;
+  --hl: #ffd23f;
+  --hl-soft: #fff3c2;
+  --pen-red: #e2412e;
+  --red-soft: #fde6e2;
+  --pen-blue: #2f6fdf;
+  --card: #ffffff;
+  --t1: #ffd23f; --t2: #8fd0ff; --t3: #ff9d8a; --t4: #a6e3a1; --t5: #cdb4ff; --t6: #ffc078;
+  --f-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-hand: "Caveat", "Comic Sans MS", cursive;
+  color-scheme: light;
+}
+html, body { height: 100%; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  overflow: hidden;
+}
+* { box-sizing: border-box; }
+h1, h2, h3, h4 { margin: 0; font-family: var(--f-display); text-wrap: balance; letter-spacing: -0.02em; }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--pen-blue); outline-offset: 3px; }
+
+/* ---------- app shell ---------- */
+.app { position: relative; height: 100%; display: flex; flex-direction: column; }
+.deck { position: relative; flex: 1; min-height: 0; }
+.slide {
+  position: absolute; inset: 0;
+  padding-block: clamp(28px, 6vh, 64px) clamp(70px, 10vh, 96px);
+  padding-left: max(clamp(16px, 6vw, 96px), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(16px, 6vw, 96px), env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; justify-content: center; gap: clamp(14px, 2.4vh, 26px);
+  overflow-y: auto;
+  visibility: hidden; opacity: 0;
+  transform: translateX(40px);
+  transition: opacity .45s ease, transform .55s cubic-bezier(.2,.8,.2,1), visibility 0s .55s;
+}
+.slide.on { visibility: visible; opacity: 1; transform: none; transition: opacity .45s ease, transform .55s cubic-bezier(.2,.8,.2,1); }
+.slide.prev { transform: translateX(-40px); }
+.slide.on .rv { animation: rise .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+.eyebrow { font-family: var(--f-body); font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); }
+.h-xl { font-size: clamp(44px, 8vw, 112px); font-weight: 800; line-height: .95; }
+.h-l { font-size: clamp(30px, 4.6vw, 58px); font-weight: 800; line-height: 1.02; }
+.h-m { font-size: clamp(20px, 2.2vw, 28px); font-weight: 700; line-height: 1.15; }
+.lead { font-size: clamp(17px, 1.6vw, 22px); color: var(--ink-2); max-width: 62ch; line-height: 1.5; }
+.hand { font-family: var(--f-hand); font-size: clamp(22px, 2.2vw, 30px); color: var(--pen-blue); line-height: 1.1; }
+mark { background: linear-gradient(transparent 52%, var(--hl) 52%); color: inherit; padding: 0 .12em; }
+
+.sheet { background: var(--card); border: 2px solid var(--ink); border-radius: 14px; }
+.shadow { box-shadow: 5px 5px 0 var(--ink); }
+.pill { display: inline-flex; align-items: center; gap: 6px; border: 2px solid var(--ink); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 15px; background: var(--card); }
+.pill.hl { background: var(--hl); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { border: 2px solid var(--ink); background: var(--card); border-radius: 10px; padding: 9px 16px; font-weight: 700; font-size: 15px; transition: transform .12s, box-shadow .12s, background .2s; box-shadow: 3px 3px 0 var(--ink); }
+.btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+.btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn.hl { background: var(--hl); }
+.btn.ghost { box-shadow: none; border-color: transparent; background: transparent; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- bottom bar ---------- */
+.bar {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  padding-top: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 12px;
+}
+.nav { display: flex; gap: 6px; }
+.nav button { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--ink); background: var(--card); font-size: 18px; font-weight: 700; display: grid; place-items: center; }
+.progress { flex: 1; display: flex; gap: 4px; min-width: 0; }
+.progress button { flex: 1; height: 8px; border: 0; padding: 0; border-radius: 4px; background: #d6dbe3; transition: background .3s, transform .2s; }
+.progress button.done { background: var(--ink); }
+.progress button.cur { background: var(--hl); outline: 2px solid var(--ink); }
+.progress button:hover { transform: scaleY(1.6); }
+.count { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; min-width: 52px; text-align: right; }
+
+/* ---------- scoreboard ---------- */
+.score {
+  display: flex; gap: 6px; align-items: center;
+}
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 2px solid var(--ink); border-radius: 999px; padding: 4px 10px 4px 4px; background: var(--card); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; transition: transform .2s; }
+.chip .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font-size: 11px; }
+.chip.bump { animation: bump .6s; }
+@keyframes bump { 30% { transform: scale(1.25) rotate(-4deg); } 60% { transform: scale(.95); } }
+.scorebtn { border: 2px solid var(--ink); background: var(--ink); color: var(--paper); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; }
+
+.panel {
+  position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(70px + env(safe-area-inset-bottom, 0px)); z-index: 30;
+  width: min(380px, calc(100vw - 32px)); max-height: 70vh; overflow: auto;
+  background: var(--hl-soft); border: 2px solid var(--ink); border-radius: 6px; box-shadow: 6px 6px 0 var(--ink);
+  padding: 18px; transform-origin: bottom right; transform: rotate(-1deg);
+}
+.panel h3 { font-size: 22px; margin-bottom: 10px; }
+.team-row { display: grid; grid-template-columns: 26px 1fr auto auto auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed #c9bd8a; }
+.team-row input { min-width: 0; border: 0; background: transparent; font: inherit; font-weight: 700; font-size: 16px; color: var(--ink); border-bottom: 1px solid transparent; }
+.team-row input:focus { border-bottom-color: var(--ink); outline: none; }
+.team-row .pts { font-variant-numeric: tabular-nums; font-weight: 800; font-family: var(--f-display); font-size: 20px; min-width: 40px; text-align: right; }
+.sq { width: 30px; height: 30px; border: 2px solid var(--ink); border-radius: 8px; background: var(--card); font-weight: 800; }
+.badges { display: flex; gap: 4px; flex-wrap: wrap; grid-column: 2 / -1; }
+.badge { font-size: 11px; font-weight: 700; background: var(--card); border: 1.5px solid var(--ink); border-radius: 999px; padding: 1px 8px; }
+
+.toast {
+  position: fixed; left: 50%; top: calc(24px + env(safe-area-inset-top, 0px)); z-index: 50;
+  transform: translateX(-50%) translateY(-220%); visibility: hidden; transition: transform .4s cubic-bezier(.2,1.4,.4,1), visibility 0s .4s;
+  background: var(--ink); color: var(--paper); border-radius: 999px; padding: 10px 20px; font-weight: 700; font-size: 17px;
+  display: flex; gap: 10px; align-items: center; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); visibility: visible; transition: transform .4s cubic-bezier(.2,1.4,.4,1); }
+.toast b { color: var(--hl); font-family: var(--f-display); font-size: 22px; }
+
+/* team picker */
+.picker { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.picker .lbl { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); margin-right: 4px; }
+.picker button { border: 2px solid var(--ink); border-radius: 999px; padding: 4px 12px 4px 4px; background: var(--card); font-weight: 700; font-size: 14px; display: inline-flex; gap: 6px; align-items: center; transition: transform .15s; }
+.picker button .dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ink); }
+.picker button[aria-pressed="true"] { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
+
+/* ---------- timer ---------- */
+.timer { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.ring { position: relative; width: clamp(180px, 26vh, 300px); aspect-ratio: 1; max-width: 100%; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .track { fill: var(--hl); stroke: var(--ink); stroke-width: 6; }
+.ring .prog { fill: none; stroke: var(--ink); stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.ring .read { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+.ring .read span { font-family: var(--f-display); font-weight: 800; font-size: clamp(40px, 7vh, 78px); font-variant-numeric: tabular-nums; line-height: 1; }
+.ring .read small { display: block; font-weight: 600; font-size: 14px; color: var(--ink-2); margin-top: 4px; }
+.timer.ending .ring { animation: shake .5s infinite; }
+.timer.done .track { fill: var(--pen-red); }
+@keyframes shake { 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
+
+/* ---------- specific slides ---------- */
+.cover { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 40px; align-items: center; }
+.cover .art { justify-self: center; width: min(360px, 100%); }
+.cover .art path, .cover .art rect, .cover .art line, .cover .art circle { stroke-dasharray: 600; stroke-dashoffset: 600; }
+.slide.on .cover .art .d { animation: draw 1.1s ease forwards; animation-delay: calc(var(--d) * 160ms + 300ms); }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.pencil { transform-origin: 20px 340px; }
+.slide.on .pencil { animation: scribble 2.6s ease-in-out .3s both; }
+@keyframes scribble { 0% { transform: translate(-60px, -120px) rotate(30deg); } 25% { transform: translate(20px,-40px) rotate(34deg); } 50% { transform: translate(-10px, 40px) rotate(28deg); } 75% { transform: translate(30px, 90px) rotate(33deg); } 100% { transform: translate(60px, 60px) rotate(30deg); } }
+
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.obj { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.obj .n { font-family: var(--f-display); font-size: 56px; font-weight: 800; line-height: 1; -webkit-text-stroke: 2px var(--ink); color: transparent; }
+.obj p { color: var(--ink-2); line-height: 1.5; }
+
+.agenda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 22px; }
+.ag { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 10px; padding: 12px 18px; text-align: left; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); font-size: 18px; transition: transform .15s, background .2s; }
+.ag:hover { transform: translateX(4px); background: var(--hl-soft); }
+.ag .t { font-weight: 800; font-family: var(--f-display); font-variant-numeric: tabular-nums; }
+.ag .d { color: var(--mute); font-size: 14px; font-weight: 600; }
+.ag.pause { background: var(--hl); }
+
+.split { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+
+.fid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.fid-stage { position: relative; width: min(260px, 100%); aspect-ratio: 170 / 340; justify-self: center; }
+.fid-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .5s, transform .5s; }
+.fid-stage svg:not(.vis) { opacity: 0; transform: scale(.94) rotate(-2deg); }
+.fid-ctl { display: flex; flex-direction: column; gap: 16px; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--card); }
+.seg button { border: 0; background: transparent; padding: 12px 8px; font-weight: 700; font-size: 16px; border-right: 2px solid var(--ink); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.fid-info { padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.meter { display: grid; grid-template-columns: 110px 1fr; gap: 8px 12px; align-items: center; font-size: 14px; font-weight: 600; }
+.meter .m { height: 10px; background: #e8e8ee; border-radius: 6px; overflow: hidden; }
+.meter .m i { display: block; height: 100%; background: var(--ink); border-radius: 6px; transition: width .5s cubic-bezier(.2,.8,.2,1); }
+
+.manifesto { font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 5.4vw, 72px); line-height: 1.04; max-width: 18ch; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 22px; border-top: 3px solid var(--ink); padding-top: 18px; }
+.trio b { font-family: var(--f-display); font-size: 22px; display: block; }
+.trio span { color: var(--ink-2); }
+
+.voc { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.vc { position: relative; padding: 10px 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); transition: transform .2s; }
+.vc:hover { transform: translateY(-3px) rotate(-.6deg); }
+.vc svg { width: 100%; height: auto; max-height: 12vh; }
+.vc .nm { font-weight: 700; font-size: 15px; transition: opacity .3s, filter .3s; }
+.voc.quiz .vc .nm { filter: blur(6px); opacity: .5; }
+.voc.quiz .vc.rev .nm { filter: none; opacity: 1; }
+.voc.quiz .vc { cursor: pointer; }
+.voc.quiz .vc.rev { background: var(--hl-soft); }
+
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.rule { display: flex; gap: 16px; padding: 20px; align-items: flex-start; }
+.rule .x { flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--hl); border: 2px solid var(--ink); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 22px; }
+.rule .rt { display:block; font-family: var(--f-display); letter-spacing:-.02em; margin-bottom:4px; }
+.rule .rp { display:block; color: var(--ink-2); }
+.rule.stamped { position: relative; }
+.rule .stamp { position: absolute; right: 14px; top: 10px; font-family: var(--f-hand); font-size: 26px; color: var(--pen-red); transform: rotate(-8deg) scale(0); transition: transform .35s cubic-bezier(.2,1.6,.4,1); }
+.rule.stamped .stamp { transform: rotate(-8deg) scale(1); }
+
+.steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; counter-reset: s; }
+.steps li { counter-increment: s; display: flex; gap: 14px; align-items: baseline; font-size: clamp(17px, 1.6vw, 21px); }
+.steps li::before { content: counter(s); flex: none; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font-weight: 800; font-size: 15px; transform: translateY(6px); }
+
+/* quiz */
+.qz { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 30px; align-items: start; }
+.qcard { padding: 26px; display: flex; flex-direction: column; gap: 16px; min-height: 340px; }
+.qnum { font-family: var(--f-hand); font-size: 28px; color: var(--pen-blue); }
+.qopts { display: grid; gap: 10px; }
+.qopt { text-align: left; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); padding: 14px 18px; font-size: 18px; font-weight: 600; transition: transform .15s, background .2s; }
+.qopt:hover { transform: translateX(4px); }
+.qopt.ok { background: #d8f5d0; }
+.qopt.ko { background: var(--red-soft); text-decoration: line-through; text-decoration-color: var(--pen-red); text-decoration-thickness: 3px; }
+.qexp { font-size: 16px; color: var(--ink-2); }
+.qside { display: flex; flex-direction: column; gap: 14px; }
+.qdots { display: flex; gap: 6px; }
+.qdots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); }
+.qdots i.on { background: var(--ink); }
+
+/* journey */
+.jr { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.st { text-align: left; border: 2px solid var(--ink); border-radius: 10px; background: var(--hl); padding: 8px 10px; font-weight: 700; font-size: 14px; line-height: 1.2; display: flex; gap: 8px; align-items: center; transition: transform .15s, background .2s; min-height: 54px; }
+.st b { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--card); border: 2px solid var(--ink); display: grid; place-items: center; font-size: 12px; }
+.st[aria-pressed="true"] { background: var(--ink); color: var(--paper); transform: translateY(-3px); }
+.st[aria-pressed="true"] b { color: var(--ink); }
+.curve { width: 100%; height: auto; overflow: visible; }
+.curve .line { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1400; stroke-dashoffset: 1400; }
+.slide.on .curve .line { animation: draw 1.8s ease .4s forwards; }
+.curve .face { cursor: pointer; transition: transform .2s; transform-box: fill-box; transform-origin: center; }
+.curve .face:hover { transform: scale(1.15); }
+.curve text { font-family: var(--f-body); font-size: 14px; font-weight: 700; fill: var(--ink); }
+.detail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.detail .box { padding: 14px 16px; border-radius: 12px; border: 2px solid var(--ink); background: var(--card); }
+.detail .box h4 { font-family: var(--f-body); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
+.detail .box ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.detail .box.think p { font-family: var(--f-hand); font-size: 26px; color: var(--pen-blue); line-height: 1.1; }
+.detail .box.pain { background: var(--red-soft); border-color: var(--pen-red); }
+.detail .swap { animation: rise .45s cubic-bezier(.2,.8,.2,1) both; }
+
+/* flip cards */
+.flips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.flip { perspective: 900px; border: 0; background: none; padding: 0; text-align: left; min-height: 150px; }
+.flip .in { position: relative; width: 100%; height: 100%; min-height: 150px; transition: transform .7s cubic-bezier(.3,1.3,.5,1); transform-style: preserve-3d; }
+.flip.on .in { transform: rotateY(180deg); }
+.flip .fc { position: absolute; inset: 0; backface-visibility: hidden; border: 2px solid var(--ink); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.flip .front { background: var(--red-soft); }
+.flip .back { background: var(--card); transform: rotateY(180deg); box-shadow: 5px 5px 0 var(--ink); }
+.flip .tag { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); display: flex; justify-content: space-between; }
+.flip .front p { font-weight: 700; font-size: 17px; line-height: 1.3; }
+.flip .back p { font-family: var(--f-hand); font-size: 25px; line-height: 1.05; color: var(--ink); }
+.flip .hint { margin-top: auto; font-size: 13px; color: var(--ink-2); }
+
+/* défi */
+.defi2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto; gap: 20px; align-items: stretch; }
+.dc { padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+.dc .k { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.dc p { color: var(--ink-2); line-height: 1.5; }
+
+/* présentations */
+.pres { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 34px; align-items: center; }
+.plist { display: grid; gap: 10px; }
+.pi { display: flex; gap: 14px; padding: 14px 18px; align-items: flex-start; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); }
+.pi b { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--hl); border: 2px solid var(--ink); display: grid; place-items: center; }
+.pi p { color: var(--ink-2); font-size: 15px; }
+.phase { display: flex; gap: 6px; }
+
+/* test utilisateur */
+.ut { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.utc { padding: 16px; display: flex; flex-direction: column; gap: 6px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); }
+.utc .n { font-family: var(--f-hand); font-size: 30px; color: var(--pen-blue); line-height: 1; }
+.utc p { color: var(--ink-2); font-size: 14px; line-height: 1.45; }
+.sort { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.bucket { border: 2px dashed var(--ink); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; }
+.bucket h4 { font-family: var(--f-body); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.bucket.no { background: var(--red-soft); border-color: var(--pen-red); }
+.bucket.yes { background: #e3f6dd; border-color: #3a8f2e; }
+.bucket .it { font-size: 14px; font-weight: 600; animation: rise .35s both; }
+.dealer { padding: 16px; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; text-align: center; }
+.phrase { font-family: var(--f-hand); font-size: clamp(26px, 2.6vw, 36px); line-height: 1.05; min-height: 2.2em; display: grid; place-items: center; }
+.phrase.pop { animation: pop .35s; }
+@keyframes pop { 0% { transform: scale(.8); opacity: 0; } 70% { transform: scale(1.06); } }
+.phrase.wrong { animation: shake .4s 2; color: var(--pen-red); }
+
+/* test croisé */
+.xt { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 360px); gap: 34px; align-items: center; }
+.roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.role { padding: 14px; }
+.role p { font-size: 14px; color: var(--ink-2); line-height: 1.45; }
+.rot svg { width: 100%; height: auto; }
+.rot .flow { stroke-dasharray: 8 10; animation: march 1s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -18; } }
+.pairs { display: grid; gap: 6px; font-size: 15px; }
+.pairs div { display: flex; gap: 8px; align-items: center; }
+.rounds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.rd { background: var(--ink); color: var(--paper); border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+.rd b { display: block; font-family: var(--f-display); color: var(--hl); font-size: 24px; }
+
+/* votes & podium */
+.votes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.vt { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.vt h4 { font-family: var(--f-display); font-size: 19px; display: flex; justify-content: space-between; gap: 8px; }
+.vt h4 span { font-family: var(--f-hand); color: var(--pen-blue); font-size: 22px; white-space: nowrap; }
+.vt .won { font-family: var(--f-hand); font-size: 22px; color: var(--pen-red); }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 12px; height: clamp(220px, 40vh, 360px); }
+.pod { width: clamp(70px, 10vw, 130px); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.pod .blk { width: 100%; border: 2px solid var(--ink); border-radius: 10px 10px 0 0; display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 34px; transition: height 1s cubic-bezier(.2,1.2,.3,1); height: 30px; box-shadow: 4px 0 0 var(--ink); }
+.pod .who { font-weight: 800; font-size: 15px; text-align: center; }
+.pod .pts { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink-2); }
+canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; width: 100%; height: 100%; }
+
+.retro { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.note-y { background: var(--hl); border: 2px solid var(--ink); padding: 22px; transform: rotate(-1.4deg); box-shadow: 5px 5px 0 var(--ink); }
+.note-y:nth-child(2) { transform: rotate(1.2deg); background: var(--t2); }
+.note-y span { font-size: 14px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.note-y p { font-family: var(--f-hand); font-size: clamp(30px, 3.2vw, 44px); line-height: 1; margin-top: 6px; }
+
+.proto { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: center; }
+.qr { padding: 22px; display: flex; flex-direction: column; gap: 10px; align-items: center; transform: rotate(2deg); }
+.qr svg { width: clamp(160px, 22vh, 240px); height: auto; }
+.url { display: inline-block; background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 10px; font-weight: 700; text-decoration: none; word-break: break-all; }
+.olist { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.olist li { display: flex; gap: 10px; align-items: center; font-weight: 600; font-size: 17px; }
+.olist b { width: 26px; height: 26px; border-radius: 50%; background: var(--hl); border: 2px solid var(--ink); display: grid; place-items: center; font-size: 12px; }
+
+.center { text-align: center; align-items: center; }
+.dark-slide { background: var(--ink); color: var(--paper); }
+.dark-slide .lead { color: #cfcfd6; }
+
+.help { position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); z-index: 20; display: flex; gap: 8px; }
+.help button { border: 2px solid var(--ink); background: var(--card); border-radius: 999px; padding: 5px 12px; font-weight: 700; font-size: 13px; }
+.help button[aria-pressed="true"] { background: var(--hl); }
+#musBtn[aria-pressed="true"] { animation: groove 1.46s ease-in-out infinite; }
+@keyframes groove { 50% { transform: rotate(-3deg) scale(1.04); } }
+
+
+/* ---------- jour 1 : design thinking, empathie, persona ---------- */
+.agh { grid-column: 1 / -1; display: flex; gap: 12px; align-items: baseline; font-family: var(--f-display); font-weight: 800; font-size: 22px; margin-top: 4px; }
+.agh span { font-family: var(--f-hand); font-weight: 400; color: var(--pen-blue); font-size: 24px; }
+#agenda { gap: 8px 22px; }
+#agenda .ag { padding: 8px 16px; font-size: 16px; }
+
+.dt { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.dts { text-align: left; border: 2px solid var(--ink); border-radius: 14px; background: var(--card); padding: 14px; display: flex; flex-direction: column; gap: 6px; min-height: 118px; transition: transform .15s, background .2s; }
+.dts:hover { transform: translateY(-2px); }
+.dts .n { font-family: var(--f-hand); font-size: 30px; color: var(--pen-blue); line-height: 1; }
+.dts b { font-family: var(--f-display); font-size: clamp(17px, 1.7vw, 23px); letter-spacing: -.02em; }
+.dts .day { align-self: flex-start; margin-top: auto; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border: 1.5px solid currentColor; border-radius: 999px; padding: 1px 8px; }
+.dts[aria-pressed="true"] { background: var(--ink); color: var(--paper); transform: translateY(-4px); }
+.dts[aria-pressed="true"] .n { color: var(--hl); }
+.dtloop { width: 100%; height: 40px; margin-top: -10px; }
+
+.dtmini { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.dtmini span { font-size: 12px; font-weight: 700; border: 1.5px solid var(--ink); border-radius: 999px; padding: 2px 10px; background: var(--card); color: var(--ink-2); }
+.dtmini span.done { background: var(--ink); color: var(--paper); }
+.dtmini span.cur { background: var(--hl); color: var(--ink); }
+.dtmini i { width: 12px; height: 2px; background: var(--ink); }
+.dtmini.big span { font-size: 16px; padding: 7px 16px; border-width: 2px; }
+.dtmini.big i { width: 22px; }
+
+.dd { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 34px; align-items: center; }
+.dd svg { width: 100%; height: auto; }
+
+.frags { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.fr { border: 2px solid var(--ink); border-radius: 10px; padding: 8px 10px; background: var(--card); display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.3; font-weight: 600; transition: transform .15s; }
+.fr:nth-child(3n+1) { transform: rotate(-.7deg); }
+.fr:nth-child(3n+2) { transform: rotate(.6deg); }
+.fr:hover { transform: scale(1.06); z-index: 2; box-shadow: 4px 4px 0 var(--ink); }
+.fr .k { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.fr.v { background: var(--hl-soft); }
+.fr.v p { font-family: var(--f-hand); font-size: 21px; line-height: 1.02; font-weight: 400; }
+.fr.o { background: #e6f3ff; }
+.fr.c { background: #e9f8e4; }
+.fr.c p b { font-family: var(--f-display); font-size: 24px; display: block; line-height: 1; }
+
+.emap { position: relative; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 124px 124px auto; overflow: hidden; }
+.emap > div { padding: 14px 16px; border: 1px dashed var(--mute); }
+.emap h4 { font-family: var(--f-body); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.emap p { font-family: var(--f-hand); color: var(--pen-blue); font-size: 24px; line-height: 1.05; margin-top: 4px; }
+.emap .pain { background: var(--red-soft); }
+.emap .gain { background: #e3f6dd; }
+.emap .eface { position: absolute; left: calc(50% - 32px); top: 92px; width: 64px; height: 64px; }
+
+.pcan { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 16px; }
+.pcan .z { border: 2px dashed var(--ink); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.pcan .z b { font-family: var(--f-display); font-size: 16px; letter-spacing: -.01em; }
+.pcan .z span { font-size: 13px; color: var(--ink-2); }
+.pcan .id { grid-column: 1 / -1; flex-direction: row; gap: 12px; align-items: center; }
+.pcan .id > span:last-child { display: flex; flex-direction: column; }
+.pcan .avatar { width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--ink); background: var(--hl); flex: none; }
+.pcan .quote { grid-column: 1 / -1; font-family: var(--f-hand); font-size: 24px; color: var(--pen-blue); }
+
+.persona { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 22px; align-items: start; }
+.pid { padding: 22px; display: flex; flex-direction: column; gap: 8px; transform: rotate(-1deg); }
+.pid svg { width: 104px; height: 104px; }
+.pid .q { font-family: var(--f-hand); font-size: 26px; color: var(--pen-blue); line-height: 1.05; margin-top: 4px; }
+.pgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pgrid .box { padding: 12px 14px; border-radius: 12px; border: 2px solid var(--ink); background: var(--card); }
+.pgrid .box h4 { font-family: var(--f-body); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
+.pgrid .box ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: 15px; line-height: 1.35; }
+.pgrid .box.pain { background: var(--red-soft); border-color: var(--pen-red); }
+.pgrid .box.todo { border-style: dashed; background: transparent; }
+.src { display: inline-block; font-size: 10.5px; font-weight: 800; background: var(--ink); color: var(--paper); border-radius: 4px; padding: 0 5px; margin-left: 5px; vertical-align: 2px; }
+
+.hmwp, .recap { display: grid; gap: 8px; }
+.hmwr { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px 10px; align-items: center; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); }
+.hmwr .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink); }
+.hmwr .nm { font-weight: 800; font-size: 15px; }
+.hmwr select { grid-column: 1 / -1; width: 100%; font: inherit; font-size: 14px; border: 1.5px solid var(--ink); border-radius: 8px; padding: 7px 8px; background: var(--paper); color: var(--ink); }
+.hmwr .qq { grid-column: 1 / -1; font-family: var(--f-hand); font-size: 23px; line-height: 1.05; color: var(--pen-blue); }
+.hmwr .qq.empty { color: var(--mute); }
+
+@media (max-width: 900px) {
+  .dt { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dtloop { display: none; }
+  .dd, .persona { grid-template-columns: minmax(0, 1fr); }
+  .frags { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pgrid, .pcan { grid-template-columns: minmax(0, 1fr); }
+  .emap { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .emap .eface { display: none; }
+}
+
+/* ---------- design thinking simple, modules ---------- */
+.dt3 { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap: 12px; align-items: stretch; }
+.s3 { border: 2px solid var(--ink); border-radius: 16px; background: var(--card); padding: 20px; display: flex; flex-direction: column; gap: 6px; box-shadow: 5px 5px 0 var(--ink); }
+.s3.hl { background: var(--hl); }
+.s3 .n { font-family: var(--f-display); font-weight: 800; font-size: 44px; line-height: 1; -webkit-text-stroke: 2px var(--ink); color: transparent; }
+.s3 b { font-family: var(--f-display); font-size: clamp(22px, 2.2vw, 30px); letter-spacing: -.02em; }
+.s3 .q { font-family: var(--f-hand); font-size: clamp(24px, 2.3vw, 32px); color: var(--pen-blue); line-height: 1.05; }
+.s3 p { color: var(--ink-2); line-height: 1.45; }
+.dt3 .ar { align-self: center; font-family: var(--f-display); font-weight: 800; font-size: 34px; }
+
+.mods { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; }
+.mod { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; border: 2px solid var(--ink); border-radius: 16px; background: #fffaf0; overflow: hidden; padding-bottom: 18px; box-shadow: 5px 5px 0 var(--ink); }
+.mod .mh { align-self: stretch; background: var(--ink); color: var(--paper); padding: 16px 14px 46px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.mod .mn { font-family: var(--f-display); font-weight: 800; font-size: clamp(38px, 4vw, 56px); line-height: 1; color: var(--hl); }
+.mod .mh b { font-family: var(--f-display); font-size: clamp(17px, 1.7vw, 22px); text-transform: uppercase; letter-spacing: .01em; line-height: 1.1; }
+.mod .mi { margin-top: -50px; width: 80px; height: 80px; border-radius: 50%; background: var(--ink); border: 6px solid #fff; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--ink); }
+.mod .mi svg { width: 40px; height: 40px; }
+.mod .md { padding: 0 18px; line-height: 1.45; font-weight: 600; }
+.mod ul { list-style: none; margin: 0; padding: 0 18px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.mod li { font-size: 13px; font-weight: 700; border: 1.5px solid var(--ink); border-radius: 999px; padding: 3px 10px; background: var(--card); }
+.mod .mday { margin-top: auto; font-weight: 800; font-size: 14px; background: var(--hl); border: 2px solid var(--ink); border-radius: 10px; padding: 6px 14px; }
+.mod.cur .mh { background: var(--hl); color: var(--ink); }
+.mod.cur .mn { color: var(--ink); }
+.mod.cur .mi { background: #fff; }
+
+.modopen { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+.modopen .big { font-family: var(--f-display); font-weight: 800; font-size: clamp(110px, 18vw, 240px); line-height: .8; color: transparent; -webkit-text-stroke: 3px var(--hl); }
+.steps.light li::before { border-color: var(--hl); color: var(--hl); }
+.steps.light li { color: var(--paper); }
+.modopen .out { border: 2px solid var(--hl); border-radius: 12px; padding: 14px 18px; color: #cfcfd6; line-height: 1.45; }
+.modopen .out b { color: var(--hl); }
+.hmwr input { grid-column: 1 / -1; width: 100%; font: inherit; font-size: 15px; border: 1.5px solid var(--ink); border-radius: 8px; padding: 8px 10px; background: var(--paper); color: var(--ink); }
+.hmwr .qi { grid-column: 1 / -1; font-weight: 700; font-size: 15px; }
+.hmwr .qi.empty { color: var(--mute); font-weight: 600; }
+@media (max-width: 900px) {
+  .dt3 { grid-template-columns: minmax(0, 1fr); }
+  .dt3 .ar { transform: rotate(90deg); justify-self: center; }
+  .mods, .modopen { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- persona en 3 étapes, réglage des minuteurs ---------- */
+.timer .row { flex-wrap: wrap; }
+.btn.tadj { padding-left: 14px; padding-right: 14px; font-size: 14px; }
+.pst3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.pst { text-align: left; font: inherit; color: var(--ink); border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); padding: 18px 16px 14px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: transform .2s, opacity .2s, box-shadow .2s; }
+.pst.y { background: #ffe98a; transform: rotate(-1.2deg); }
+.pst.r { background: #ffc4b8; transform: rotate(.8deg); }
+.pst.b { background: #bfe3ff; transform: rotate(-.6deg); }
+.pst .n { font-family: var(--f-hand); font-size: 38px; line-height: .8; }
+.pst b { font-family: var(--f-display); font-size: clamp(19px, 1.8vw, 25px); letter-spacing: -.02em; line-height: 1.1; }
+.pst ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; font-size: 15px; line-height: 1.35; color: var(--ink-2); }
+.pst .t { margin-top: auto; font-family: var(--f-hand); font-size: 22px; color: var(--pen-blue); }
+.pst3.focus .pst { opacity: .45; }
+.pst3.focus .pst.on { opacity: 1; transform: translateY(-6px) rotate(0); box-shadow: 8px 8px 0 var(--ink); }
+
+@media (max-width: 900px) {
+  .pst3 { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 900px) {
+  body { overflow: auto; }
+  .slide { justify-content: flex-start; }
+  .cover, .split, .fid, .qz, .pres, .xt, .proto { grid-template-columns: minmax(0, 1fr); }
+  .grid3, .trio, .rules, .agenda, .retro, .votes { grid-template-columns: minmax(0, 1fr); }
+  .voc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jr { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .detail, .flips, .roles, .rounds { grid-template-columns: minmax(0, 1fr); }
+  .ut { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sort { grid-template-columns: minmax(0, 1fr); }
+  .defi2 { grid-template-columns: minmax(0, 1fr); }
+  .progress { display: none; }
+  .score { flex: 1; min-width: 0; overflow-x: auto; }
+  .st { font-size: 12px; overflow-wrap: anywhere; }
+  .count { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+
+</head>
+<body>
+<div class="app" id="app">
+  <div class="help">
+    <button id="musBtn" type="button" aria-pressed="false">♪ Musique</button>
+    <button id="sfxBtn" type="button" aria-pressed="true">Sons : on</button>
+    <button id="fsBtn" type="button" aria-label="Plein écran">Plein écran</button>
+  </div>
+  <main class="deck" id="deck">
+
+    <!-- ===================== JOUR 1 ===================== -->
+    <section class="slide" data-name="Couverture">
+      <div class="cover">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="eyebrow rv" style="--i:0">Atelier UX · Jour 1</div>
+          <h1 class="h-xl rv" style="--i:1">Du terrain<br>à l'<mark>idée</mark></h1>
+          <p class="lead rv" style="--i:2">Découvrir le design thinking, entrer dans le quotidien d'une conseillère en agence et construire son persona à partir du terrain.</p>
+          <div class="row rv" style="--i:3"><span class="pill">Jour 1 · 3 heures</span><span class="pill hl">Modules 03 et 04</span><span class="pill">En groupes</span><span class="pill">Post-its et canevas</span></div>
+          <div class="row rv" style="--i:4"><button class="btn primary" type="button" data-go="next">Commencer →</button><span class="hand">appuyez sur → pour avancer</span></div>
+        </div>
+        <svg class="art" viewBox="0 0 360 440" aria-hidden="true">
+          <g fill="none" stroke="#17171c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+            <rect class="d" style="--d:0" x="30" y="30" width="250" height="360" rx="20" fill="#fff"/>
+            <circle class="d" style="--d:1" cx="98" cy="104" r="42" fill="#ffd23f"/>
+            <path class="d" style="--d:2" d="M80 98 q6-6 12 0 M106 98 q6-6 12 0 M84 120 q14 12 28 0" stroke-width="3"/>
+            <line class="d" style="--d:3" x1="160" y1="88" x2="252" y2="88" stroke-width="8"/>
+            <line class="d" style="--d:3" x1="160" y1="116" x2="232" y2="116" stroke="#8a8a94" stroke-width="3"/>
+            <path class="d" style="--d:4" d="M58 180 q8-6 16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0" stroke="#8a8a94" stroke-width="3"/>
+            <path class="d" style="--d:5" d="M58 204 q8-6 16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0" stroke="#8a8a94" stroke-width="3"/>
+            <rect class="d" style="--d:6" x="56" y="250" width="92" height="92" fill="#8fd0ff" transform="rotate(-4 102 296)"/>
+            <rect class="d" style="--d:7" x="164" y="254" width="92" height="92" fill="#ff9d8a" transform="rotate(3 210 300)"/>
+          </g>
+          <g class="pencil">
+            <g transform="translate(250,40) rotate(30)">
+              <rect x="0" y="0" width="24" height="240" fill="#ffd23f" stroke="#17171c" stroke-width="3"/>
+              <path d="M0 240 L12 282 L24 240 Z" fill="#f1dcb5" stroke="#17171c" stroke-width="3"/>
+              <path d="M7 264 L12 282 L17 264 Z" fill="#17171c"/>
+              <rect x="0" y="-24" width="24" height="24" fill="#ff9d8a" stroke="#17171c" stroke-width="3"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Objectifs jour 1">
+      <div class="eyebrow rv">Objectifs du jour 1</div>
+      <h2 class="h-l rv" style="--i:1">À la fin de cette journée, vous saurez</h2>
+      <div class="grid3">
+        <div class="sheet shadow obj rv" style="--i:2"><div class="n">1</div><h3 class="h-m">Penser utilisateur</h3><p>Comprendre la démarche design thinking et pourquoi elle commence par les gens, pas par l'écran.</p></div>
+        <div class="sheet shadow obj rv" style="--i:3"><div class="n">2</div><h3 class="h-m">Construire un persona</h3><p>Passer de fragments de terrain à un portrait fiable, où chaque information a sa source.</p></div>
+        <div class="sheet shadow obj rv" style="--i:4"><div class="n">3</div><h3 class="h-m">Poser le bon problème</h3><p>Transformer les irritants en questions « Comment pourrions-nous… », puis trouver et choisir des idées.</p></div>
+      </div>
+      <p class="hand rv" style="--i:5">Les points comptent sur les deux jours. Le podium est à la fin du jour 2.</p>
+    </section>
+
+    <section class="slide" data-name="Programme">
+      <div class="eyebrow rv">Déroulé · cliquez pour y aller</div>
+      <h2 class="h-l rv" style="--i:1">Le programme</h2>
+      <div class="agenda" id="agenda"></div>
+    </section>
+
+    <section class="slide" data-name="Empathie express">
+      <div class="split">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="eyebrow rv">Brise-glace · en binôme</div>
+          <h2 class="h-xl rv" style="--i:1;font-size:clamp(40px,6vw,86px)">Ta pire expérience<br>au <mark>guichet</mark></h2>
+          <p class="lead rv" style="--i:2">Racontez à votre voisin une expérience difficile dans une agence, une banque ou une administration. Deux minutes chacun.</p>
+          <p class="lead rv" style="--i:3">Celui qui écoute ne donne aucun conseil. Il note ce qui s'est passé, puis ce que l'autre a ressenti.</p>
+          <p class="hand rv" style="--i:4">Vous venez de faire votre premier exercice d'empathie.</p>
+          <div class="rv" style="--i:5"><button class="btn hl" type="button" data-award-all="5" data-reason="Empathie express">Tout le monde a raconté : +5 pour chaque groupe</button></div>
+        </div>
+        <div class="timer rv" style="--i:2" data-timer="240" data-label="minutes"></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Design thinking">
+      <div class="eyebrow rv">Le design thinking, simplement</div>
+      <h2 class="h-l rv" style="--i:1;max-width:20ch">Comprendre les gens <mark>avant</mark> de concevoir pour eux</h2>
+      <div class="dt3 rv" style="--i:2">
+        <div class="s3"><span class="n">1</span><b>Comprendre</b><span class="q">« Pour qui ? »</span><p>On observe et on écoute les gens dans leur quotidien.</p></div>
+        <span class="ar" aria-hidden="true">→</span>
+        <div class="s3 hl"><span class="n">2</span><b>Imaginer</b><span class="q">« Quel problème ? Quelles idées ? »</span><p>On choisit le bon problème, puis on cherche beaucoup d'idées.</p></div>
+        <span class="ar" aria-hidden="true">→</span>
+        <div class="s3"><span class="n">3</span><b>Construire et tester</b><span class="q">« Est-ce que ça marche ? »</span><p>On dessine vite et on fait tester par les vrais utilisateurs.</p></div>
+      </div>
+      <svg class="dtloop rv" style="--i:3" viewBox="0 0 1000 56" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M860 4 C860 48, 140 48, 140 8" fill="none" stroke="#17171c" stroke-width="2.5" stroke-dasharray="8 8"/>
+        <path d="M132 18 L140 4 L148 18" fill="none" stroke="#17171c" stroke-width="2.5"/>
+      </svg>
+      <p class="hand rv" style="--i:3;text-align:center;margin-top:-14px">Si le test dit non, on revient en arrière. C'est normal.</p>
+      <div class="sheet rv" style="--i:4;padding:14px 18px;border-left:8px solid var(--hl);align-self:center"><b>Comme un médecin :</b> il écoute, il pose un diagnostic, il prescrit, puis il vérifie que ça va mieux.</div>
+    </section>
+
+    <section class="slide" data-name="La formation">
+      <div class="eyebrow rv">Ce qu'on va voir pendant la formation</div>
+      <h2 class="h-l rv" style="--i:1">Trois modules, deux jours</h2>
+      <div class="mods">
+        <div class="mod rv" style="--i:2">
+          <div class="mh"><span class="mn">03</span><b>Compréhension utilisateur</b></div>
+          <span class="mi"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="17" r="8" fill="none" stroke="#ffd23f" stroke-width="3.5"/><path d="M10 40 q0-13 14-13 q14 0 14 13" fill="none" stroke="#ffd23f" stroke-width="3.5" stroke-linecap="round"/></svg></span>
+          <p class="md">Comprendre les usages, les besoins et les irritants des utilisateurs.</p>
+          <ul><li>Carte d'empathie</li><li>Persona</li><li>Parcours utilisateur</li></ul>
+          <span class="mday">Jour 1</span>
+        </div>
+        <div class="mod cur rv" style="--i:3">
+          <div class="mh"><span class="mn">04</span><b>Problématisation et idéation</b></div>
+          <span class="mi"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M17 30 q-6-4-6-11 a13 13 0 0 1 26 0 q0 7-6 11 v4 h-14z" fill="none" stroke="#17171c" stroke-width="3.2" stroke-linejoin="round"/><path d="M19 39 h10 M24 4 v-0 M8 8 l3 3 M40 8 l-3 3" stroke="#17171c" stroke-width="3.2" stroke-linecap="round"/></svg></span>
+          <p class="md">Formuler les problématiques clés et imaginer des solutions innovantes.</p>
+          <ul><li>Questions « Comment pourrions-nous… »</li><li>Idéation</li><li>Choix de l'idée</li></ul>
+          <span class="mday">Jour 1</span>
+        </div>
+        <div class="mod rv" style="--i:4">
+          <div class="mh"><span class="mn">05</span><b>Conception et validation</b></div>
+          <span class="mi"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="11" y="9" width="26" height="33" rx="3" fill="none" stroke="#ffd23f" stroke-width="3.2"/><rect x="18" y="5" width="12" height="7" rx="2" fill="#17171c" stroke="#ffd23f" stroke-width="3"/><path d="M16 21 l2 2 l3-4 M24 21 h8 M16 30 l2 2 l3-4 M24 30 h8" fill="none" stroke="#ffd23f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <p class="md">Concevoir la solution, valider la valeur et prioriser le backlog.</p>
+          <ul><li>Wireframes papier</li><li>Test utilisateur</li><li>Itération</li></ul>
+          <span class="mday">Jour 2</span>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section class="slide" data-name="Message clé DT" style="background:var(--hl)">
+      <div class="eyebrow rv" style="color:var(--ink)">Message clé</div>
+      <p class="manifesto rv" style="--i:1">Tomber amoureux du problème, pas de la solution.</p>
+      <div class="trio rv" style="--i:2">
+        <div><b>Centré sur l'humain</b><span>On part des gens et de leur réalité, pas de la technologie</span></div>
+        <div><b>Itératif</b><span>On montre tôt, on se trompe vite, on recommence</span></div>
+        <div><b>Collectif</b><span>Les meilleures idées naissent des regards croisés</span></div>
+      </div>
+    </section>
+
+    <section class="slide dark-slide" data-name="Module 03">
+      <div class="modopen">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="eyebrow rv" style="color:#cfcfd6">Module</div>
+          <span class="big rv" style="--i:1">03</span>
+          <h2 class="h-l rv" style="--i:2">Compréhension utilisateur</h2>
+          <p class="hand rv" style="--i:3;color:var(--hl);font-size:clamp(28px,3vw,40px)">Pour qui conçoit-on ?</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <span class="eyebrow rv" style="--i:2;color:#cfcfd6">Ce qu'on va faire</span>
+          <ol class="steps light rv" style="--i:3">
+            <li><span>Séparer les faits des interprétations</span></li>
+            <li><span>Lire les fragments de terrain</span></li>
+            <li><span>Remplir la carte d'empathie</span></li>
+            <li><span>Construire le persona de Nadia</span></li>
+            <li><span>Dérouler son parcours</span></li>
+          </ol>
+          <div class="out rv" style="--i:4"><b>On repart avec</b> le persona de Nadia, chaque information sourcée, et son parcours.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Fait ou interprétation">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="eyebrow rv">Empathie · le réflexe à prendre</div>
+      <h2 class="h-l rv" style="--i:1">Fait observé ou interprétation ?</h2>
+      <p class="lead rv" style="--i:2">Sur le terrain, on note ce qu'on voit et ce qu'on entend. Ce qu'on en déduit est une hypothèse à vérifier.</p>
+      <div class="sort rv" style="--i:3">
+        <div class="bucket no"><h4>Interprétation · à vérifier</h4><div id="fiNo" style="display:grid;gap:4px"></div></div>
+        <div class="sheet shadow dealer">
+          <span class="eyebrow">Mini-jeu · on classe</span>
+          <div class="phrase" id="fiPhrase"></div>
+          <div class="row" style="justify-content:center">
+            <button class="btn" type="button" id="fiNoBtn" style="background:var(--red-soft)">Interprétation</button>
+            <button class="btn" type="button" id="fiYesBtn" style="background:#e3f6dd">Fait observé</button>
+          </div>
+          <div class="picker" id="fiPicker"><span class="lbl">Groupe qui joue</span></div>
+        </div>
+        <div class="bucket yes"><h4>Fait observé</h4><div id="fiYes" style="display:grid;gap:4px"></div></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Fragments de terrain">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="row rv" style="justify-content:space-between;align-items:flex-end">
+        <div><div class="eyebrow">Empathie · ce que le terrain nous dit</div><h2 class="h-l">Les fragments de terrain</h2></div>
+        <div class="row"><span class="pill" style="background:var(--hl-soft)">Verbatim</span><span class="pill" style="background:#e6f3ff">Observation</span><span class="pill" style="background:#e9f8e4">Chiffre</span></div>
+      </div>
+      <p class="lead rv" style="--i:1">Entretiens et observations en agence auprès de conseillers clientèle. Chaque groupe reçoit le paquet complet.</p>
+      <div class="frags rv" style="--i:2" id="frags"></div>
+    </section>
+
+    <section class="slide" data-name="Carte d'empathie">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="split" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Exercice 1 · En groupe</div>
+          <h2 class="h-l rv" style="--i:1">La carte d'empathie</h2>
+          <ol class="steps rv" style="--i:2">
+            <li><span><b>Lisez</b> les fragments à voix haute, un par un</span></li>
+            <li><span><b>Placez</b> chaque fragment dans une case de la carte</span></li>
+            <li><span><b>Débattez</b> de ceux qui hésitent : c'est là que la compréhension se construit</span></li>
+            <li><span><b>Entourez</b> les 3 fragments qui vous surprennent le plus</span></li>
+          </ol>
+          <div class="timer rv" style="--i:3" data-timer="1200" data-label="minutes" data-small="1"></div>
+        </div>
+        <div class="emap sheet shadow rv" style="--i:2">
+          <div><h4>Ce qu'elle dit</h4><p>ses mots exacts</p></div>
+          <div><h4>Ce qu'elle pense</h4><p>ce qu'elle ne dit pas forcément</p></div>
+          <div><h4>Ce qu'elle fait</h4><p>ce qu'on l'a vue faire</p></div>
+          <div><h4>Ce qu'elle ressent</h4><p>ses émotions, ses inquiétudes</p></div>
+          <div class="pain"><h4>Frustrations</h4><p>ce qui la freine</p></div>
+          <div class="gain"><h4>Motivations</h4><p>ce qui la fait avancer</p></div>
+          <span class="eface" aria-hidden="true"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#ffd23f" stroke="#17171c" stroke-width="3"/><circle cx="22" cy="26" r="2.6" fill="#17171c"/><circle cx="38" cy="26" r="2.6" fill="#17171c"/><path d="M21 38 q9 7 18 0" fill="none" stroke="#17171c" stroke-width="3" stroke-linecap="round"/></svg></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Anatomie d'un persona">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="eyebrow rv">Définir · l'outil</div>
+      <h2 class="h-l rv" style="--i:1">L'anatomie d'un persona</h2>
+      <div class="split" style="align-items:start">
+        <div class="sheet shadow pcan rv" style="--i:2">
+          <div class="z id"><span class="avatar"></span><span><b>Identité</b><span>Prénom, âge, rôle, ancienneté, agence</span></span></div>
+          <div class="z quote">« Une phrase qui la résume »</div>
+          <div class="z"><b>Objectifs</b><span>Ce qu'elle veut accomplir</span></div>
+          <div class="z"><b>Frustrations</b><span>Ce qui la freine au quotidien</span></div>
+          <div class="z"><b>Une journée type</b><span>Ses moments clés, ses contraintes</span></div>
+          <div class="z"><b>Outils et numérique</b><span>Ce qu'elle utilise, ce qu'elle en pense</span></div>
+          <div class="z"><b>Motivations</b><span>Ce qui lui donne envie de bien faire</span></div>
+          <div class="z" style="border-color:var(--pen-red)"><b>À vérifier</b><span>Les hypothèses qui n'ont pas encore de source</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="bucket yes rv" style="--i:3;min-height:0"><h4>Un persona, c'est</h4><div class="it">Un portrait construit à partir du terrain</div><div class="it">Un outil pour décider pour qui on conçoit</div><div class="it">Une référence partagée par toute l'équipe</div></div>
+          <div class="bucket no rv" style="--i:4;min-height:0"><h4>Ce n'est pas</h4><div class="it">Un client moyen</div><div class="it">Un stéréotype</div><div class="it">Une vraie personne recopiée</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Persona">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="split" style="grid-template-columns:minmax(0,1.6fr) minmax(0,.8fr)">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Exercice 2 · En groupe, avec des post-its</div>
+          <h2 class="h-l rv" style="--i:1">Construisez Nadia en 3 étapes</h2>
+          <div class="pst3 rv" style="--i:2" id="pst3">
+            <button type="button" class="pst y" data-pst="0"><span class="n">1</span><b>Ses objectifs et ses missions</b><ul><li>Que doit-elle accomplir ?</li><li>Qu'attend-on d'elle ?</li><li>Qu'est-ce qui compte pour elle ?</li></ul><span class="t">≈ 10 min</span></button>
+            <button type="button" class="pst r" data-pst="1"><span class="n">2</span><b>Ses problèmes</b><ul><li>Qu'est-ce qui la freine ?</li><li>Où perd-elle du temps ?</li><li>Qu'est-ce qui l'inquiète ?</li></ul><span class="t">≈ 10 min</span></button>
+            <button type="button" class="pst b" data-pst="2"><span class="n">3</span><b>Ses outils</b><ul><li>Qu'utilise-t-elle chaque jour ?</li><li>Applications, papier, téléphone ?</li><li>Qu'en pense-t-elle ?</li></ul><span class="t">≈ 10 min</span></button>
+          </div>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>La règle :</b> une idée par post-it, avec le numéro de son fragment (F4, F11…). Pas de fragment ? Le post-it va dans « À vérifier ».</div>
+          <div class="picker rv" style="--i:4" data-award="10" data-reason="Persona le mieux sourcé"><span class="lbl">Persona le mieux sourcé · +10</span></div>
+        </div>
+        <div class="timer rv" style="--i:2" data-timer="1800" data-label="minutes"></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Notre Nadia">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="eyebrow rv">Comparez avec votre version</div>
+      <div class="persona">
+        <div class="sheet shadow pid rv" style="--i:1">
+          <svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="#ffd23f" stroke="#17171c" stroke-width="3"/><path d="M30 64 q0-38 30-38 q30 0 30 38 q-4-18-30-20 q-26 2-30 20z" fill="#17171c"/><circle cx="60" cy="62" r="22" fill="#fff" stroke="#17171c" stroke-width="3"/><circle cx="52" cy="60" r="2.4" fill="#17171c"/><circle cx="68" cy="60" r="2.4" fill="#17171c"/><path d="M53 70 q7 5 14 0" fill="none" stroke="#17171c" stroke-width="2.5" stroke-linecap="round"/><path d="M26 116 q4-28 34-28 q30 0 34 28" fill="#fff" stroke="#17171c" stroke-width="3"/></svg>
+          <h2 class="h-l" style="font-size:clamp(30px,3.4vw,46px)">Nadia, 34 ans</h2>
+          <p style="font-weight:700">Conseillère clientèle</p>
+          <p style="color:var(--ink-2)">Agence Rabat Hay Riad · 8 ans dans le réseau</p>
+          <p class="q">« Je veux passer mon temps avec mes clients, pas à chercher l'information. »</p>
+        </div>
+        <div class="pgrid rv" style="--i:2">
+          <div class="box"><h4>Objectifs</h4><ul><li>Équiper 28 clients par mois<span class="src">F15</span></li><li>Préparer sa journée avant l'ouverture<span class="src">F17</span></li><li>Proposer la bonne offre au bon client<span class="src">F14</span></li></ul></div>
+          <div class="box pain"><h4>Frustrations</h4><ul><li>Infos éparpillées dans plusieurs outils<span class="src">F1</span><span class="src">F3</span></li><li>Fiches en double ou périmées<span class="src">F6</span><span class="src">F9</span></li><li>Suivi des dossiers par téléphone<span class="src">F12</span></li><li>Argumentaire improvisé<span class="src">F10</span></li></ul></div>
+          <div class="box"><h4>Une journée type</h4><ul><li>Arrive 20 minutes avant l'ouverture<span class="src">F17</span></li><li>Interrompue toutes les 6 minutes<span class="src">F5</span></li><li>Lit les notes produit le soir<span class="src">F4</span></li></ul></div>
+          <div class="box"><h4>Outils et numérique</h4><ul><li>Cahier et post-its en renfort<span class="src">F2</span><span class="src">F13</span></li><li>Calcule les mensualités sur son téléphone<span class="src">F11</span></li><li>À l'aise, mais lassée des changements imposés<span class="src">F18</span></li></ul></div>
+          <div class="box"><h4>Motivations</h4><ul><li>La relation avec ses clients<span class="src">F16</span></li><li>Rassurer ceux qui s'inquiètent<span class="src">F13</span></li></ul></div>
+          <div class="box todo"><h4>À vérifier</h4><ul><li>Comment ses clients la perçoivent</li><li>Le rôle de son directeur d'agence</li><li>Ses usages du mobile en rendez-vous</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 parcours -->
+    <section class="slide" data-name="Parcours">
+      <div class="dtmini rv" data-dt="0"></div>
+      <div class="eyebrow rv">Définir · Nadia, conseillère en agence</div>
+      <h2 class="h-l rv" style="--i:1">Le parcours de la conseillère</h2>
+      <div class="jr rv" style="--i:2" id="jr"></div>
+      <svg class="curve rv" style="--i:3" id="curve" viewBox="0 0 1200 120" preserveAspectRatio="none"></svg>
+      <div class="detail" id="jdetail"></div>
+    </section>
+
+    <!-- 12 irritants → questions -->
+    <section class="slide dark-slide" data-name="Module 04">
+      <div class="modopen">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="eyebrow rv" style="color:#cfcfd6">Module</div>
+          <span class="big rv" style="--i:1">04</span>
+          <h2 class="h-l rv" style="--i:2">Problématisation et idéation</h2>
+          <p class="hand rv" style="--i:3;color:var(--hl);font-size:clamp(28px,3vw,40px)">Quel problème résout-on, et avec quelles idées ?</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <span class="eyebrow rv" style="--i:2;color:#cfcfd6">Ce qu'on va faire</span>
+          <ol class="steps light rv" style="--i:3">
+            <li><span>Retourner les irritants en questions</span></li>
+            <li><span>Découvrir le défi</span></li>
+            <li><span>Choisir une question par groupe</span></li>
+            <li><span>Trouver 8 idées chacun</span></li>
+            <li><span>Choisir l'idée du groupe</span></li>
+          </ol>
+          <div class="out rv" style="--i:4"><b>On repart avec</b> une question et une idée par groupe, prêtes pour le crayon.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Irritants">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="row rv" style="justify-content:space-between">
+        <div><div class="eyebrow">Du problème à l'opportunité</div><h2 class="h-l">Des irritants aux questions</h2></div>
+        <button class="btn" type="button" id="flipAll">Tout retourner</button>
+      </div>
+      <div class="flips rv" style="--i:1" id="flips"></div>
+      <p class="hand rv" style="--i:2">Retournez chaque irritant : derrière, une question « Comment pourrions-nous… ».</p>
+    </section>
+
+    <section class="slide" data-name="Le défi">
+      <div class="dtmini rv" data-dt="1"></div>
+      <span class="pill hl rv" style="align-self:flex-start">Le défi</span>
+      <h2 class="h-l rv" style="--i:1;max-width:22ch">Imaginez une <mark>Vue 360 augmentée par l'IA</mark> et un <mark>assistant commercial IA</mark> qui accompagnent Nadia du matin jusqu'au suivi de ses dossiers.</h2>
+      <div class="defi2" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+        <div class="sheet shadow dc rv" style="--i:2"><span class="k">Vue 360 augmentée</span><h3 class="h-m">Tout savoir sur le client</h3><p>Que doit voir Nadia pour comprendre un client en un coup d'œil ? Qu'est-ce que l'IA peut repérer à sa place ?</p></div>
+        <div class="sheet shadow dc rv" style="--i:3"><span class="k">Assistant commercial IA</span><h3 class="h-m">Savoir quoi faire et quoi dire</h3><p>Quand intervient l'assistant ? Que propose-t-il ? Comment Nadia lui fait-elle confiance ?</p></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Choisir son défi">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="split" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Définir · on converge</div>
+          <h2 class="h-l rv" style="--i:1">Chaque groupe choisit sa question</h2>
+          <ol class="steps rv" style="--i:2">
+            <li><span><b>Affichez</b> les questions « Comment pourrions-nous… » au mur</span></li>
+            <li><span><b>Votez</b> : 3 gommettes chacun, pour les questions qui comptent le plus pour Nadia</span></li>
+            <li><span><b>Retenez</b> la question la plus votée</span></li>
+            <li><span><b>Écrivez-la</b> en grand : c'est votre point de départ de demain</span></li>
+          </ol>
+          <div class="timer rv" style="--i:3" data-timer="600" data-label="minutes" data-small="1"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="eyebrow rv" style="--i:2">La question de chaque groupe</div>
+          <div class="hmwp rv" style="--i:3" id="hmwPick"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Idéation">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="split">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Exercice 3 · Chacun pour soi, puis en groupe</div>
+          <h2 class="h-l rv" style="--i:1">8 idées en 8 minutes</h2>
+          <ol class="steps rv" style="--i:2">
+            <li><span><b>Relisez</b> la question de votre groupe</span></li>
+            <li><span><b>En silence</b>, chacun écrit 8 idées, une par post-it, en quelques mots</span></li>
+            <li><span><b>Affichez</b> tout au mur et regroupez les idées proches</span></li>
+          </ol>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>Les règles :</b> la quantité d'abord, aucune idée n'est bête, on ne critique pas, on rebondit avec « Oui, et… ».</div>
+        </div>
+        <div class="timer rv" style="--i:2" data-timer="480" data-label="minutes"></div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Choisir son idée">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="split" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Idéation · on converge</div>
+          <h2 class="h-l rv" style="--i:1">Chaque groupe choisit son idée</h2>
+          <ol class="steps rv" style="--i:2">
+            <li><span><b>Votez</b> : 3 gommettes chacun, pour l'idée la plus utile à Nadia</span></li>
+            <li><span><b>Retenez</b> l'idée la plus votée, ou combinez les deux premières</span></li>
+            <li><span><b>Résumez-la</b> en une phrase : « Notre idée aide Nadia à… grâce à… »</span></li>
+          </ol>
+          <div class="timer rv" style="--i:3" data-timer="600" data-label="minutes" data-small="1"></div>
+          <div class="picker rv" style="--i:4" data-award="10" data-reason="Idée la plus audacieuse"><span class="lbl">Idée la plus audacieuse · +10</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="eyebrow rv" style="--i:2">L'idée de chaque groupe</div>
+          <div class="hmwp rv" style="--i:3" id="ideaPick"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Fin du jour 1">
+      <div class="eyebrow rv">Fin du jour 1</div>
+      <h2 class="h-l rv" style="--i:1;max-width:20ch">Le problème est posé. Demain, on prend le <mark>crayon</mark>.</h2>
+      <div class="dtmini big rv" style="--i:2" data-dt="-1" data-done="2"></div>
+      <div class="split" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <span class="pill rv" style="--i:3;align-self:flex-start">Rétro · tour de table</span>
+          <div class="retro rv" style="--i:3">
+            <div class="note-y"><span>Une chose</span><p>qui m'a surpris sur Nadia</p></div>
+            <div class="note-y"><span>Une question</span><p>qui me reste</p></div>
+          </div>
+        </div>
+        <div class="sheet rv" style="--i:4;padding:18px 20px;border-left:8px solid var(--hl);align-self:center"><b>À rapporter demain :</b> votre carte d'empathie, votre persona, votre question et votre idée.</div>
+      </div>
+    </section>
+
+    <!-- ===================== JOUR 2 ===================== -->
+
+    <!-- 1 cover -->
+    <section class="slide" data-name="Jour 2">
+      <div class="cover">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div class="eyebrow rv" style="--i:0">Atelier UX · Jour 2</div>
+          <h1 class="h-xl rv" style="--i:1">Du crayon<br>à l'<mark>écran</mark></h1>
+          <p class="lead rv" style="--i:2">Concevoir ses premiers wireframes sur papier, puis imaginer une Vue 360 augmentée par l'IA pour les conseillers en agence.</p>
+          <div class="row rv" style="--i:3"><span class="pill">Jour 2 · 3 h 30</span><span class="pill hl">Module 05</span><span class="pill">En groupes</span><span class="pill">Feutres et papier</span></div>
+          <div class="row rv" style="--i:4"><button class="btn primary" type="button" data-go="next">C'est parti →</button><span class="hand">appuyez sur → pour avancer</span></div>
+        </div>
+        <svg class="art" viewBox="0 0 360 440" aria-hidden="true">
+          <g fill="none" stroke="#17171c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+            <rect class="d" style="--d:0" x="40" y="20" width="230" height="400" rx="28" fill="#fff"/>
+            <line class="d" style="--d:1" x1="128" y1="40" x2="182" y2="40"/>
+            <line class="d" style="--d:2" x1="70" y1="80" x2="180" y2="80" stroke-width="8"/>
+            <rect class="d" style="--d:3" x="70" y="102" width="170" height="110"/>
+            <line class="d" style="--d:4" x1="70" y1="102" x2="240" y2="212" stroke-width="2.5"/>
+            <line class="d" style="--d:4" x1="240" y1="102" x2="70" y2="212" stroke-width="2.5"/>
+            <path class="d" style="--d:5" d="M70 240 q8-6 16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0" stroke="#8a8a94" stroke-width="3"/>
+            <path class="d" style="--d:6" d="M70 262 q8-6 16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t16 0" stroke="#8a8a94" stroke-width="3"/>
+            <rect class="d" style="--d:7" x="70" y="300" width="170" height="36" rx="4"/>
+            <rect class="d" style="--d:8" x="70" y="356" width="170" height="40" rx="20" fill="#ffd23f"/>
+          </g>
+          <g class="pencil">
+            <g transform="translate(250,40) rotate(30)">
+              <rect x="0" y="0" width="24" height="240" fill="#ffd23f" stroke="#17171c" stroke-width="3"/>
+              <path d="M0 240 L12 282 L24 240 Z" fill="#f1dcb5" stroke="#17171c" stroke-width="3"/>
+              <path d="M7 264 L12 282 L17 264 Z" fill="#17171c"/>
+              <rect x="0" y="-24" width="24" height="24" fill="#ff9d8a" stroke="#17171c" stroke-width="3"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <section class="slide" data-name="Rappel">
+      <div class="eyebrow rv">Hier, en résumé</div>
+      <h2 class="h-l rv" style="--i:1">Vous êtes ici</h2>
+      <div class="dtmini big rv" style="--i:2" data-dt="2" data-done="2"></div>
+      <div class="split" style="align-items:start">
+        <div class="sheet shadow rv" style="--i:3;padding:20px 22px;display:flex;flex-direction:column;gap:8px">
+          <span class="eyebrow">Pour qui on conçoit</span>
+          <h3 class="h-m">Nadia, 34 ans, conseillère clientèle</h3>
+          <p class="hand" style="color:var(--pen-blue)">« Je veux passer mon temps avec mes clients, pas à chercher l'information. »</p>
+          <ul style="margin:0;padding-left:18px;display:grid;gap:4px;color:var(--ink-2)"><li>Infos éparpillées dans plusieurs outils</li><li>Fiches en double ou périmées</li><li>Dossiers suivis par téléphone</li><li>Argumentaire improvisé</li></ul>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span class="eyebrow rv" style="--i:3">Vos questions et vos idées</span>
+          <div class="recap rv" style="--i:4" id="recap"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 objectifs -->
+    <section class="slide" data-name="Objectifs">
+      <div class="eyebrow rv">Objectifs</div>
+      <h2 class="h-l rv" style="--i:1">Aujourd'hui, vous saurez</h2>
+      <div class="grid3">
+        <div class="sheet shadow obj rv" style="--i:2"><div class="n">1</div><h3 class="h-m">Penser structure</h3><p>Utiliser le wireframe pour décider de ce qui va où, avant de penser couleurs et style.</p></div>
+        <div class="sheet shadow obj rv" style="--i:3"><div class="n">2</div><h3 class="h-m">Parler le même langage</h3><p>Dessiner avec un vocabulaire visuel que toute l'équipe lit de la même façon.</p></div>
+        <div class="sheet shadow obj rv" style="--i:4"><div class="n">3</div><h3 class="h-m">Tester avant de construire</h3><p>Présenter une solution et la faire tester par un autre groupe.</p></div>
+      </div>
+      <p class="hand rv" style="--i:5">Chaque bonne réponse, chaque défi relevé rapporte des points à votre groupe. Le podium est à la fin.</p>
+    </section>
+
+    <!-- 4 brise-glace -->
+    <section class="slide" data-name="Brise-glace">
+      <div class="split">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="eyebrow rv">Brise-glace</div>
+          <h2 class="h-xl rv" style="--i:1;font-size:clamp(40px,6vw,86px)">Dessine ton<br><mark>petit-déjeuner</mark></h2>
+          <p class="lead rv" style="--i:2">Sur une feuille, en 10 minutes, sans gommer.</p>
+          <p class="hand rv" style="--i:3">Personne ne dessine bien, et c'est exactement le but.</p>
+          <div class="rv" style="--i:4"><button class="btn hl" type="button" data-award-all="5" data-reason="Brise-glace">Tout le monde a dessiné : +5 pour chaque groupe</button></div>
+        </div>
+        <div class="timer rv" style="--i:2" data-timer="600" data-label="minutes"></div>
+      </div>
+    </section>
+
+    <!-- 5 fidélité -->
+    <section class="slide" data-name="Fidélité">
+      <div class="dtmini rv" data-dt="2"></div>
+      <div class="eyebrow rv">Pourquoi le papier</div>
+      <h2 class="h-l rv" style="--i:1">Un même écran, trois niveaux de fidélité</h2>
+      <div class="fid">
+        <div class="fid-stage rv" style="--i:2" id="fidStage"><svg viewBox="-4 -4 178 348" class="vis" aria-hidden="true"><g transform="translate(0,0)">
+<rect x="0" y="0" width="170" height="340" rx="20.4" fill="#fff" stroke="#1b1b1b" stroke-width="3"/>
+<line x1="64.6" y1="11.9" x2="105.4" y2="11.9" stroke="#1b1b1b" stroke-width="3" stroke-linecap="round"/>
+<line x1="22" y1="50" x2="92" y2="50" stroke="#1b1b1b" stroke-width="5" stroke-linecap="round"/><rect x="22" y="68" width="126" height="80" fill="none" stroke="#1b1b1b" stroke-width="2"/>
+<line x1="22" y1="68" x2="148" y2="148" stroke="#1b1b1b" stroke-width="1.4"/>
+<line x1="148" y1="68" x2="22" y2="148" stroke="#1b1b1b" stroke-width="1.4"/><path d="M22,172 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0" fill="none" stroke="#8a8578" stroke-width="2" stroke-linecap="round"/><path d="M22,185 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0" fill="none" stroke="#8a8578" stroke-width="2" stroke-linecap="round"/><path d="M22,198 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0 q5.0,3 10,0 q5.0,-3 10,0" fill="none" stroke="#8a8578" stroke-width="2" stroke-linecap="round"/><rect x="22" y="260" width="126" height="32" rx="16" fill="none" stroke="#1b1b1b" stroke-width="2.5"/></g></svg><svg viewBox="-4 -4 178 348" class="" aria-hidden="true"><g transform="translate(0,0)">
+<rect x="0" y="0" width="170" height="340" rx="20.4" fill="#fff" stroke="#1b1b1b" stroke-width="3"/>
+<line x1="64.6" y1="11.9" x2="105.4" y2="11.9" stroke="#1b1b1b" stroke-width="3" stroke-linecap="round"/>
+<text x="22" y="54" font-family="Poppins" font-weight="700" font-size="14">Mon forfait</text><rect x="22" y="68" width="126" height="80" rx="6" fill="#e9e6df"/><text x="30" y="100" font-family="Poppins" font-size="11" fill="#555">Solde restant</text><text x="30" y="128" font-family="Poppins" font-weight="700" font-size="20" fill="#333">12,5 Go</text><rect x="22" y="166" width="126" height="10" rx="3" fill="#d6d2c8"/><rect x="22" y="184" width="90" height="10" rx="3" fill="#d6d2c8"/><rect x="22" y="260" width="126" height="32" rx="16" fill="#9a968c"/><text x="85" y="281" font-family="Poppins" font-size="11" font-weight="600" text-anchor="middle" fill="#fff">Recharger</text></g></svg><svg viewBox="-4 -4 178 348" class="" aria-hidden="true"><rect x="0" y="0" width="170" height="340" rx="20" fill="#111"/>
+<rect x="6" y="6" width="158" height="328" rx="16" fill="#fff"/>
+<text x="22" y="54" font-family="Poppins" font-weight="700" font-size="15" fill="#111">Mon forfait</text>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a1a"/><stop offset="1" stop-color="#ffb347"/></linearGradient></defs>
+<rect x="22" y="68" width="126" height="80" rx="12" fill="url(#g)"/>
+<text x="32" y="98" font-family="Poppins" font-size="10" fill="#fff">Solde restant</text>
+<text x="32" y="128" font-family="Poppins" font-weight="700" font-size="22" fill="#fff">12,5 Go</text>
+<text x="22" y="178" font-family="Poppins" font-size="10" fill="#555">Valable jusqu'au 30 oct.</text>
+<rect x="22" y="188" width="126" height="6" rx="3" fill="#eee"/><rect x="22" y="188" width="80" height="6" rx="3" fill="#ff7a1a"/>
+<text x="22" y="220" font-family="Poppins" font-size="10" fill="#555">Appels illimités</text>
+<rect x="22" y="260" width="126" height="32" rx="16" fill="#111"/>
+<text x="85" y="281" font-family="Poppins" font-size="11" font-weight="600" text-anchor="middle" fill="#fff">Recharger</text></svg></div>
+        <div class="fid-ctl rv" style="--i:3">
+          <div class="seg" role="group" aria-label="Niveau de fidélité" id="fidSeg">
+            <button type="button" aria-pressed="true" data-f="0">Basse</button>
+            <button type="button" aria-pressed="false" data-f="1">Moyenne</button>
+            <button type="button" aria-pressed="false" data-f="2">Haute</button>
+          </div>
+          <div class="sheet fid-info">
+            <h3 class="h-m" id="fidTitle">Papier · 2 minutes</h3>
+            <p class="lead" id="fidText" style="font-size:17px">On discute de la structure : ce qui va où, dans quel ordre.</p>
+            <div class="meter">
+              <span>Vitesse</span><span class="m"><i id="mSpeed" style="width:95%"></i></span>
+              <span>Envie de jeter</span><span class="m"><i id="mThrow" style="width:90%"></i></span>
+              <span>Détail visuel</span><span class="m"><i id="mDetail" style="width:12%"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 message clé -->
+    <section class="slide" data-name="Message clé" style="background:var(--hl)">
+      <div class="eyebrow rv" style="color:var(--ink)">Message clé</div>
+      <p class="manifesto rv" style="--i:1">Plus c'est brut, plus le feedback porte sur le fond, et plus on ose jeter.</p>
+      <div class="trio rv" style="--i:2">
+        <div><b>Rapide</b><span>Une idée en 2 minutes, pas en 2 heures</span></div>
+        <div><b>Jetable</b><span>On ne s'attache pas à une feuille</span></div>
+        <div><b>Inclusif</b><span>Tout le monde sait tenir un crayon</span></div>
+      </div>
+    </section>
+
+    <!-- 7 vocabulaire -->
+    <section class="slide" data-name="Vocabulaire">
+      <div class="row rv" style="justify-content:space-between">
+        <div><div class="eyebrow">À garder sous les yeux</div><h2 class="h-l">Le vocabulaire visuel</h2></div>
+        <div class="row"><button class="btn hl" type="button" id="vocQuiz">Jouer : devinez les noms</button></div>
+      </div>
+      <div class="voc rv" style="--i:1" id="voc"><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><rect x="30" y="6" width="160" height="84" rx="8" fill="#e7e3db" stroke="none" stroke-width="0"/><circle cx="150" cy="30" r="9" fill="#bdb7ab"/><path d="M45,80 l35,-38 l25,26 l15,-14 l35,26 Z" fill="#bdb7ab"/></svg><span class="nm">Image</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><text x="20" y="30" font-family="Poppins" font-size="17" font-weight="700" fill="#2b2b2b" text-anchor="start">Khalid El Mansour</text><text x="20" y="52" font-family="Poppins" font-size="12" font-weight="400" fill="#555" text-anchor="start">Client actif depuis 2019,</text><text x="20" y="68" font-family="Poppins" font-size="12" font-weight="400" fill="#555" text-anchor="start">agence Rabat Hay Riad.</text></svg><span class="nm">Titre et texte</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><rect x="18" y="16" width="184" height="34" rx="8" fill="#2b2b2b" stroke="none" stroke-width="0"/><text x="110" y="38" font-family="Poppins" font-size="13" font-weight="600" fill="#fff" text-anchor="middle">Générer l'argumentaire</text><rect x="18" y="58" width="184" height="32" rx="8" fill="#fff" stroke="#2b2b2b" stroke-width="1.5"/><text x="110" y="79" font-family="Poppins" font-size="13" font-weight="600" fill="#2b2b2b" text-anchor="middle">Reporter le RDV</text></svg><span class="nm">Boutons</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><text x="20" y="22" font-family="Poppins" font-size="11" font-weight="500" fill="#2b2b2b" text-anchor="start">Rechercher un client</text><rect x="20" y="30" width="180" height="38" rx="8" fill="#fff" stroke="#bdb7ab" stroke-width="1.5"/><text x="32" y="54" font-family="Poppins" font-size="13" font-weight="400" fill="#9a958a" text-anchor="start">Nom, CIN ou n° de compte</text><text x="20" y="84" font-family="Poppins" font-size="10" font-weight="400" fill="#8a8578" text-anchor="start">Exemple : El Mansour</text></svg><span class="nm">Champ de saisie</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><text x="20" y="24" font-family="Poppins" font-size="11" font-weight="500" fill="#2b2b2b" text-anchor="start">Type de produit</text><rect x="20" y="32" width="180" height="38" rx="8" fill="#fff" stroke="#bdb7ab" stroke-width="1.5"/><text x="32" y="56" font-family="Poppins" font-size="13" font-weight="500" fill="#2b2b2b" text-anchor="start">Carte bancaire</text><path d="M179,46 l5,5 l5,-5" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="nm">Liste déroulante</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="16" width="18" height="18" rx="4" fill="#2b2b2b" stroke="none" stroke-width="0"/><path d="M26,25 l4,4 l7,-8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><text x="50" y="30" font-family="Poppins" font-size="12" font-weight="400" fill="#2b2b2b" text-anchor="start">CIN vérifiée</text><circle cx="31" cy="58" r="9" fill="none" stroke="#2b2b2b" stroke-width="1.8"/><circle cx="31" cy="58" r="4.5" fill="#2b2b2b"/><text x="50" y="62" font-family="Poppins" font-size="12" font-weight="400" fill="#2b2b2b" text-anchor="start">Client existant</text><circle cx="31" cy="84" r="9" fill="none" stroke="#bdb7ab" stroke-width="1.8"/><text x="50" y="88" font-family="Poppins" font-size="12" font-weight="400" fill="#777" text-anchor="start">Nouveau prospect</text></svg><span class="nm">Cases et choix</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><text x="20" y="34" font-family="Poppins" font-size="13" font-weight="500" fill="#2b2b2b" text-anchor="start">Alertes IA</text><rect x="156" y="20" width="44" height="24" rx="12" fill="#2b2b2b" stroke="none" stroke-width="0"/><circle cx="188" cy="32" r="9" fill="#fff"/><text x="20" y="72" font-family="Poppins" font-size="13" font-weight="500" fill="#2b2b2b" text-anchor="start">Rappel des RDV</text><rect x="156" y="58" width="44" height="24" rx="12" fill="#e7e3db" stroke="none" stroke-width="0"/><circle cx="168" cy="70" r="9" fill="#fff" stroke="#cfc9bd"/></svg><span class="nm">Interrupteur</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="28" width="192" height="38" rx="19" fill="#e7e3db" stroke="none" stroke-width="0"/><rect x="18" y="32" width="62" height="30" rx="15" fill="#fff" stroke="none" stroke-width="0"/><text x="49" y="52" font-family="Poppins" font-size="12" font-weight="600" fill="#2b2b2b" text-anchor="middle">Vue 360</text><text x="110" y="52" font-family="Poppins" font-size="12" font-weight="500" fill="#666" text-anchor="middle">Comptes</text><text x="170" y="52" font-family="Poppins" font-size="12" font-weight="500" fill="#666" text-anchor="middle">Produits</text></svg><span class="nm">Onglets</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><rect x="14" y="8" width="192" height="82" rx="12" fill="#fff" stroke="#bdb7ab" stroke-width="1.5"/><text x="28" y="30" font-family="Poppins" font-size="11" font-weight="400" fill="#777" text-anchor="start">Objectif du mois</text><text x="28" y="56" font-family="Poppins" font-size="20" font-weight="700" fill="#2b2b2b" text-anchor="start">22 / 28 clients</text><rect x="28" y="70" width="164" height="6" rx="3.0" fill="#e7e3db"/><rect x="28" y="70" width="110" height="6" rx="3.0" fill="#2b2b2b"/></svg><span class="nm">Carte</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="24" r="13" fill="#e7e3db"/><text x="52" y="21" font-family="Poppins" font-size="12" font-weight="600" fill="#2b2b2b" text-anchor="start">Sara Alaoui</text><text x="52" y="36" font-family="Poppins" font-size="10" font-weight="400" fill="#777" text-anchor="start">Offre qui expire</text><path d="M192,19 l5,5 l-5,5" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="30" cy="66" r="13" fill="#e7e3db"/><text x="52" y="63" font-family="Poppins" font-size="12" font-weight="600" fill="#2b2b2b" text-anchor="start">Mohammed Benali</text><text x="52" y="78" font-family="Poppins" font-size="10" font-weight="400" fill="#777" text-anchor="start">Potentiel crédit</text><path d="M192,61 l5,5 l-5,5" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="18" y1="45" x2="202" y2="45" stroke="#e7e3db" stroke-width="1.5"/></svg><span class="nm">Liste</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><path d="M18,72 L46,60 L74,66 L102,44 L130,52 L158,30 L186,36 L202,22 L202,86 L18,86 Z" fill="#e7e3db"/><polyline points="18,72 46,60 74,66 102,44 130,52 158,30 186,36 202,22" fill="none" stroke="#2b2b2b" stroke-width="2.2" stroke-linejoin="round"/><line x1="18" y1="86" x2="202" y2="86" stroke="#bdb7ab" stroke-width="1.2"/><text x="18" y="14" font-family="Poppins" font-size="11" font-weight="700" fill="#2b2b2b" text-anchor="start">Dépenses +18 %</text></svg><span class="nm">Graphique</span></div><div class="vc"><svg viewBox="0 0 220 96" width="220" height="96" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="22" width="208" height="62" rx="12" fill="#fff" stroke="#bdb7ab" stroke-width="1.5"/><path d="M25,45 l7,-7 l7,7 v8 h-14 Z" fill="none" stroke="#2b2b2b" stroke-width="1.8" stroke-linejoin="round"/><text x="32" y="70" font-family="Poppins" font-size="9" font-weight="600" fill="#2b2b2b" text-anchor="middle">Accueil</text><polyline points="76,50 81,44 85,47 92,38" fill="none" stroke="#999" stroke-width="1.8"/><text x="84" y="70" font-family="Poppins" font-size="9" font-weight="400" fill="#888" text-anchor="middle">Prospects</text><rect x="128" y="39" width="16" height="12" rx="2" fill="none" stroke="#999" stroke-width="1.8"/><path d="M133,39 v-3 h6 v3" fill="none" stroke="#999" stroke-width="1.8"/><text x="136" y="70" font-family="Poppins" font-size="9" font-weight="400" fill="#888" text-anchor="middle">Clients</text><circle cx="188" cy="41" r="4" fill="none" stroke="#999" stroke-width="1.8"/><path d="M181,52 q7,-9 14,0" fill="none" stroke="#999" stroke-width="1.8"/><text x="188" y="70" font-family="Poppins" font-size="9" font-weight="400" fill="#888" text-anchor="middle">Tâches</text></svg><span class="nm">Barre de navigation</span></div></div>
+      <p class="hand rv" style="--i:2" id="vocHint">Retournez les noms un par un. Le groupe qui trouve le premier gagne 5 points.</p>
+    </section>
+
+    <!-- 8 règles -->
+    <section class="slide" data-name="Règles d'or">
+      <div class="eyebrow rv">Règles · cliquez pour valider</div>
+      <h2 class="h-l rv" style="--i:1">Les règles d'or</h2>
+      <div class="rules" id="rules">
+        <button type="button" class="sheet rule rv" style="--i:2;text-align:left"><span class="x">1</span><span><span class="h-m rt">Pas de couleur, pas de gomme</span><span class="rp">On rature et on redessine.</span></span><span class="stamp">Validé</span></button>
+        <button type="button" class="sheet rule rv" style="--i:3;text-align:left"><span class="x">2</span><span><span class="h-m rt">De vrais libellés</span><span class="rp">Jamais de lorem ipsum : le texte fait partie du design.</span></span><span class="stamp">Validé</span></button>
+        <button type="button" class="sheet rule rv" style="--i:4;text-align:left"><span class="x">3</span><span><span class="h-m rt">La hiérarchie par le trait</span><span class="rp">Taille et épaisseur disent ce qui compte.</span></span><span class="stamp">Validé</span></button>
+        <button type="button" class="sheet rule rv" style="--i:5;text-align:left"><span class="x">4</span><span><span class="h-m rt">Quantité avant qualité</span><span class="rp">Dix idées moyennes valent mieux qu'une idée parfaite.</span></span><span class="stamp">Validé</span></button>
+      </div>
+    </section>
+
+    <!-- 9 traduis ton écran -->
+    <section class="slide" data-name="Traduis ton écran">
+      <div class="split">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Exercice 1 · Solo</div>
+          <h2 class="h-l rv" style="--i:1">Traduis ton écran</h2>
+          <ol class="steps rv" style="--i:2">
+            <li><span><b>Ouvre</b> une app que tu utilises tous les jours</span></li>
+            <li><span><b>Choisis</b> un seul écran</span></li>
+            <li><span><b>Redessine-le</b> en wireframe avec le vocabulaire visuel</span></li>
+            <li><span><b>Affiche</b> ta feuille au mur</span></li>
+          </ol>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>Ensuite, ensemble :</b> qu'avez-vous simplifié ? Qu'avez-vous oublié ?</div>
+          <div class="picker rv" style="--i:4" data-award="10" data-reason="Meilleure traduction"><span class="lbl">Meilleure traduction · +10</span></div>
+        </div>
+        <div class="timer rv" style="--i:2" data-timer="900" data-label="minutes"></div>
+      </div>
+    </section>
+
+    <!-- 10 quiz -->
+    <section class="slide" data-name="Quiz">
+      <div class="eyebrow rv">Quiz express · +10 par bonne réponse</div>
+      <h2 class="h-l rv" style="--i:1">Le quiz du wireframe</h2>
+      <div class="qz">
+        <div class="sheet shadow qcard rv" style="--i:2" id="qcard"></div>
+        <div class="qside rv" style="--i:3">
+          <div class="picker" id="qPicker"><span class="lbl">Qui répond ?</span></div>
+          <div class="qdots" id="qdots"></div>
+          <button class="btn" type="button" id="qNext">Question suivante →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 défi -->
+    <section class="slide" data-name="Concevoir">
+      <div class="dtmini rv" data-dt="2"></div>
+      <span class="pill hl rv" style="align-self:flex-start">Exercice · Concevoir</span>
+      <h2 class="h-l rv" style="--i:1;max-width:22ch">Dessinez l'idée de votre groupe, <mark>écran par écran</mark>, en racontant la journée de Nadia.</h2>
+      <div class="defi2">
+        <div class="sheet shadow dc rv" style="--i:2"><span class="k">Vue 360 augmentée</span><h3 class="h-m">Tout savoir sur le client</h3><p>Que doit voir Nadia pour comprendre un client en un coup d'œil ? Qu'est-ce que l'IA peut repérer à sa place ?</p></div>
+        <div class="sheet shadow dc rv" style="--i:3"><span class="k">Assistant commercial IA</span><h3 class="h-m">Savoir quoi faire et quoi dire</h3><p>Quand intervient l'assistant ? Que propose-t-il ? Comment Nadia lui fait-elle confiance ?</p></div>
+        <div class="timer rv" style="--i:4" data-timer="2400" data-label="pour concevoir" data-small="1"></div>
+      </div>
+    </section>
+
+    <!-- 14 présentations -->
+    <section class="slide" data-name="Présentations">
+      <div class="eyebrow rv">Restitution</div>
+      <h2 class="h-l rv" style="--i:1">Chaque groupe présente sa solution</h2>
+      <div class="pres">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="plist rv" style="--i:2">
+            <div class="pi"><b>1</b><div><h3 class="h-m" style="font-size:19px">Le problème</h3><p>L'étape du parcours et la question « Comment pourrions-nous… » choisie</p></div></div>
+            <div class="pi"><b>2</b><div><h3 class="h-m" style="font-size:19px">La solution</h3><p>En une phrase : ce que la Vue 360 et l'assistant IA font pour Nadia</p></div></div>
+            <div class="pi"><b>3</b><div><h3 class="h-m" style="font-size:19px">Le parcours</h3><p>Le prototype écran par écran, en racontant l'histoire de Nadia</p></div></div>
+            <div class="pi"><b>4</b><div><h3 class="h-m" style="font-size:19px">L'IA et les données</h3><p>Où l'IA intervient, et sur quelles données elle s'appuie</p></div></div>
+          </div>
+          <div class="picker rv" style="--i:3" id="presPicker" data-select="1"><span class="lbl">Au tour de</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:center;--i:3" class="rv">
+          <div class="phase" role="group" aria-label="Phase">
+            <button class="btn hl" type="button" data-phase="300">Présentation · 5 min</button>
+            <button class="btn" type="button" data-phase="180">Questions · 3 min</button>
+          </div>
+          <div class="timer" id="presTimer" data-timer="300" data-label="de présentation"></div>
+          <p class="hand" style="text-align:center;max-width:22ch">Les autres notent une question et une idée sur un post-it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 test utilisateur -->
+    <section class="slide" data-name="Test utilisateur">
+      <div class="dtmini rv" data-dt="2"></div>
+      <div class="eyebrow rv">Tester avec des utilisateurs</div>
+      <h2 class="h-l rv" style="--i:1">Comment se passe un test utilisateur</h2>
+      <div class="ut rv" style="--i:2">
+        <div class="utc"><span class="n">1</span><h3 class="h-m" style="font-size:19px">Préparer</h3><p>Un objectif et 2 ou 3 scénarios réalistes. « Khalid appelle : où en est sa demande de crédit ? »</p></div>
+        <div class="utc"><span class="n">2</span><h3 class="h-m" style="font-size:19px">Accueillir</h3><p>Mettre le testeur à l'aise : « On teste le prototype, pas vous. »</p></div>
+        <div class="utc"><span class="n">3</span><h3 class="h-m" style="font-size:19px">Observer</h3><p>Le testeur pense à voix haute. On n'aide pas, on n'explique pas.</p></div>
+        <div class="utc"><span class="n">4</span><h3 class="h-m" style="font-size:19px">Questionner</h3><p>Des questions ouvertes : « Qu'attendiez-vous ici ? »</p></div>
+        <div class="utc"><span class="n">5</span><h3 class="h-m" style="font-size:19px">Synthétiser</h3><p>Classer les observations : ce qui bloque, ce qui gêne, les idées.</p></div>
+      </div>
+      <div class="sort rv" style="--i:3">
+        <div class="bucket no"><h4>À ne jamais dire</h4><div id="bNo" style="display:grid;gap:4px"></div></div>
+        <div class="sheet shadow dealer">
+          <span class="eyebrow">Mini-jeu · on la dit ou pas ?</span>
+          <div class="phrase" id="phrase"></div>
+          <div class="row" style="justify-content:center">
+            <button class="btn" type="button" id="sayNo" style="background:var(--red-soft)">À éviter</button>
+            <button class="btn" type="button" id="sayYes" style="background:#e3f6dd">À dire</button>
+          </div>
+          <div class="picker" id="sortPicker"><span class="lbl">Groupe qui joue</span></div>
+        </div>
+        <div class="bucket yes"><h4>Plutôt dire</h4><div id="bYes" style="display:grid;gap:4px"></div></div>
+      </div>
+    </section>
+
+    <!-- 16 test croisé -->
+    <section class="slide" data-name="Test croisé">
+      <div class="eyebrow rv">Exercice · Test croisé · 30 min</div>
+      <h2 class="h-l rv" style="--i:1">Testez le prototype d'un autre groupe</h2>
+      <div class="xt">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="roles rv" style="--i:2">
+            <div class="sheet shadow role"><h3 class="h-m" style="font-size:18px">Le facilitateur</h3><p>Du groupe qui a conçu le prototype. Lit le scénario, pose les questions, n'aide pas.</p></div>
+            <div class="sheet shadow role"><h3 class="h-m" style="font-size:18px">Le testeur</h3><p>Une personne d'un autre groupe. Réalise le scénario et pense à voix haute.</p></div>
+            <div class="sheet shadow role"><h3 class="h-m" style="font-size:18px">Les observateurs</h3><p>Le reste du groupe qui a conçu. Une observation par post-it, sans interpréter.</p></div>
+          </div>
+          <div class="rounds rv" style="--i:3">
+            <div class="rd"><b>2 × 10 min</b>Deux tours de test, un testeur différent à chaque fois</div>
+            <div class="rd"><b>10 min</b>Chaque groupe trie ses post-its : ce qui bloque, ce qui gêne, les idées</div>
+          </div>
+          <div class="row rv" style="--i:4">
+            <div class="phase" role="group" aria-label="Tour">
+              <button class="btn hl" type="button" data-round="1">Tour 1</button>
+              <button class="btn" type="button" data-round="2">Tour 2</button>
+            </div>
+          </div>
+          <div class="pairs rv" style="--i:5" id="pairs"></div>
+        </div>
+        <div class="rot rv" style="--i:3" id="rot"></div>
+      </div>
+    </section>
+
+    <!-- 17 votes -->
+    <section class="slide" data-name="Votes">
+      <div class="eyebrow rv">Les trophées · +30 et un badge</div>
+      <h2 class="h-l rv" style="--i:1">Votez pour les meilleures solutions</h2>
+      <div class="votes" id="votes"></div>
+      <p class="hand rv" style="--i:3">On ne vote pas pour son propre groupe.</p>
+    </section>
+
+    <!-- 18 podium -->
+    <section class="slide" data-name="Podium">
+      <div class="row rv" style="justify-content:space-between">
+        <div><div class="eyebrow">Classement final</div><h2 class="h-l">Le podium</h2></div>
+        <button class="btn primary" type="button" id="reveal">Révéler le podium</button>
+      </div>
+      <div class="podium rv" style="--i:1" id="podium"></div>
+    </section>
+
+    <!-- 19 itération & rétro -->
+    <section class="slide" data-name="Rétro">
+      <div class="eyebrow rv">Pour finir</div>
+      <div class="split" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <span class="pill rv" style="align-self:flex-start">Itération · 10 min</span>
+          <h2 class="h-l rv" style="--i:1">Améliorez votre solution</h2>
+          <p class="lead rv" style="--i:2">Choisissez le blocage le plus important repéré pendant les tests et corrigez l'écran concerné.</p>
+          <div class="timer rv" style="--i:3" data-timer="600" data-label="minutes" data-small="1"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <span class="pill rv" style="align-self:flex-start">Rétro · tour de table</span>
+          <div class="retro rv" style="--i:2">
+            <div class="note-y"><span>Une chose</span><p>que j'ai apprise</p></div>
+            <div class="note-y"><span>Une chose</span><p>que je veux essayer</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20 prototype -->
+    <section class="slide" data-name="Prototype">
+      <div class="proto">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="eyebrow rv">Une réponse possible</div>
+          <h2 class="h-l rv" style="--i:1">Et voici notre prototype</h2>
+          <p class="lead rv" style="--i:2">Le même parcours, imaginé avec une Vue 360 augmentée et un assistant commercial IA. Qu'avez-vous imaginé de différent ?</p>
+          <ol class="olist rv" style="--i:3" id="olist"></ol>
+          <a class="url rv" style="--i:4;align-self:flex-start" href="https://seddikhind.github.io/ai-sales-assistant/" target="_blank" rel="noopener">seddikhind.github.io/ai-sales-assistant ↗</a>
+        </div>
+        <div class="sheet shadow qr rv" style="--i:3"><svg role="img" aria-label="QR code du prototype" version="1.1" viewBox="0 0 35 35" xmlns="http://www.w3.org/2000/svg"><path d="M1,1H2V2H1zM2,1H3V2H2zM3,1H4V2H3zM4,1H5V2H4zM5,1H6V2H5zM6,1H7V2H6zM7,1H8V2H7zM10,1H11V2H10zM12,1H13V2H12zM13,1H14V2H13zM14,1H15V2H14zM17,1H18V2H17zM18,1H19V2H18zM20,1H21V2H20zM21,1H22V2H21zM22,1H23V2H22zM24,1H25V2H24zM27,1H28V2H27zM28,1H29V2H28zM29,1H30V2H29zM30,1H31V2H30zM31,1H32V2H31zM32,1H33V2H32zM33,1H34V2H33zM1,2H2V3H1zM7,2H8V3H7zM12,2H13V3H12zM14,2H15V3H14zM15,2H16V3H15zM16,2H17V3H16zM17,2H18V3H17zM18,2H19V3H18zM21,2H22V3H21zM22,2H23V3H22zM27,2H28V3H27zM33,2H34V3H33zM1,3H2V4H1zM3,3H4V4H3zM4,3H5V4H4zM5,3H6V4H5zM7,3H8V4H7zM9,3H10V4H9zM10,3H11V4H10zM12,3H13V4H12zM14,3H15V4H14zM17,3H18V4H17zM18,3H19V4H18zM19,3H20V4H19zM22,3H23V4H22zM23,3H24V4H23zM25,3H26V4H25zM27,3H28V4H27zM29,3H30V4H29zM30,3H31V4H30zM31,3H32V4H31zM33,3H34V4H33zM1,4H2V5H1zM3,4H4V5H3zM4,4H5V5H4zM5,4H6V5H5zM7,4H8V5H7zM9,4H10V5H9zM10,4H11V5H10zM11,4H12V5H11zM12,4H13V5H12zM15,4H16V5H15zM17,4H18V5H17zM20,4H21V5H20zM21,4H22V5H21zM23,4H24V5H23zM24,4H25V5H24zM25,4H26V5H25zM27,4H28V5H27zM29,4H30V5H29zM30,4H31V5H30zM31,4H32V5H31zM33,4H34V5H33zM1,5H2V6H1zM3,5H4V6H3zM4,5H5V6H4zM5,5H6V6H5zM7,5H8V6H7zM9,5H10V6H9zM11,5H12V6H11zM13,5H14V6H13zM16,5H17V6H16zM19,5H20V6H19zM24,5H25V6H24zM27,5H28V6H27zM29,5H30V6H29zM30,5H31V6H30zM31,5H32V6H31zM33,5H34V6H33zM1,6H2V7H1zM7,6H8V7H7zM9,6H10V7H9zM16,6H17V7H16zM17,6H18V7H17zM21,6H22V7H21zM25,6H26V7H25zM27,6H28V7H27zM33,6H34V7H33zM1,7H2V8H1zM2,7H3V8H2zM3,7H4V8H3zM4,7H5V8H4zM5,7H6V8H5zM6,7H7V8H6zM7,7H8V8H7zM9,7H10V8H9zM11,7H12V8H11zM13,7H14V8H13zM15,7H16V8H15zM17,7H18V8H17zM19,7H20V8H19zM21,7H22V8H21zM23,7H24V8H23zM25,7H26V8H25zM27,7H28V8H27zM28,7H29V8H28zM29,7H30V8H29zM30,7H31V8H30zM31,7H32V8H31zM32,7H33V8H32zM33,7H34V8H33zM9,8H10V9H9zM15,8H16V9H15zM16,8H17V9H16zM19,8H20V9H19zM22,8H23V9H22zM23,8H24V9H23zM1,9H2V10H1zM3,9H4V10H3zM4,9H5V10H4zM5,9H6V10H5zM6,9H7V10H6zM7,9H8V10H7zM11,9H12V10H11zM14,9H15V10H14zM15,9H16V10H15zM16,9H17V10H16zM18,9H19V10H18zM23,9H24V10H23zM25,9H26V10H25zM27,9H28V10H27zM28,9H29V10H28zM29,9H30V10H29zM30,9H31V10H30zM31,9H32V10H31zM1,10H2V11H1zM2,10H3V11H2zM4,10H5V11H4zM5,10H6V11H5zM8,10H9V11H8zM9,10H10V11H9zM10,10H11V11H10zM11,10H12V11H11zM12,10H13V11H12zM19,10H20V11H19zM20,10H21V11H20zM21,10H22V11H21zM24,10H25V11H24zM27,10H28V11H27zM28,10H29V11H28zM30,10H31V11H30zM31,10H32V11H31zM33,10H34V11H33zM4,11H5V12H4zM7,11H8V12H7zM11,11H12V12H11zM12,11H13V12H12zM13,11H14V12H13zM16,11H17V12H16zM17,11H18V12H17zM19,11H20V12H19zM21,11H22V12H21zM23,11H24V12H23zM25,11H26V12H25zM29,11H30V12H29zM31,11H32V12H31zM32,11H33V12H32zM1,12H2V13H1zM2,12H3V13H2zM6,12H7V13H6zM10,12H11V13H10zM12,12H13V13H12zM15,12H16V13H15zM17,12H18V13H17zM20,12H21V13H20zM21,12H22V13H21zM22,12H23V13H22zM26,12H27V13H26zM29,12H30V13H29zM30,12H31V13H30zM31,12H32V13H31zM32,12H33V13H32zM33,12H34V13H33zM2,13H3V14H2zM6,13H7V14H6zM7,13H8V14H7zM9,13H10V14H9zM11,13H12V14H11zM13,13H14V14H13zM19,13H20V14H19zM23,13H24V14H23zM26,13H27V14H26zM28,13H29V14H28zM29,13H30V14H29zM30,13H31V14H30zM1,14H2V15H1zM2,14H3V15H2zM4,14H5V15H4zM5,14H6V15H5zM10,14H11V15H10zM12,14H13V15H12zM15,14H16V15H15zM16,14H17V15H16zM17,14H18V15H17zM18,14H19V15H18zM21,14H22V15H21zM23,14H24V15H23zM24,14H25V15H24zM26,14H27V15H26zM27,14H28V15H27zM31,14H32V15H31zM32,14H33V15H32zM33,14H34V15H33zM2,15H3V16H2zM3,15H4V16H3zM7,15H8V16H7zM8,15H9V16H8zM9,15H10V16H9zM11,15H12V16H11zM15,15H16V16H15zM19,15H20V16H19zM20,15H21V16H20zM22,15H23V16H22zM26,15H27V16H26zM27,15H28V16H27zM30,15H31V16H30zM31,15H32V16H31zM32,15H33V16H32zM1,16H2V17H1zM9,16H10V17H9zM15,16H16V17H15zM17,16H18V17H17zM19,16H20V17H19zM20,16H21V17H20zM21,16H22V17H21zM22,16H23V17H22zM24,16H25V17H24zM25,16H26V17H25zM26,16H27V17H26zM27,16H28V17H27zM29,16H30V17H29zM30,16H31V17H30zM31,16H32V17H31zM2,17H3V18H2zM3,17H4V18H3zM6,17H7V18H6zM7,17H8V18H7zM8,17H9V18H8zM9,17H10V18H9zM11,17H12V18H11zM12,17H13V18H12zM13,17H14V18H13zM18,17H19V18H18zM20,17H21V18H20zM23,17H24V18H23zM25,17H26V18H25zM26,17H27V18H26zM28,17H29V18H28zM29,17H30V18H29zM33,17H34V18H33zM2,18H3V19H2zM5,18H6V19H5zM6,18H7V19H6zM8,18H9V19H8zM11,18H12V19H11zM12,18H13V19H12zM13,18H14V19H13zM15,18H16V19H15zM17,18H18V19H17zM18,18H19V19H18zM20,18H21V19H20zM21,18H22V19H21zM22,18H23V19H22zM24,18H25V19H24zM26,18H27V19H26zM27,18H28V19H27zM28,18H29V19H28zM30,18H31V19H30zM31,18H32V19H31zM32,18H33V19H32zM33,18H34V19H33zM6,19H7V20H6zM7,19H8V20H7zM8,19H9V20H8zM14,19H15V20H14zM16,19H17V20H16zM17,19H18V20H17zM18,19H19V20H18zM22,19H23V20H22zM23,19H24V20H23zM25,19H26V20H25zM28,19H29V20H28zM29,19H30V20H29zM31,19H32V20H31zM32,19H33V20H32zM1,20H2V21H1zM4,20H5V21H4zM8,20H9V21H8zM10,20H11V21H10zM12,20H13V21H12zM14,20H15V21H14zM15,20H16V21H15zM16,20H17V21H16zM18,20H19V21H18zM19,20H20V21H19zM20,20H21V21H20zM21,20H22V21H21zM22,20H23V21H22zM26,20H27V21H26zM27,20H28V21H27zM28,20H29V21H28zM29,20H30V21H29zM30,20H31V21H30zM31,20H32V21H31zM32,20H33V21H32zM7,21H8V22H7zM9,21H10V22H9zM12,21H13V22H12zM13,21H14V22H13zM14,21H15V22H14zM15,21H16V22H15zM17,21H18V22H17zM20,21H21V22H20zM21,21H22V22H21zM26,21H27V22H26zM28,21H29V22H28zM29,21H30V22H29zM30,21H31V22H30zM32,21H33V22H32zM33,21H34V22H33zM1,22H2V23H1zM6,22H7V23H6zM8,22H9V23H8zM16,22H17V23H16zM19,22H20V23H19zM24,22H25V23H24zM26,22H27V23H26zM27,22H28V23H27zM28,22H29V23H28zM30,22H31V23H30zM33,22H34V23H33zM1,23H2V24H1zM7,23H8V24H7zM9,23H10V24H9zM11,23H12V24H11zM12,23H13V24H12zM13,23H14V24H13zM15,23H16V24H15zM16,23H17V24H16zM17,23H18V24H17zM21,23H22V24H21zM22,23H23V24H22zM29,23H30V24H29zM31,23H32V24H31zM32,23H33V24H32zM1,24H2V25H1zM3,24H4V25H3zM4,24H5V25H4zM5,24H6V25H5zM6,24H7V25H6zM8,24H9V25H8zM10,24H11V25H10zM11,24H12V25H11zM16,24H17V25H16zM22,24H23V25H22zM23,24H24V25H23zM25,24H26V25H25zM26,24H27V25H26zM27,24H28V25H27zM28,24H29V25H28zM30,24H31V25H30zM31,24H32V25H31zM1,25H2V26H1zM4,25H5V26H4zM7,25H8V26H7zM8,25H9V26H8zM9,25H10V26H9zM10,25H11V26H10zM13,25H14V26H13zM15,25H16V26H15zM16,25H17V26H16zM18,25H19V26H18zM23,25H24V26H23zM24,25H25V26H24zM25,25H26V26H25zM26,25H27V26H26zM27,25H28V26H27zM28,25H29V26H28zM29,25H30V26H29zM9,26H10V27H9zM10,26H11V27H10zM12,26H13V27H12zM13,26H14V27H13zM14,26H15V27H14zM15,26H16V27H15zM17,26H18V27H17zM19,26H20V27H19zM20,26H21V27H20zM25,26H26V27H25zM29,26H30V27H29zM31,26H32V27H31zM33,26H34V27H33zM1,27H2V28H1zM2,27H3V28H2zM3,27H4V28H3zM4,27H5V28H4zM5,27H6V28H5zM6,27H7V28H6zM7,27H8V28H7zM10,27H11V28H10zM12,27H13V28H12zM15,27H16V28H15zM16,27H17V28H16zM19,27H20V28H19zM23,27H24V28H23zM24,27H25V28H24zM25,27H26V28H25zM27,27H28V28H27zM29,27H30V28H29zM31,27H32V28H31zM1,28H2V29H1zM7,28H8V29H7zM9,28H10V29H9zM11,28H12V29H11zM12,28H13V29H12zM15,28H16V29H15zM17,28H18V29H17zM21,28H22V29H21zM22,28H23V29H22zM23,28H24V29H23zM24,28H25V29H24zM25,28H26V29H25zM29,28H30V29H29zM30,28H31V29H30zM31,28H32V29H31zM32,28H33V29H32zM1,29H2V30H1zM3,29H4V30H3zM4,29H5V30H4zM5,29H6V30H5zM7,29H8V30H7zM9,29H10V30H9zM12,29H13V30H12zM19,29H20V30H19zM22,29H23V30H22zM25,29H26V30H25zM26,29H27V30H26zM27,29H28V30H27zM28,29H29V30H28zM29,29H30V30H29zM30,29H31V30H30zM33,29H34V30H33zM1,30H2V31H1zM3,30H4V31H3zM4,30H5V31H4zM5,30H6V31H5zM7,30H8V31H7zM9,30H10V31H9zM10,30H11V31H10zM12,30H13V31H12zM15,30H16V31H15zM16,30H17V31H16zM17,30H18V31H17zM21,30H22V31H21zM24,30H25V31H24zM25,30H26V31H25zM26,30H27V31H26zM29,30H30V31H29zM30,30H31V31H30zM31,30H32V31H31zM32,30H33V31H32zM33,30H34V31H33zM1,31H2V32H1zM3,31H4V32H3zM4,31H5V32H4zM5,31H6V32H5zM7,31H8V32H7zM9,31H10V32H9zM11,31H12V32H11zM13,31H14V32H13zM14,31H15V32H14zM18,31H19V32H18zM19,31H20V32H19zM20,31H21V32H20zM23,31H24V32H23zM24,31H25V32H24zM25,31H26V32H25zM27,31H28V32H27zM28,31H29V32H28zM30,31H31V32H30zM31,31H32V32H31zM1,32H2V33H1zM7,32H8V33H7zM17,32H18V33H17zM19,32H20V33H19zM20,32H21V33H20zM21,32H22V33H21zM22,32H23V33H22zM29,32H30V33H29zM30,32H31V33H30zM31,32H32V33H31zM1,33H2V34H1zM2,33H3V34H2zM3,33H4V34H3zM4,33H5V34H4zM5,33H6V34H5zM6,33H7V34H6zM7,33H8V34H7zM9,33H10V34H9zM11,33H12V34H11zM12,33H13V34H12zM13,33H14V34H13zM18,33H19V34H18zM19,33H20V34H19zM20,33H21V34H20zM23,33H24V34H23zM24,33H25V34H24zM25,33H26V34H25zM26,33H27V34H26zM27,33H28V34H27zM28,33H29V34H28zM30,33H31V34H30zM32,33H33V34H32z" id="qr-path" fill="#000000" fill-opacity="1" fill-rule="nonzero" stroke="none"/></svg><b>Scannez pour l'ouvrir</b></div>
+      </div>
+    </section>
+
+    <!-- 21 merci -->
+    <section class="slide dark-slide center" data-name="Merci">
+      <h1 class="h-xl rv" style="color:var(--hl)">Merci</h1>
+      <p class="lead rv" style="--i:1;text-align:center">Gardez vos feuilles : ce sont vos premiers wireframes.</p>
+    </section>
+
+
+
+  </main>
+
+  <div class="bar">
+    <div class="nav"><button type="button" id="prevBtn" aria-label="Slide précédente">←</button><button type="button" id="nextBtn" aria-label="Slide suivante">→</button></div>
+    <div class="progress" id="progress"></div>
+    <span class="count" id="count"></span>
+    <div class="score" id="score"></div>
+    <button class="scorebtn" type="button" id="scoreBtn" aria-expanded="false">Scores</button>
+  </div>
+
+  <div class="panel" id="panel" hidden>
+    <h3>Les groupes</h3>
+    <div id="teamRows"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" type="button" id="addTeam">+ Groupe</button>
+      <button class="btn" type="button" id="rmTeam">− Groupe</button>
+      <button class="btn ghost" type="button" id="resetScores">Remettre à zéro</button>
+    </div>
+    <p style="margin-top:10px;font-size:13px;color:var(--ink-2)">Cliquez sur un nom pour le modifier. Raccourcis : ← → pour naviguer, S pour les scores.</p>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(() => {
+const STAGES = [{"n": 1, "name": "Démarrer sa journée", "fait": ["Ouvre plusieurs outils", "Consulte ses RDV et ses objectifs", "Cherche quels clients appeler"], "pense": ["« Par où je commence ce matin ? »"], "ressent": "Débordée", "emo": 0, "pain": ["Infos éparpillées dans plusieurs outils", "Chiffres suivis à la main", "Pas de priorités claires"], "hmw": ["Comment pourrions-nous aider Nadia à savoir qui contacter en priorité, et pourquoi ?", "Comment pourrions-nous lui montrer où elle en est de ses objectifs sans calcul manuel ?"], "task": "Vous arrivez en agence. Trouvez le client à appeler en priorité aujourd'hui, et dites pourquoi."}, {"n": 2, "name": "Se former à une offre", "fait": ["Reçoit une note produit", "La lit entre deux clients", "Cherche à qui la proposer"], "pense": ["« Je n'ai pas le temps de lire une note de 20 pages. »"], "ressent": "Curieuse", "emo": 1.5, "pain": ["Notes produit longues", "Formation en dehors du poste", "Clients éligibles introuvables"], "hmw": ["Comment pourrions-nous aider Nadia à maîtriser une offre en quelques minutes ?", "Comment pourrions-nous lui faire trouver les clients à qui la proposer dans la base ?"], "task": "Une nouvelle offre est sortie. Apprenez l'essentiel et trouvez 3 clients à qui la proposer."}, {"n": 3, "name": "Identifier et qualifier", "fait": ["Recherche un client", "Crée une fiche prospect", "Pose ses questions de découverte"], "pense": ["« Est-ce que ce client existe déjà ? »"], "ressent": "Incertaine", "emo": 0.8, "pain": ["Doublons et fiches incomplètes", "Ressaisie des informations", "Qualification au feeling"], "hmw": ["Comment pourrions-nous éviter les doublons et les fiches incomplètes dès la saisie ?", "Comment pourrions-nous guider Nadia pour poser les bonnes questions au bon moment ?"], "task": "Un prospect entre en agence. Vérifiez qu'il n'existe pas déjà, puis découvrez ses besoins."}, {"n": 4, "name": "Comprendre le client", "fait": ["Consulte ses comptes et son historique", "Vérifie ses documents", "Cherche quoi lui proposer"], "pense": ["« Est-ce que ces infos sont encore à jour ? »"], "ressent": "Rassurée quand elle trouve", "emo": 1.6, "pain": ["Données obsolètes (CIN expirée, adresse)", "Historique dispersé", "Pas de lecture des besoins"], "hmw": ["Comment pourrions-nous donner à Nadia une vision complète et fiable du client en un coup d'œil ?", "Comment pourrions-nous transformer les données du client en besoins et en offres pertinentes ?"], "task": "Vous recevez Khalid dans 5 minutes. Vérifiez que ses infos sont à jour et trouvez quoi lui proposer."}, {"n": 5, "name": "Convaincre et conclure", "fait": ["Choisit une offre", "Prépare ses arguments", "Répond aux objections"], "pense": ["« Et s'il me dit que c'est trop cher ? »"], "ressent": "Tendue face aux objections", "emo": 1.2, "pain": ["Argumentaire improvisé", "Objections mal préparées", "Pas de chiffres pour appuyer"], "hmw": ["Comment pourrions-nous aider Nadia à construire un argumentaire adapté à ce client ?", "Comment pourrions-nous la préparer aux objections, chiffres du client à l'appui ?"], "task": "Khalid trouve l'offre trop chère. Préparez votre réponse."}, {"n": 6, "name": "Suivre la demande", "fait": ["Transmet une demande de crédit", "Relance le back-office", "Répond au client qui s'inquiète"], "pense": ["« Où en est le dossier de Khalid ? »"], "ressent": "Impuissante", "emo": 0.2, "pain": ["Pas de suivi en temps réel", "Relances par téléphone et par mail", "Client mal informé"], "hmw": ["Comment pourrions-nous permettre à Nadia de suivre une demande de crédit en temps réel ?", "Comment pourrions-nous tenir le client informé sans qu'il ait à relancer ?"], "task": "Khalid appelle : il veut savoir où en est sa demande de crédit. Répondez-lui."}];
+const AGENDA = [
+  ["Jour 1","Modules 03 et 04"],
+  ["0:00","Empathie express","10 min","Empathie express"],["0:10","Le design thinking et la formation","15 min","Design thinking"],
+  ["0:25","03 · Fait ou interprétation","10 min","Module 03"],["0:35","03 · Carte d'empathie","25 min","Fragments de terrain"],
+  ["1:00","Pause","10 min",null],["1:10","03 · Construire le persona","35 min","Anatomie d'un persona"],
+  ["1:45","03 · Le parcours de Nadia","15 min","Parcours"],["2:00","04 · Questions et défi","15 min","Module 04"],
+  ["2:15","04 · Choisir sa question","10 min","Choisir son défi"],["2:25","04 · Idéation","25 min","Idéation"],
+  ["2:50","Clôture du jour 1","10 min","Fin du jour 1"],
+  ["Jour 2","Module 05"],
+  ["0:00","Rappel et brise-glace","20 min","Rappel"],["0:20","Pourquoi le papier","20 min","Fidélité"],
+  ["0:40","Traduis ton écran et quiz","25 min","Traduis ton écran"],["1:05","Pause","10 min",null],
+  ["1:15","Concevoir la solution","40 min","Concevoir"],["1:55","Présentations","30 min","Présentations"],
+  ["2:25","Tests utilisateurs","40 min","Test utilisateur"],["3:05","Itération, votes et rétro","25 min","Votes"]];
+const TCOL = ["var(--t1)","var(--t2)","var(--t3)","var(--t4)","var(--t5)","var(--t6)"];
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+/* ---------- state ---------- */
+const KEY = "crayon-ecran-abb-2j";
+let state = { teams: ["A","B","C","D"].map(l => ({ name: "Groupe " + l, pts: 0, badges: [] })) };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.teams) && s.teams.length) state = s; } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const letter = i => String.fromCharCode(65 + i);
+
+/* ---------- audio : effets sonores + musique de fond générée ---------- */
+let actx = null, sfxBus = null, musBus = null;
+const prefs = { sfx: true, music: false };
+try { const p = JSON.parse(localStorage.getItem("crayon-ecran-audio")); if (p) prefs.sfx = p.sfx !== false; } catch (e) {}
+const savePrefs = () => { try { localStorage.setItem("crayon-ecran-audio", JSON.stringify({ sfx: prefs.sfx })); } catch (e) {} };
+function ac() {
+  if (!actx) {
+    try {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      sfxBus = actx.createGain(); sfxBus.gain.value = .55; sfxBus.connect(actx.destination);
+      musBus = actx.createGain(); musBus.gain.value = 0; musBus.connect(actx.destination);
+    } catch (e) { return null; }
+  }
+  if (actx.state === "suspended") actx.resume();
+  return actx;
+}
+function tone(freq, dur = .15, when = 0, type = "triangle", vol = .25, bus) {
+  const a = ac(); if (!a) return;
+  if (!bus && !prefs.sfx) return;
+  const t = a.currentTime + when, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(g); g.connect(bus || sfxBus); o.start(t); o.stop(t + dur + .05);
+  return o;
+}
+let noiseBuf = null;
+function noise(dur = .2, when = 0, vol = .2, f0 = 800, f1 = 4000, q = .8, bus) {
+  const a = ac(); if (!a) return;
+  if (!bus && !prefs.sfx) return;
+  if (!noiseBuf) { noiseBuf = a.createBuffer(1, a.sampleRate, a.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const t = a.currentTime + when, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = noiseBuf; f.type = "bandpass"; f.Q.value = q;
+  f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + dur * .3); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  s.connect(f); f.connect(g); g.connect(bus || sfxBus); s.start(t); s.stop(t + dur + .05);
+}
+const sfx = {
+  whoosh: () => noise(.32, 0, .18, 300, 3200, .7),
+  click: () => tone(1400, .04, 0, "square", .06),
+  tick: () => { tone(1800, .03, 0, "square", .08); },
+  start: () => { tone(660, .08); tone(990, .12, .08); },
+  coin: () => { tone(988, .08, 0, "square", .09); tone(1319, .28, .08, "square", .09); },
+  correct: () => [523, 659, 784].forEach((f, i) => tone(f, .14, i * .07, "triangle", .22)),
+  wrong: () => { tone(160, .28, 0, "sawtooth", .12); tone(150, .28, .02, "sawtooth", .1); },
+  flip: () => { noise(.14, 0, .14, 2000, 600, 1.2); tone(520, .06, .05, "sine", .1); },
+  pop: () => { tone(600, .05, 0, "sine", .2); tone(1200, .08, .03, "sine", .15); },
+  stamp: () => { tone(90, .22, 0, "sine", .5); noise(.12, 0, .25, 400, 200, .6); },
+  fanfare: () => { [523, 659, 784, 1046].forEach((f, i) => tone(f, .2, i * .12, "triangle", .25)); tone(1046, .6, .5, "triangle", .2); tone(784, .6, .5, "triangle", .14); },
+  drumroll: () => { for (let i = 0; i < 22; i++) noise(.05, i * .055, .05 + i * .006, 1500, 1200, .5); noise(.9, 1.25, .22, 6000, 3000, .4); }
+};
+const beep = (f, d, w) => tone(f, d, w);
+const fanfare = sfx.fanfare;
+
+/* musique : boucle lo-fi douce, Fmaj7 – Em7 – Dm7 – Cmaj7, 82 bpm */
+const CHORDS = [[53, 57, 60, 64], [52, 55, 59, 62], [50, 53, 57, 60], [48, 52, 55, 59]];
+const PENTA = [72, 74, 76, 79, 81, 84];
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+let musTimer = null, nextBeat = 0, beat = 0;
+const SPB = 60 / 82;
+function scheduleMusic() {
+  const a = actx; if (!a) return;
+  while (nextBeat < a.currentTime + .4) {
+    const bar = Math.floor(beat / 4) % 4, b = beat % 4, t = nextBeat - a.currentTime;
+    if (b === 0) {
+      CHORDS[bar].forEach(m => { const o = tone(mtof(m), SPB * 4.2, t, "sine", .05, musBus); const o2 = tone(mtof(m) * 1.003, SPB * 4.2, t, "triangle", .02, musBus); });
+      tone(mtof(CHORDS[bar][0] - 12), SPB * 1.8, t, "sine", .12, musBus);
+    }
+    if (b === 2) tone(mtof(CHORDS[bar][0] - 12), SPB * 1.5, t, "sine", .09, musBus);
+    if (b === 0 || b === 2) { const k = tone(110, .25, t, "sine", .14, musBus); if (k) k.frequency.exponentialRampToValueAtTime(45, a.currentTime + t + .2); }
+    if (b === 1 || b === 3) noise(.12, t, .025, 1800, 900, .7, musBus);
+    noise(.04, t, .012, 8000, 7000, 1, musBus); noise(.04, t + SPB / 2, .009, 8000, 7000, 1, musBus);
+    if (Math.random() < .35) tone(mtof(PENTA[Math.random() * PENTA.length | 0]), SPB * 1.2, t + (Math.random() < .5 ? 0 : SPB / 2), "sine", .035, musBus);
+    nextBeat += SPB; beat++;
+  }
+}
+function setMusic(on) {
+  prefs.music = on;
+  const a = ac(); if (!a) return;
+  const now = a.currentTime;
+  musBus.gain.cancelScheduledValues(now);
+  musBus.gain.setValueAtTime(musBus.gain.value, now);
+  musBus.gain.linearRampToValueAtTime(on ? .55 : 0, now + 1.2);
+  if (on && !musTimer) { nextBeat = a.currentTime + .1; musTimer = setInterval(scheduleMusic, 100); }
+  if (!on) setTimeout(() => { if (!prefs.music) { clearInterval(musTimer); musTimer = null; } }, 1400);
+  renderAudioBtns();
+}
+const duck = (on) => { if (!actx || !prefs.music) return; const n = actx.currentTime; musBus.gain.cancelScheduledValues(n); musBus.gain.setValueAtTime(musBus.gain.value, n); musBus.gain.linearRampToValueAtTime(on ? .18 : .55, n + .4); };
+function renderAudioBtns() {
+  const m = document.getElementById("musBtn"), s = document.getElementById("sfxBtn");
+  if (m) { m.setAttribute("aria-pressed", String(prefs.music)); m.textContent = prefs.music ? "♪ Musique : on" : "♪ Musique"; }
+  if (s) { s.setAttribute("aria-pressed", String(prefs.sfx)); s.textContent = prefs.sfx ? "Sons : on" : "Sons : off"; }
+}
+
+/* ---------- scores ---------- */
+const toastEl = $("#toast"); let toastT;
+function toast(html) { toastEl.innerHTML = html; toastEl.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove("show"), 2200); }
+function award(i, pts, reason, badge) {
+  const t = state.teams[i]; if (!t) return;
+  t.pts = Math.max(0, t.pts + pts);
+  if (badge && !t.badges.includes(badge)) t.badges.push(badge);
+  save(); renderScore(); renderPanel();
+  const chip = $$("#score .chip")[i]; if (chip) { chip.classList.remove("bump"); void chip.offsetWidth; chip.classList.add("bump"); }
+  if (pts > 0) { toast(`<b>+${pts}</b> ${esc(t.name)}${reason ? " · " + esc(reason) : ""}`); sfx.coin(); }
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
+function renderScore() {
+  $("#score").innerHTML = state.teams.map((t, i) =>
+    `<span class="chip" title="${esc(t.name)}"><span class="dot" style="background:${TCOL[i]}">${letter(i)}</span>${t.pts}</span>`).join("");
+  renderPickers(); renderPodium(false); renderRotation(); renderHmw();
+}
+function renderPanel() {
+  $("#teamRows").innerHTML = state.teams.map((t, i) => `
+    <div class="team-row">
+      <span class="dot" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);background:${TCOL[i]}"></span>
+      <input id="tn${i}" value="${esc(t.name)}" aria-label="Nom du groupe ${letter(i)}">
+      <button type="button" class="sq" data-d="-5" data-t="${i}" aria-label="Retirer 5 points">−</button>
+      <span class="pts">${t.pts}</span>
+      <button type="button" class="sq" data-d="5" data-t="${i}" aria-label="Ajouter 5 points">+</button>
+      ${t.badges.length ? `<div class="badges">${t.badges.map(b => `<span class="badge">${esc(b)}</span>`).join("")}</div>` : ""}
+    </div>`).join("");
+}
+$("#teamRows").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if (b) award(+b.dataset.t, +b.dataset.d, "Bonus"); });
+$("#teamRows").addEventListener("change", e => { const m = e.target.id.match(/^tn(\d+)$/); if (m) { state.teams[+m[1]].name = e.target.value.trim() || "Groupe " + letter(+m[1]); save(); renderScore(); } });
+$("#addTeam").onclick = () => { if (state.teams.length < 6) { state.teams.push({ name: "Groupe " + letter(state.teams.length), pts: 0, badges: [] }); save(); renderScore(); renderPanel(); renderVotes(); } };
+$("#rmTeam").onclick = () => { if (state.teams.length > 2) { state.teams.pop(); save(); renderScore(); renderPanel(); renderVotes(); } };
+let armReset = false;
+$("#resetScores").onclick = e => {
+  if (!armReset) { armReset = true; e.target.textContent = "Confirmer la remise à zéro"; setTimeout(() => { armReset = false; e.target.textContent = "Remettre à zéro"; }, 3000); return; }
+  state.teams.forEach(t => { t.pts = 0; t.badges = []; }); save(); renderScore(); renderPanel(); renderVotes(); armReset = false; e.target.textContent = "Remettre à zéro";
+};
+const panel = $("#panel"), scoreBtn = $("#scoreBtn");
+const togglePanel = () => { panel.hidden = !panel.hidden; scoreBtn.setAttribute("aria-expanded", String(!panel.hidden)); if (!panel.hidden) renderPanel(); };
+scoreBtn.onclick = togglePanel;
+$("#score").onclick = togglePanel;
+
+/* team pickers: data-award → click awards; data-select → selection only */
+const selected = {};
+function renderPickers() {
+  $$(".picker:not(.vp)").forEach((p, k) => {
+    const lbl = p.querySelector(".lbl");
+    p.innerHTML = ""; if (lbl) p.appendChild(lbl);
+    const id = p.id || ("pk" + k);
+    state.teams.forEach((t, i) => {
+      const b = document.createElement("button"); b.type = "button";
+      b.innerHTML = `<span class="dot" style="background:${TCOL[i]}"></span>${esc(t.name)}`;
+      b.setAttribute("aria-pressed", String(selected[id] === i));
+      b.onclick = () => {
+        if (p.dataset.award) { award(i, +p.dataset.award, p.dataset.reason); return; }
+        selected[id] = i; $$("button", p).forEach((x, j) => x.setAttribute("aria-pressed", String(j === i)));
+      };
+      p.appendChild(b);
+    });
+  });
+}
+$$("[data-award-all]").forEach(b => b.onclick = () => { state.teams.forEach((_, i) => award(i, +b.dataset.awardAll, b.dataset.reason)); toast(`<b>+${b.dataset.awardAll}</b> pour tous les groupes`); });
+
+/* ---------- timers ---------- */
+function makeTimer(el) {
+  let total = +el.dataset.timer, left = total, run = false, iv = null;
+  const C = 2 * Math.PI * 90;
+  el.innerHTML = `
+    <div class="ring"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="track" cx="100" cy="100" r="96"/><circle class="prog" cx="100" cy="100" r="90" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg>
+    <div class="read"><div><span></span><small>${el.dataset.label || ""}</small></div></div></div>
+    <div class="row" style="justify-content:center"><button class="btn tadj" type="button" data-a="minus" aria-label="Retirer une minute">− 1 min</button><button class="btn primary" type="button" data-a="go">Démarrer</button><button class="btn" type="button" data-a="reset" aria-label="Remettre à zéro">↺</button><button class="btn tadj" type="button" data-a="plus" aria-label="Ajouter une minute">+ 1 min</button></div>`;
+  const read = $(".read span", el), prog = $(".prog", el), go = $('[data-a="go"]', el);
+  const fmt = s => s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}` : String(s);
+  const draw = () => { read.textContent = fmt(left); prog.style.strokeDashoffset = String(C * (1 - left / total)); el.classList.toggle("ending", run && left <= 5 && left > 0); el.classList.toggle("done", left === 0); };
+  const stop = () => { if (run) duck(false); run = false; clearInterval(iv); go.textContent = left === 0 ? "Terminé" : "Reprendre"; };
+  go.onclick = () => {
+    if (left === 0) return;
+    if (run) { stop(); draw(); return; }
+    run = true; go.textContent = "Pause"; sfx.start(); duck(true);
+    iv = setInterval(() => { left = Math.max(0, left - 1); if (left <= 10 && left > 0) sfx.tick(); draw(); if (left === 0) { stop(); fanfare(); duck(false); el.classList.remove("ending"); } }, 1000);
+  };
+  $('[data-a="reset"]', el).onclick = () => { stop(); left = total; go.textContent = "Démarrer"; draw(); };
+  const adj = d => {
+    if (d < 0 && left <= 60) return;
+    left = Math.max(0, left + d); total = Math.max(1, total + d, left);
+    if (left > 0 && go.textContent === "Terminé") go.textContent = "Reprendre";
+    sfx.pop(); draw();
+  };
+  $('[data-a="minus"]', el).onclick = () => adj(-60);
+  $('[data-a="plus"]', el).onclick = () => adj(60);
+  el._set = s => { stop(); total = left = s; go.textContent = "Démarrer"; draw(); };
+  draw();
+}
+$$("[data-timer]").forEach(makeTimer);
+$$("[data-phase]").forEach(b => b.onclick = () => {
+  $$("[data-phase]").forEach(x => x.classList.toggle("hl", x === b));
+  const t = $("#presTimer"); t._set(+b.dataset.phase); $(".read small", t).textContent = +b.dataset.phase === 300 ? "de présentation" : "de questions";
+});
+
+/* ---------- agenda ---------- */
+$("#agenda").innerHTML = AGENDA.map(([t, n, d, go], i) => d === undefined
+  ? `<div class="agh rv" style="--i:${i + 2}">${t}<span>${n}</span></div>`
+  : `<button type="button" class="ag rv${go ? "" : " pause"}" style="--i:${i + 2}" ${go ? `data-jump="${go}"` : ""}><span class="t">${t}</span><span>${n}</span><span class="d">${d}</span></button>`).join("");
+/* ---------- fidelity ---------- */
+const FID = [
+  ["Papier · 2 minutes", "On discute de la structure : ce qui va où, dans quel ordre.", [95, 90, 12]],
+  ["Outil · 30 minutes", "On discute du contenu : les bons libellés, les bonnes données.", [55, 45, 50]],
+  ["Maquette · plusieurs heures", "On discute des couleurs, et on hésite à tout jeter.", [12, 8, 95]]];
+$("#fidSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-f]"); if (!b) return; const f = +b.dataset.f;
+  $$("#fidSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  $$("#fidStage svg").forEach((s, i) => s.classList.toggle("vis", i === f));
+  $("#fidTitle").textContent = FID[f][0]; $("#fidText").textContent = FID[f][1];
+  ["mSpeed", "mThrow", "mDetail"].forEach((id, k) => $("#" + id).style.width = FID[f][2][k] + "%");
+});
+
+/* ---------- vocabulary game ---------- */
+$("#vocQuiz").onclick = () => {
+  const v = $("#voc"), on = !v.classList.contains("quiz");
+  v.classList.toggle("quiz", on); $$(".vc", v).forEach(c => c.classList.remove("rev"));
+  $("#vocQuiz").textContent = on ? "Tout afficher" : "Jouer : devinez les noms";
+};
+$("#voc").addEventListener("click", e => { const c = e.target.closest(".vc"); if (c && $("#voc").classList.contains("quiz")) { c.classList.add("rev"); sfx.pop(); } });
+
+/* ---------- rules stamps ---------- */
+$("#rules").addEventListener("click", e => { const r = e.target.closest(".rule"); if (r) { r.classList.toggle("stamped"); if (r.classList.contains("stamped")) sfx.stamp(); else sfx.click(); } });
+
+/* ---------- quiz ---------- */
+const QUIZ = [
+  ["Un wireframe sert d'abord à…", ["Choisir les couleurs", "Décider de la structure", "Écrire le code"], 1, "Le wireframe décide de ce qui va où. Les couleurs viendront plus tard."],
+  ["Dans un wireframe, on écrit…", ["Du lorem ipsum", "Les vrais libellés", "Rien du tout"], 1, "Le texte fait partie du design : « Générer l'argumentaire » ne prend pas la même place que « OK »."],
+  ["Comment montrer qu'un élément est important ?", ["En couleur", "Par la taille et l'épaisseur du trait", "Avec une animation"], 1, "Sur papier, la hiérarchie passe par la taille et le trait."],
+  ["Combien d'intentions par écran ?", ["Une", "Trois", "Autant que possible"], 0, "Un écran, une intention : l'utilisateur sait toujours ce qu'on attend de lui."],
+  ["Une donnée client est peut-être obsolète. L'écran doit…", ["La cacher", "Le signaler et dire où la mettre à jour", "L'afficher normalement"], 1, "Une donnée douteuse doit se voir, sinon la décision qui en dépend l'est aussi."]];
+let qi = 0, qDone = false;
+function renderQuiz() {
+  const [q, opts] = QUIZ[qi]; qDone = false;
+  $("#qcard").innerHTML = `<span class="qnum">Question ${qi + 1} sur ${QUIZ.length}</span><h3 class="h-m" style="font-size:clamp(22px,2.4vw,32px)">${q}</h3>
+    <div class="qopts">${opts.map((o, k) => `<button type="button" class="qopt" data-k="${k}">${o}</button>`).join("")}</div><p class="qexp" id="qexp"></p>`;
+  $("#qdots").innerHTML = QUIZ.map((_, k) => `<i class="${k <= qi ? "on" : ""}"></i>`).join("");
+}
+$("#qcard").addEventListener("click", e => {
+  const b = e.target.closest(".qopt"); if (!b || qDone) return;
+  const k = +b.dataset.k, ok = QUIZ[qi][2];
+  if (k === ok) {
+    qDone = true; b.classList.add("ok"); $("#qexp").textContent = QUIZ[qi][3];
+    const t = selected["qPicker"]; if (t !== undefined) { sfx.correct(); award(t, 10, "Quiz"); } else sfx.correct();
+  } else { b.classList.add("ko"); sfx.wrong(); }
+});
+$("#qNext").onclick = () => { qi = (qi + 1) % QUIZ.length; renderQuiz(); };
+renderQuiz();
+
+/* ---------- journey ---------- */
+function faceSVG(x, y, emo) {
+  const m = emo < .7 ? `<path d="M${x-7},${y+9} q7,-7 14,0" fill="none" stroke="#17171c" stroke-width="2.5"/>`
+    : emo < 1.7 ? `<line x1="${x-7}" y1="${y+6}" x2="${x+7}" y2="${y+6}" stroke="#17171c" stroke-width="2.5"/>`
+    : `<path d="M${x-7},${y+3} q7,7 14,0" fill="none" stroke="#17171c" stroke-width="2.5"/>`;
+  return `<circle cx="${x}" cy="${y}" r="19" fill="#fff" stroke="#17171c" stroke-width="2.5"/><circle cx="${x-6}" cy="${y-5}" r="2.2" fill="#17171c"/><circle cx="${x+6}" cy="${y-5}" r="2.2" fill="#17171c"/>${m}`;
+}
+let js = 0;
+function renderJourney() {
+  $("#jr").innerHTML = STAGES.map((s, i) => `<button type="button" class="st" aria-pressed="${i === js}" data-s="${i}"><b>${s.n}</b>${s.name}</button>`).join("");
+  const W = 1200, cw = W / STAGES.length;
+  const pts = STAGES.map((s, i) => [cw * i + cw / 2, 90 - s.emo * 28]);
+  const d = "M" + pts.map(p => p.join(",")).join(" L");
+  $("#curve").setAttribute("preserveAspectRatio", "xMidYMid meet");
+  $("#curve").innerHTML = `<path class="line" d="${d}"/>` + pts.map((p, i) =>
+    `<g class="face" data-s="${i}">${faceSVG(p[0], p[1], STAGES[i].emo)}</g><text x="${p[0]}" y="${Math.min(p[1] + 40, 118)}" text-anchor="middle">${STAGES[i].ressent}</text>`).join("");
+  const s = STAGES[js];
+  $("#jdetail").innerHTML = `
+    <div class="box swap"><h4>Ce qu'elle fait</h4><ul>${s.fait.map(x => `<li>${x}</li>`).join("")}</ul></div>
+    <div class="box think swap" style="animation-delay:.06s"><h4>Ce qu'elle pense</h4><p>${s.pense.join(" ")}</p></div>
+    <div class="box pain swap" style="animation-delay:.12s"><h4>Irritants</h4><ul>${s.pain.map(x => `<li>${x}</li>`).join("")}</ul></div>`;
+}
+document.addEventListener("click", e => { const b = e.target.closest("#jr [data-s], #curve [data-s]"); if (b) { js = +b.dataset.s; renderJourney(); } });
+renderJourney();
+
+/* ---------- flip cards ---------- */
+$("#flips").innerHTML = STAGES.map(s => `
+  <button type="button" class="flip" aria-label="Retourner : ${s.name}"><div class="in">
+    <div class="fc front"><span class="tag"><span>${s.n} · ${s.name}</span><span>Irritant</span></span><p>${s.pain.slice(0, 2).join("<br>")}</p><span class="hint">Cliquez pour retourner ↻</span></div>
+    <div class="fc back"><span class="tag"><span>${s.n} · ${s.name}</span><span>Comment pourrions-nous…</span></span><p>${s.hmw[0].replace(/^Comment pourrions-nous /, "… ")}</p></div>
+  </div></button>`).join("");
+$("#flips").addEventListener("click", e => { const f = e.target.closest(".flip"); if (f) { f.classList.toggle("on"); sfx.flip(); } });
+$("#flipAll").onclick = () => { const all = $$("#flips .flip"), anyOff = all.some(f => !f.classList.contains("on")); all.forEach((f, i) => setTimeout(() => f.classList.toggle("on", anyOff), i * 120)); };
+
+/* ---------- sort game ---------- */
+const PHR = [["Cliquez ici", 0], ["Que feriez-vous maintenant ?", 1], ["C'est simple pourtant", 0], ["Qu'est-ce que vous cherchez ?", 1],
+  ["En fait, ce bouton sert à…", 0], ["Continuez à penser à voix haute", 1], ["Vous avez raté le menu", 0], ["Qu'attendiez-vous ici ?", 1]];
+let pi = 0;
+function showPhrase() {
+  const ph = $("#phrase");
+  if (pi >= PHR.length) { ph.textContent = "Bravo, toutes les phrases sont classées !"; $("#sayNo").disabled = $("#sayYes").disabled = true; return; }
+  ph.textContent = "« " + PHR[pi][0] + " »"; ph.classList.remove("pop", "wrong"); void ph.offsetWidth; ph.classList.add("pop");
+}
+function answer(v) {
+  if (pi >= PHR.length) return;
+  const ph = $("#phrase");
+  if (PHR[pi][1] === v) {
+    const d = document.createElement("div"); d.className = "it"; d.textContent = "« " + PHR[pi][0] + " »";
+    (v ? $("#bYes") : $("#bNo")).appendChild(d);
+    const t = selected["sortPicker"]; if (t !== undefined) { sfx.correct(); award(t, 5, "Mini-jeu"); } else sfx.correct();
+    pi++; showPhrase();
+  } else { ph.classList.remove("wrong"); void ph.offsetWidth; ph.classList.add("wrong"); sfx.wrong(); }
+}
+$("#sayNo").onclick = () => answer(0); $("#sayYes").onclick = () => answer(1);
+showPhrase();
+
+/* ---------- rotation ---------- */
+let round = 1;
+function renderRotation() {
+  const n = state.teams.length, R = 120, cx = 170, cy = 170;
+  const P = state.teams.map((_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+  let arcs = "";
+  state.teams.forEach((_, i) => {
+    const j = (i + round) % n; const [x1, y1] = P[i], [x2, y2] = P[j];
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+    const sx = x1 + ux * 36, sy = y1 + uy * 36, ex = x2 - ux * 40, ey = y2 - uy * 40;
+    const mx = (sx + ex) / 2 + (cx - (sx + ex) / 2) * -0.25, my = (sy + ey) / 2 + (cy - (sy + ey) / 2) * -0.25;
+    arcs += `<path class="flow" d="M${sx},${sy} Q${mx},${my} ${ex},${ey}" fill="none" stroke="#17171c" stroke-width="3"/>`;
+    const ang = Math.atan2(ey - my, ex - mx);
+    const h = (a) => `${ex - 14 * Math.cos(ang + a)},${ey - 14 * Math.sin(ang + a)}`;
+    arcs += `<path d="M${h(.45)} L${ex},${ey} L${h(-.45)}" fill="none" stroke="#17171c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  });
+  const nodes = P.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="32" fill="${getComputedStyle(document.documentElement).getPropertyValue("--t" + (i + 1)).trim()}" stroke="#17171c" stroke-width="3"/><text x="${x}" y="${y + 10}" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="28" fill="#17171c">${letter(i)}</text>`).join("");
+  $("#rot").innerHTML = `<svg viewBox="0 0 340 340" role="img" aria-label="Rotation des groupes, tour ${round}">${arcs}${nodes}</svg>`;
+  $("#pairs").innerHTML = state.teams.map((t, i) => { const j = (i + round) % n; return `<div><span class="pill" style="background:${TCOL[j]}">${esc(state.teams[j].name)}</span> teste le prototype de <span class="pill" style="background:${TCOL[i]}">${esc(t.name)}</span></div>`; }).join("");
+}
+$$("[data-round]").forEach(b => b.onclick = () => { round = +b.dataset.round; $$("[data-round]").forEach(x => x.classList.toggle("hl", x === b)); if (round >= state.teams.length) round = 1; renderRotation(); });
+
+/* ---------- votes ---------- */
+const AWARDS = [["Coup de cœur", "Le prototype que tout le monde aurait aimé faire"], ["Meilleur usage de l'IA", "L'assistant le plus utile pour Nadia"],
+  ["Données les plus fiables", "La solution qui inspire le plus confiance"], ["Parcours le plus clair", "Le testeur ne s'est jamais perdu"]];
+const won = {};
+function renderVotes() {
+  $("#votes").innerHTML = AWARDS.map(([a, d], k) => `
+    <div class="sheet shadow vt rv" style="--i:${k + 2}"><h4>${a}<span>${won[k] !== undefined ? "→ " + esc(state.teams[won[k]]?.name || "") : ""}</span></h4>
+    <p style="color:var(--ink-2);font-size:14px">${d}</p>
+    <div class="picker vp">${state.teams.map((t, i) => `<button type="button" data-v="${k}" data-t="${i}" aria-pressed="${won[k] === i}"><span class="dot" style="background:${TCOL[i]}"></span>${esc(t.name)}</button>`).join("")}</div></div>`).join("");
+}
+$("#votes").addEventListener("click", e => {
+  const b = e.target.closest("[data-v]"); if (!b) return; const k = +b.dataset.v, i = +b.dataset.t;
+  if (won[k] === i) return;
+  if (won[k] !== undefined) { const p = state.teams[won[k]]; p.pts = Math.max(0, p.pts - 30); p.badges = p.badges.filter(x => x !== AWARDS[k][0]); }
+  won[k] = i; award(i, 30, AWARDS[k][0], AWARDS[k][0]); renderVotes(); fanfare();
+});
+renderVotes();
+
+/* ---------- podium & confetti ---------- */
+let revealed = false;
+function renderPodium(anim) {
+  const order = state.teams.map((t, i) => ({ ...t, i })).sort((a, b) => b.pts - a.pts);
+  const max = Math.max(1, ...order.map(o => o.pts));
+  const layout = order.length >= 3 ? [order[1], order[0], order[2], ...order.slice(3)] : order;
+  $("#podium").innerHTML = layout.map(o => {
+    const rank = order.indexOf(o) + 1;
+    const h = revealed ? Math.round(40 + 220 * (o.pts / max)) : 30;
+    return `<div class="pod"><span class="who">${esc(o.name)}</span><span class="pts">${revealed ? o.pts + " pts" : "?"}</span>
+      <div class="blk" style="height:${h}px;background:${TCOL[o.i]}">${revealed ? rank : ""}</div>${o.badges.length && revealed ? `<span class="badge">${o.badges.length} trophée${o.badges.length > 1 ? "s" : ""}</span>` : ""}</div>`;
+  }).join("");
+}
+$("#reveal").onclick = () => { sfx.drumroll(); setTimeout(() => { revealed = true; renderPodium(true); fanfare(); confetti(); }, 1300); };
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = document.createElement("canvas"); c.className = "confetti"; document.body.appendChild(c);
+  const x = c.getContext("2d"); const W = c.width = innerWidth, H = c.height = innerHeight;
+  const cols = ["#ffd23f", "#8fd0ff", "#ff9d8a", "#a6e3a1", "#cdb4ff", "#17171c"];
+  const ps = Array.from({ length: 180 }, () => ({ x: W / 2 + (Math.random() - .5) * 200, y: H * .55, vx: (Math.random() - .5) * 16, vy: -Math.random() * 18 - 6, r: Math.random() * 6 + 4, c: cols[Math.random() * cols.length | 0], a: Math.random() * 6, va: (Math.random() - .5) * .4 }));
+  let f = 0;
+  (function tick() {
+    x.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.vy += .45; p.x += p.vx; p.y += p.vy; p.a += p.va; x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c; x.fillRect(-p.r, -p.r / 2, p.r * 2, p.r); x.restore(); });
+    if (++f < 200) requestAnimationFrame(tick); else c.remove();
+  })();
+}
+
+/* ---------- prototype list ---------- */
+$("#olist").innerHTML = STAGES.filter(s => s.n <= 5).map(s => `<li><b>${s.n}</b>${s.name}</li>`).join("");
+
+/* ---------- frise des modules ---------- */
+const DT = [{ n: "03 · Comprendre" }, { n: "04 · Problématiser et imaginer" }, { n: "05 · Concevoir et valider" }];
+$$(".dtmini").forEach(el => {
+  const c = +el.dataset.dt, done = el.dataset.done !== undefined ? +el.dataset.done : c;
+  el.innerHTML = DT.map((s, i) => `<span class="${i === c ? "cur" : i < done ? "done" : ""}">${i < done && i !== c ? "✓ " : ""}${s.n}</span>`).join("<i></i>");
+});
+
+/* ---------- fait ou interprétation ---------- */
+const FI = [["Nadia ouvre quatre applications avant son premier client.", 1], ["Nadia n'aime pas la technologie.", 0],
+  ["Elle note ses rendez-vous dans un cahier.", 1], ["Elle est désorganisée.", 0],
+  ["Elle a dit : « Je lis les notes produit le soir. »", 1], ["Les conseillers ne lisent pas les notes produit.", 0],
+  ["Khalid a appelé trois fois cette semaine pour son dossier.", 1], ["Les clients sont mécontents du service.", 0]];
+let fii = 0;
+function showFi() {
+  const ph = $("#fiPhrase");
+  if (fii >= FI.length) { ph.textContent = "Bravo, tout est classé !"; $("#fiNoBtn").disabled = $("#fiYesBtn").disabled = true; return; }
+  ph.textContent = FI[fii][0]; ph.classList.remove("pop", "wrong"); void ph.offsetWidth; ph.classList.add("pop");
+}
+function answerFi(v) {
+  if (fii >= FI.length) return;
+  const ph = $("#fiPhrase");
+  if (FI[fii][1] === v) {
+    const d = document.createElement("div"); d.className = "it"; d.textContent = FI[fii][0];
+    (v ? $("#fiYes") : $("#fiNo")).appendChild(d);
+    const t = selected["fiPicker"]; sfx.correct(); if (t !== undefined) award(t, 5, "Fait ou interprétation");
+    fii++; showFi();
+  } else { ph.classList.remove("wrong"); void ph.offsetWidth; ph.classList.add("wrong"); sfx.wrong(); }
+}
+$("#fiNoBtn").onclick = () => answerFi(0); $("#fiYesBtn").onclick = () => answerFi(1);
+showFi();
+
+/* ---------- fragments de terrain ---------- */
+const FRAG = [
+  ["v", "« Le matin, j'ouvre quatre applications avant même d'avoir vu mon premier client. »"],
+  ["o", "Tient un cahier où elle note à la main ses rendez-vous et ses objectifs."],
+  ["c", "<b>7 outils</b>utilisés dans une même journée."],
+  ["v", "« Les notes produit font 20 pages. Je les lis le soir, chez moi. »"],
+  ["c", "<b>6 minutes</b>en moyenne entre deux interruptions."],
+  ["v", "« Je ne sais jamais si le client a déjà une fiche. Alors j'en recrée une. »"],
+  ["o", "Pose ses questions de découverte de mémoire, dans un ordre différent à chaque client."],
+  ["v", "« Une CIN expirée, je le découvre souvent au moment de signer. »"],
+  ["c", "<b>1 fiche sur 4</b>contient au moins une information périmée."],
+  ["v", "« Quand le client trouve que c'est trop cher, j'improvise. »"],
+  ["o", "Calcule les mensualités sur la calculatrice de son téléphone, devant le client."],
+  ["v", "« Pour un dossier de crédit, j'appelle le back-office trois fois par semaine. »"],
+  ["o", "Garde le numéro des clients inquiets sur un post-it collé à l'écran."],
+  ["v", "« Mes meilleurs clients, je les connais. Les autres, je n'ai pas le temps de les découvrir. »"],
+  ["c", "<b>28 clients</b>à équiper chaque mois : c'est son objectif."],
+  ["v", "« Ce que j'aime, c'est quand un client revient me dire merci. »"],
+  ["o", "Arrive 20 minutes avant l'ouverture pour préparer sa journée."],
+  ["v", "« Les outils changent, mais personne ne nous demande notre avis. »"]];
+const FK = { v: "Verbatim", o: "Observation", c: "Chiffre" };
+$("#frags").innerHTML = FRAG.map(([k, t], i) => `<div class="fr ${k}"><span class="k"><span>F${i + 1}</span><span>${FK[k]}</span></span><p>${t}</p></div>`).join("");
+
+/* ---------- choix de la question et de l'idée ---------- */
+if (!state.hmw || typeof state.hmw !== "object") state.hmw = {};
+if (!state.idea || typeof state.idea !== "object") state.idea = {};
+const HMW_ALL = STAGES.flatMap(s => s.hmw.map((q, k) => ({ id: s.n + "-" + k, q })));
+const hmwText = id => { const h = HMW_ALL.find(x => x.id === id); return h ? h.q : ""; };
+function renderHmw() {
+  const pick = $("#hmwPick"), rec = $("#recap"), ip = $("#ideaPick"); if (!pick || !rec || !ip) return;
+  pick.innerHTML = state.teams.map((t, i) => `
+    <div class="hmwr"><span class="dot" style="background:${TCOL[i]}"></span><span class="nm">${esc(t.name)}</span>
+      <select data-hmw="${i}" aria-label="Question de ${esc(t.name)}"><option value="">Choisir la question retenue…</option>${STAGES.map(s =>
+        `<optgroup label="${s.n} · ${esc(s.name)}">${s.hmw.map((q, k) => `<option value="${s.n}-${k}"${state.hmw[i] === s.n + "-" + k ? " selected" : ""}>${esc(q)}</option>`).join("")}</optgroup>`).join("")}</select></div>`).join("");
+  ip.innerHTML = state.teams.map((t, i) => {
+    const q = hmwText(state.hmw[i]);
+    return `<div class="hmwr"><span class="dot" style="background:${TCOL[i]}"></span><span class="nm">${esc(t.name)}</span>
+      ${q ? `<span class="qq" style="font-size:19px">${esc(q)}</span>` : ""}
+      <input data-idea="${i}" value="${esc(state.idea[i] || "")}" placeholder="Notre idée aide Nadia à… grâce à…" aria-label="Idée de ${esc(t.name)}"></div>`;
+  }).join("");
+  rec.innerHTML = state.teams.map((t, i) => {
+    const q = hmwText(state.hmw[i]), d = state.idea[i];
+    return `<div class="hmwr"><span class="dot" style="background:${TCOL[i]}"></span><span class="nm">${esc(t.name)}</span><span class="qq${q ? "" : " empty"}">${q ? esc(q) : "Votre question d'hier"}</span><span class="qi${d ? "" : " empty"}">${d ? "💡 " + esc(d) : "Votre idée d'hier"}</span></div>`;
+  }).join("");
+}
+$("#hmwPick").addEventListener("change", e => { const s = e.target.closest("[data-hmw]"); if (s) { state.hmw[+s.dataset.hmw] = s.value; save(); renderHmw(); sfx.pop(); } });
+$("#ideaPick").addEventListener("change", e => { const s = e.target.closest("[data-idea]"); if (s) { state.idea[+s.dataset.idea] = s.value.trim(); save(); renderHmw(); sfx.pop(); } });
+
+/* ---------- persona : étape en cours ---------- */
+$("#pst3").addEventListener("click", e => {
+  const b = e.target.closest("[data-pst]"); if (!b) return;
+  const box = $("#pst3"), was = b.classList.contains("on");
+  $$(".pst", box).forEach(x => x.classList.remove("on"));
+  box.classList.toggle("focus", !was); if (!was) b.classList.add("on");
+  sfx.pop();
+});
+
+/* ---------- navigation ---------- */
+const slides = $$(".slide");
+let cur = 0;
+$("#progress").innerHTML = slides.map((s, i) => `<button type="button" aria-label="${i + 1}. ${s.dataset.name}" title="${s.dataset.name}"></button>`).join("");
+function go(n, fromHash) {
+  n = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, i) => { s.classList.toggle("on", i === n); s.classList.toggle("prev", i < n); s.setAttribute("aria-hidden", String(i !== n)); s.inert = i !== n; });
+  $$("#progress button").forEach((b, i) => { b.classList.toggle("done", i < n); b.classList.toggle("cur", i === n); });
+  $("#count").textContent = `${n + 1} / ${slides.length}`;
+  if (n !== cur && !fromHash) sfx.whoosh();
+  cur = n;
+  if (!fromHash) { try { history.replaceState(null, "", "#slide-" + (n + 1)); } catch (e) { location.hash = "slide-" + (n + 1); } }
+}
+$("#progress").addEventListener("click", e => { const b = e.target.closest("button"); if (b) go($$("#progress button").indexOf(b)); });
+$("#prevBtn").onclick = () => go(cur - 1); $("#nextBtn").onclick = () => go(cur + 1);
+document.addEventListener("click", e => {
+  const j = e.target.closest("[data-jump]"); if (j) go(slides.findIndex(s => s.dataset.name === j.dataset.jump));
+  const g = e.target.closest('[data-go="next"]'); if (g) go(cur + 1);
+});
+document.addEventListener("pointerdown", e => { if (e.target.closest(".btn, .pill, .picker button, .seg button, .st, .ag, .sq")) sfx.click(); });
+document.addEventListener("keydown", e => {
+  if (e.target.matches("input, textarea")) return;
+  if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); go(cur + 1); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(cur - 1); }
+  else if (e.key.toLowerCase() === "s") togglePanel();
+  else if (e.key === "Home") go(0); else if (e.key === "End") go(slides.length - 1);
+});
+let tx = null;
+$("#deck").addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, { passive: true });
+$("#deck").addEventListener("touchend", e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 60) go(cur + (dx < 0 ? 1 : -1)); tx = null; });
+$("#musBtn").onclick = () => setMusic(!prefs.music);
+$("#sfxBtn").onclick = () => { prefs.sfx = !prefs.sfx; savePrefs(); renderAudioBtns(); if (prefs.sfx) sfx.pop(); };
+renderAudioBtns();
+$("#fsBtn").onclick = () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {} };
+const fromHash = () => { const m = location.hash.match(/^#slide-(\d+)$/); return m ? +m[1] - 1 : 0; };
+window.addEventListener("hashchange", () => go(fromHash(), true));
+
+renderScore();
+go(fromHash(), true);
+})();
+</script>
+
+</body>
+</html>
