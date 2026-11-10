@@ -1022,6 +1022,21 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
+    <section class="slide" data-name="Matrice impact effort">
+      <div class="dtmini rv" data-dt="1"></div>
+      <div class="split" style="align-items:center">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="eyebrow rv">Prioriser · l'outil</div>
+          <h2 class="h-l rv" style="--i:1">La matrice impact / effort</h2>
+          <p class="lead rv" style="--i:2">On ne peut pas tout faire. On place chaque idée selon deux questions :</p>
+          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>Impact :</b> à quel point l'idée règle le problème du persona ?</div>
+          <div class="sheet rv" style="--i:4;padding:14px 18px;border-left:8px solid var(--ink)"><b>Effort :</b> combien de temps, d'argent et d'équipes faut-il pour la réaliser ?</div>
+          <p class="hand rv" style="--i:5">On s'entraîne d'abord avec un jeu.</p>
+        </div>
+        <div class="rv" style="--i:2"><div class="mx big"><span class="ay">Impact ↑</span><div class="mg"><div class="mq gr"><b>Grands projets</b><span>Fort impact, gros effort : on planifie.</span></div><div class="mq qw"><b>Gains rapides</b><span>Fort impact, peu d'effort : on fonce.</span></div><div class="mq ou"><b>À oublier</b><span>Peu d'impact, gros effort : on laisse de côté.</span></div><div class="mq pp"><b>Petits plus</b><span>Peu d'impact, peu d'effort : si on a le temps.</span></div></div><span class="ax">Effort →</span></div></div>
+      </div>
+    </section>
+
     <section class="slide" data-name="Jeu de la matrice">
       <div class="dtmini rv" data-dt="1"></div>
       <div class="row rv" style="justify-content:space-between;align-items:flex-end">
@@ -1048,22 +1063,7 @@ canvas.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; 
       </div>
     </section>
 
-    <section class="slide" data-name="Matrice impact effort">
-      <div class="dtmini rv" data-dt="1"></div>
-      <div class="split" style="align-items:center">
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <div class="eyebrow rv">Ce que vous venez de faire</div>
-          <h2 class="h-l rv" style="--i:1">La matrice impact / effort</h2>
-          <p class="lead rv" style="--i:2">On ne peut pas tout faire. On place chaque idée selon deux questions :</p>
-          <div class="sheet rv" style="--i:3;padding:14px 18px;border-left:8px solid var(--hl)"><b>Impact :</b> à quel point l'idée règle le problème du persona ?</div>
-          <div class="sheet rv" style="--i:4;padding:14px 18px;border-left:8px solid var(--ink)"><b>Effort :</b> combien de temps, d'argent et d'équipes faut-il pour la réaliser ?</div>
-          <p class="hand rv" style="--i:5">Ce que vous avez fait avec la sieste, faites-le maintenant avec vos idées.</p>
-        </div>
-        <div class="rv" style="--i:2"><div class="mx big"><span class="ay">Impact ↑</span><div class="mg"><div class="mq gr"><b>Grands projets</b><span>Fort impact, gros effort : on planifie.</span></div><div class="mq qw"><b>Gains rapides</b><span>Fort impact, peu d'effort : on fonce.</span></div><div class="mq ou"><b>À oublier</b><span>Peu d'impact, gros effort : on laisse de côté.</span></div><div class="mq pp"><b>Petits plus</b><span>Peu d'impact, peu d'effort : si on a le temps.</span></div></div><span class="ax">Effort →</span></div></div>
-      </div>
-    </section>
-
-    <section class="slide" data-name="Matrice exercice">
+        <section class="slide" data-name="Matrice exercice">
       <div class="dtmini rv" data-dt="1"></div>
       <div class="split" style="grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr)">
         <div style="display:flex;flex-direction:column;gap:16px">
@@ -1496,7 +1496,7 @@ const AGENDA = [
   ["Jour 1","Modules 03 et 04"],
   ["0:00","La formation","15 min","La formation"],["0:15","03 · Construire le persona","45 min","Persona"],
   ["1:00","Pause","10 min",null],["1:10","04 · Des problèmes aux questions","35 min","Des problèmes aux questions"],
-  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · Jeu de la matrice","15 min","Jeu de la matrice"],["2:15","04 · Prioriser ses idées","20 min","Matrice impact effort"],
+  ["1:45","04 · Une question, une idée","15 min","Idéation"],["2:00","04 · La matrice et son jeu","20 min","Matrice impact effort"],["2:20","04 · Prioriser ses idées","15 min","Matrice exercice"],
   ["2:35","Clôture du jour 1","10 min","Fin du jour 1"],
   ["Jour 2","Module 05"],
   ["0:00","Rappel et brise-glace","20 min","Rappel"],["0:20","Pourquoi le papier","20 min","Fidélité"],
@@ -1509,7 +1509,7 @@ const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 
 /* ---------- state ---------- */
 const KEY = "crayon-ecran-abb-2j";
-let state = { teams: ["A","B","C","D"].map(l => ({ name: "Groupe " + l, pts: 0, badges: [] })) };
+let state = { teams: ["A","B"].map(l => ({ name: "Groupe " + l, pts: 0, badges: [] })) };
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.teams) && s.teams.length) state = s; } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
 const letter = i => String.fromCharCode(65 + i);
